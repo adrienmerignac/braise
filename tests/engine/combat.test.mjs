@@ -195,7 +195,7 @@ test('repli : l’événement dit qui a frappé, combien, et la vie restante de 
 });
 
 // --- Catalogue d'ennemis de forêt ---
-test('ennemis : 6 victoires de suite donnent Éclaireur, Pillard, Traqueur, Éclaireur, Pillard, Traqueur', () => {
+test('ennemis : 6 victoires de suite donnent Éclaireur, Pillard, Traqueur, Éclaireur, Pillard, puis Pillard après le changement d’étage', () => {
   let s = { ...fresh(0), level: 20 }, f = newFight(s).f; // niveau haut : aucun repli
   assert.equal(enemyKind(s), 'eclaireur', 'étage 1 sans victoire');
   const vus = [];
@@ -206,8 +206,8 @@ test('ennemis : 6 victoires de suite donnent Éclaireur, Pillard, Traqueur, Écl
     ({ s, f } = r);
     if (s.kills >= KILLS_PER_STAGE) s = { ...s, stage: s.stage + 1, kills: 0 }; // le gardien est hors sujet ici
   }
-  assert.deepEqual(vus.slice(0, 5), ['eclaireur', 'pillard', 'traqueur', 'eclaireur', 'pillard']);
-  assert.equal(vus.length, 6);
+  // Le changement d'étage décale la boucle : la 6e victoire (étage 2, 0 victoire) tombe sur (2 − 1 + 0) % 3 = Pillard.
+  assert.deepEqual(vus, ['eclaireur', 'pillard', 'traqueur', 'eclaireur', 'pillard', 'pillard']);
 });
 
 test('ennemis : PV, riposte et or de chaque type aux étages 1 et 5', () => {
@@ -249,7 +249,13 @@ test('ennemis : une sauvegarde braise-v2 existante recharge le même type et des
   const f = restoreFight(s, fight);
   assert.equal(f.enemyMax, Math.floor((32 + 14 * 3) * 0.7));
   assert.equal(f.enemyMax, enemyMaxHP(s, false));
-  assert.equal(parseSave(JSON.stringify({ ...JSON.parse(brut), enemyHP: 52 }), 2000).status, 'repaired', 'PV au-dessus du maximum du type : réparés');
+  const ancien = parseSave(JSON.stringify({ ...JSON.parse(brut), enemyHP: 74 }), 2000);
+  assert.equal(ancien.status, 'ok', 'PV d’avant les types (32 + 14 × 3 = 74) : partie saine');
+  const fa = restoreFight(ancien.s, ancien.fight);
+  assert.equal(fa.enemyHP, 51);
+  assert.equal(fa.enemyMax, 51);
+  assert.equal(parseSave(JSON.stringify({ ...JSON.parse(brut), enemyHP: 75 }), 2000).status, 'repaired', 'au-dessus du maximum de base : réparé');
+  assert.equal(parseSave(JSON.stringify({ ...JSON.parse(brut), enemyHP: 50.5 }), 2000).status, 'repaired', 'non entier : réparé');
   const eclaireur = { ...JSON.parse(brut), stage: 1, kills: 0, enemyHP: 46 };
   const r = parseSave(JSON.stringify(eclaireur), 2000);
   assert.equal(r.status, 'ok');
