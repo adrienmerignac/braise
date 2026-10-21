@@ -1,4 +1,5 @@
 import { createSceneQueue } from './engine/scene-queue.js';
+import { sonsPourEvenement } from './engine/sons.js';
 // Direction rows belong to each sheet, not to the LPC family as a whole.
 const HERO_ROWS = Object.freeze({ east: 3 });
 // Redshrike’s goblinsword.png faces right on row 1 and left on row 3.
@@ -15,6 +16,9 @@ let failed = false;
 let time = 0, previous = 0, paused = false, attackAt = -5000, spawnAt = 0;
 let dying = false, strong = false, isBoss = false, damage = 0, taken = 0, heroRatio = 1;
 const sparks = [];
+// Sons planifiés sur l'horloge de la scène (figée en pause) : un son par impact ou pas affiché, jamais rattrapé s'il est en retard.
+const SON_RETARD_MAX_MS = 150;
+const sons = [];
 // Les événements du jeu sont tamponnés jusqu'à la fin du chargement des images (et de la chute en cours).
 const queue = createSceneQueue((type, detail) => {
   if (type === 'combat') {
@@ -22,6 +26,7 @@ const queue = createSceneQueue((type, detail) => {
     damage = detail.damage; taken = detail.taken || 0; isBoss = detail.boss; heroRatio = detail.health;
     for (let i = 0; i < (strong ? 30 : 10); i++) sparks.push({start:time + 330,x:556,y:270,vx:Math.cos(i*2.4)*(25+i*3),vy:-30-i*5});
   } else if (type === 'spawn') { dying = false; isBoss = detail.boss; spawnAt = time; }
+  for (const { nom, delaiMs } of sonsPourEvenement(type, detail, { mouvementReduit: reduced.matches })) sons.push({ nom, at: time + delaiMs });
 });
 function receive(type, detail) {
   if (type === 'braise:pause') paused = detail;
@@ -76,9 +81,21 @@ function fire(t) {
   if(!reduced.matches)for(let i=0;i<8;i++){const f=(t/1200+i*.16)%1;ctx.globalAlpha=1-f;ctx.fillStyle='#ffcf76';ctx.fillRect(x+Math.sin(i*8+f*4)*18,y-f*100,2,3);}
   ctx.globalAlpha=1;
 }
+function playDueSounds() {
+  const jouees = new Set();
+  for (let i = sons.length - 1; i >= 0; i--) {
+    const son = sons[i];
+    if (son.at > time) continue;
+    sons.splice(i, 1);
+    if (time - son.at > SON_RETARD_MAX_MS || jouees.has(son.nom)) continue;
+    jouees.add(son.nom);
+    window.dispatchEvent(new CustomEvent('braise:son', { detail: { nom: son.nom } }));
+  }
+}
 function draw(now) {
   const dt=previous?Math.min(50,now-previous):0;previous=now;if(!paused)time+=dt;
   queue.flush(time);
+  playDueSounds();
   const t=reduced.matches?0:time, age=time-attackAt;
   ctx.save();
   if(strong&&age>280&&age<520&&!reduced.matches)ctx.translate(Math.sin(age)*3,Math.cos(age)*2);
