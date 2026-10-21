@@ -3,7 +3,7 @@
 // Chaque fonction renvoie { s, f, events } sans modifier ses arguments ; game.js applique les événements.
 import { KILLS_PER_STAGE, attack, maxHP, reward, cost, zoneDeEtage } from './state.js';
 import {
-  XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, ENEMY_KINDS, ENEMY_CATALOG,
+  XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, BESTIAIRE, ENEMY_CATALOG,
   ZONES, RETALIATION_BASE, RETALIATION_BOSS_BASE, RETALIATION_PER_STAGE, RETALIATION_ARMOR_REDUCTION,
 } from './balance.js';
 import { soinVictoire } from './talents.js';
@@ -14,16 +14,34 @@ export {
 };
 
 export const xpNeeded = s => s.level * XP_PER_LEVEL;
+// Bestiaire de la zone courante (zone inconnue : forêt).
+export const bestiaire = s => BESTIAIRE[s.zone] || BESTIAIRE.foret;
 // Type de l'ennemi normal courant : fonction pure de l'état persisté, rien de plus à sauvegarder.
-export const enemyKind = s => ENEMY_KINDS[(s.stage - 1 + s.kills) % ENEMY_KINDS.length];
+export const enemyKind = s => { const types = bestiaire(s).types; return types[(s.stage - 1 + s.kills) % types.length]; };
+export const bossName = s => bestiaire(s).gardien;
 const kindOf = s => ENEMY_CATALOG[enemyKind(s)];
+// Dégâts du héros : le gardien ne porte aucun modificateur ; un ennemi ordinaire module l'attaque auto (`coups`) ou la frappe de braise (`braise`).
+export function heroDamage(s, boss, mult = 1) {
+  const base = attack(s) * mult;
+  if (boss) return base;
+  const m = (mult > 1 ? kindOf(s).braise : kindOf(s).coups) ?? 1;
+  return m === 1 ? base : Math.max(1, Math.floor(base * m));
+}
+// Modificateur en clair pour l'affichage ; vide si l'ennemi n'en a pas.
+export function modificateurTexte(s) {
+  const k = kindOf(s), parts = [];
+  if (k.coups !== undefined) parts.push(k.coups < 1 ? 'résiste aux coups' : 'fragile aux coups');
+  if (k.braise !== undefined) parts.push(k.braise < 1 ? 'résiste à la braise' : 'vulnérable à la braise');
+  const texte = parts.join(' · ');
+  return texte.charAt(0).toUpperCase() + texte.slice(1);
+}
 export const enemyMaxHP = (s, boss) => Math.floor((ENEMY_BASE_HP + s.stage * ENEMY_HP_PER_STAGE) * (boss ? BOSS_HP_MULT : kindOf(s).hp));
 export const retaliation = (s, boss) => Math.max(1, Math.floor(((boss ? RETALIATION_BOSS_BASE : RETALIATION_BASE) + s.stage * RETALIATION_PER_STAGE) * (boss ? 1 : kindOf(s).retaliation) - s.armor * RETALIATION_ARMOR_REDUCTION - bonusEquipement(s.equipe).reductionRiposte));
 export const victoryGold = (s, boss) => Math.floor(reward(s) * (boss ? BOSS_GOLD_MULT : kindOf(s).gold));
 
 // Évaluation du danger, sans compter la compétence : coups pour vaincre l'ennemi vs coups que le héros encaisse.
 export function assess(s, f) {
-  const attackPerHit = attack(s);
+  const attackPerHit = heroDamage(s, f.boss);
   const hitsToWin = Math.max(1, Math.ceil(f.enemyHP / attackPerHit));
   const hitsToSurvive = Math.max(0, Math.ceil(f.hp / retaliation(s, f.boss)));
   const danger = hitsToSurvive < hitsToWin ? 'Mortel' : hitsToSurvive < 2 * hitsToWin ? 'Serré' : 'Sûr';
@@ -61,7 +79,8 @@ export function newFight(s) {
 export function restoreFight(s, saved = {}) {
   const hp = saved.hp ?? maxHP(s);
   if (saved.enemyHP === undefined) return { ...newFight(s).f, hp };
-  return { hp, boss: saved.boss, enemyHP: saved.enemyHP, enemyMax: enemyMaxHP(s, saved.boss) };
+  const enemyMax = enemyMaxHP(s, saved.boss);
+  return { hp, boss: saved.boss, enemyHP: Math.min(saved.enemyHP, enemyMax), enemyMax };
 }
 
 export function startBoss(s, f) {
@@ -79,7 +98,7 @@ export function buyUpgrade(s, f, kind) {
 
 // `rng` (réel dans [0, 1)) est injecté par game.js ; sans lui, aucun butin n'est tiré.
 export function strike(s, f, mult = 1, rng = null) {
-  const damage = attack(s) * mult;
+  const damage = heroDamage(s, f.boss, mult);
   const enemyHP = f.enemyHP - damage;
   const defeated = enemyHP <= 0;
   const taken = defeated ? 0 : retaliation(s, f.boss);

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseSave } from '../../dist/engine/save.js';
 import { fresh, attack, cost, reward, maxHP, KILLS_PER_STAGE } from '../../dist/engine/state.js';
-import { enemyKind, enemyMaxHP, victoryGold, restoreFight, newFight, strike, gainXP, buyUpgrade, startBoss, retaliation, XP_BOSS, BOSS_GOLD_MULT, assess, assessGuardian } from '../../dist/engine/combat.js';
+import { enemyKind, heroDamage, bossName, modificateurTexte, enemyMaxHP, victoryGold, restoreFight, newFight, strike, gainXP, buyUpgrade, startBoss, retaliation, XP_BOSS, BOSS_GOLD_MULT, assess, assessGuardian } from '../../dist/engine/combat.js';
 
 test('victoire d’un ennemi : or, expérience, kill, nouvel ennemi', () => {
   const s = fresh(0);
@@ -260,4 +260,65 @@ test('ennemis : une sauvegarde braise-v2 existante recharge le même type et des
   const r = parseSave(JSON.stringify(eclaireur), 2000);
   assert.equal(r.status, 'ok');
   assert.equal(restoreFight(r.s, r.fight).enemyMax, 46, 'Éclaireur inchangé');
+});
+
+// --- Bestiaire par zone (M4.3a) ---
+test('bestiaire : la forêt garde ses PV, riposte, or et son ordre aux étages 1 à 5', () => {
+  const attendu = { eclaireur: [1, 1, 1], pillard: [0.7, 1.4, 1.2], traqueur: [1.3, 0.8, 1.3] };
+  const ordre = ['eclaireur', 'pillard', 'traqueur'];
+  for (let stage = 1; stage <= 5; stage++) for (let kills = 0; kills < 5; kills++) {
+    const s = { ...fresh(0), stage, kills }, kind = enemyKind(s), [hp, ret, or] = attendu[kind];
+    assert.equal(kind, ordre[(stage - 1 + kills) % 3]);
+    assert.equal(enemyMaxHP(s, false), Math.floor((32 + 14 * stage) * hp));
+    assert.equal(retaliation(s, false), Math.max(1, Math.floor((3 + stage * 1.4) * ret - 0)));
+    assert.equal(victoryGold(s, false), Math.floor((8 + 3 * stage) * or));
+  }
+});
+
+test('bestiaire : ruines et cryptes ont leurs types, PV, riposte et or', () => {
+  const cas = [
+    ['ruines', 6, ['squelette-ruines', 'chauve-souris', 'gelee'], [1.1, 0.6, 1.5], [1, 1.5, 0.7], [1.1, 1.2, 1.3]],
+    ['cryptes', 11, ['squelette-cendre', 'spectre', 'goule'], [1.2, 0.8, 1.4], [1.1, 1.6, 1.2], [1.2, 1.3, 1.4]],
+  ];
+  for (const [zone, stage, types, hps, rets, golds] of cas) types.forEach((kind, i) => {
+    const s = { ...fresh(0), zone, stage: stage + 0, kills: (3 - ((stage - 1) % 3) + i) % 3 };
+    assert.equal(enemyKind(s), kind);
+    assert.equal(enemyMaxHP(s, false), Math.floor((32 + 14 * stage) * hps[i]));
+    assert.equal(retaliation(s, false), Math.max(1, Math.floor((3 + stage * 1.4) * rets[i])));
+    assert.equal(victoryGold(s, false), Math.floor((8 + 3 * stage) * golds[i]));
+  });
+});
+
+test('bestiaire : le squelette prend ×0,75 en attaque auto et ×1,5 sur la braise, au moins 1', () => {
+  const s = { ...fresh(0), zone: 'ruines', stage: 6, kills: 1 }; // attaque 8
+  assert.equal(enemyKind(s), 'squelette-ruines');
+  const f = { hp: 100, boss: false, enemyHP: 1000, enemyMax: 1000 };
+  assert.equal(strike(s, f).events[0].damage, 6);
+  assert.equal(strike(s, f, 4).events[0].damage, 48);
+  assert.equal(heroDamage({ ...s, level: 1 }, false), 6);
+  const gelee = { ...s, kills: 0 };
+  assert.equal(enemyKind(gelee), 'gelee');
+  assert.equal(strike(gelee, f).events[0].damage, 8);
+  assert.equal(strike(gelee, f, 4).events[0].damage, 19);
+  assert.ok(heroDamage({ ...s, zone: 'cryptes', stage: 11 }, false) >= 1);
+  assert.equal(strike(s, { ...f, boss: true }).events[0].damage, 8, 'le gardien ne porte aucun modificateur');
+});
+
+test('bestiaire : chaque gardien a son nom et garde PV ×5 / or ×8', () => {
+  for (const [zone, stage, nom] of [['foret', 1, 'Le Gardien de braise'], ['ruines', 6, 'Sentinelle engloutie'], ['cryptes', 11, 'Gardien des cendres']]) {
+    const s = { ...fresh(0), zone, stage };
+    assert.equal(bossName(s), nom);
+    assert.equal(enemyMaxHP(s, true), (32 + 14 * stage) * 5);
+    assert.equal(victoryGold(s, true), (8 + 3 * stage) * 8);
+  }
+});
+
+test('bestiaire : zone inconnue = forêt ; reprise en ruines avec PV ennemis au-dessus du maximum', () => {
+  assert.equal(enemyKind({ ...fresh(0), zone: 'inconnue' }), 'eclaireur');
+  const s = { ...fresh(0), zone: 'ruines', stage: 6, kills: 1 };
+  const f = restoreFight(s, { hp: 50, boss: false, enemyHP: 99999 });
+  assert.equal(f.enemyMax, enemyMaxHP(s, false));
+  assert.ok(f.enemyHP <= f.enemyMax, 'PV bornés au maximum');
+  assert.ok(Number.isFinite(strike(s, f).f.enemyHP));
+  assert.equal(modificateurTexte(s), 'Résiste aux coups · vulnérable à la braise');
 });

@@ -20,14 +20,26 @@ export const BOSS_GOLD_MULT = 8, BOSS_HP_MULT = 5;
 export const HEAL_ON_VICTORY = 8, HEAL_ON_ARMOR = 35;
 export const ENEMY_BASE_HP = 32, ENEMY_HP_PER_STAGE = 14;
 
-// Ennemis normaux de la forêt : multiplicateurs de PV, de riposte et d'or. Le type courant est une fonction pure de
-// l'état persisté (voir `enemyKind` dans combat.js) ; le gardien ignore ces valeurs.
-export const ENEMY_KINDS = ['eclaireur', 'pillard', 'traqueur'];
+// Bestiaire (M4.3a) : multiplicateurs de PV, de riposte et d'or par type ; `coups` et `braise` (1 par défaut) multiplient les dégâts du héros
+// (attaque auto, resp. frappe de braise). Le type courant est une fonction pure de l'état persisté (voir `enemyKind` dans combat.js) ;
+// le gardien ignore ces valeurs et ne change que de nom selon la zone.
 export const ENEMY_CATALOG = {
   eclaireur: { name: 'Éclaireur gobelin', hp: 1, retaliation: 1, gold: 1 },
   pillard: { name: 'Pillard des Murmures', hp: 0.7, retaliation: 1.4, gold: 1.2 },
   traqueur: { name: 'Traqueur des sous-bois', hp: 1.3, retaliation: 0.8, gold: 1.3 },
+  'squelette-ruines': { name: 'Squelette des ruines', hp: 1.1, retaliation: 1, gold: 1.1, coups: 0.75, braise: 1.5 },
+  'chauve-souris': { name: 'Chauve-souris des voûtes', hp: 0.6, retaliation: 1.5, gold: 1.2 },
+  gelee: { name: 'Gelée des citernes', hp: 1.5, retaliation: 0.7, gold: 1.3, braise: 0.6 },
+  'squelette-cendre': { name: 'Squelette de cendre', hp: 1.2, retaliation: 1.1, gold: 1.2, coups: 0.75, braise: 1.5 },
+  spectre: { name: 'Spectre des caveaux', hp: 0.8, retaliation: 1.6, gold: 1.3, braise: 1.5 },
+  goule: { name: 'Goule des cryptes', hp: 1.4, retaliation: 1.2, gold: 1.4, coups: 0.85 },
 };
+export const BESTIAIRE = {
+  foret: { types: ['eclaireur', 'pillard', 'traqueur'], gardien: 'Le Gardien de braise' },
+  ruines: { types: ['squelette-ruines', 'chauve-souris', 'gelee'], gardien: 'Sentinelle engloutie' },
+  cryptes: { types: ['squelette-cendre', 'spectre', 'goule'], gardien: 'Gardien des cendres' },
+};
+export const ENEMY_KINDS = BESTIAIRE.foret.types;
 
 // Riposte : (base + étage × croissance − armure × réduction), au moins 1
 export const RETALIATION_BASE = 3, RETALIATION_BOSS_BASE = 10;
