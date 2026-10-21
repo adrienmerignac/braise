@@ -13,6 +13,13 @@ Le contrôle vérifie syntaxe des modules JS, références locales HTML, liens d
 
 Équilibrage : `node tools/simulate.mjs [minutes]` joue le premier parcours sur le moteur pur (politique décrite en tête du script) et imprime, en secondes de jeu, victoire moyenne à l'étage 1, premier achat, premier gardien, ouverture des ruines (`ruinesSeconds`, gardien 5) et des cryptes (`cryptesSeconds`, gardien 10), gardien de l’étage 15 (`gardien15Seconds`) et étage atteint ; les constantes sont dans `dist/engine/balance.js`.
 
+## Recette de référence
+
+`tests/engine/recette-reprise.test.mjs` rejoue dans l'interface (`dist/game.js` piloté par `tests/engine/horloge.mjs`) les deux parcours de référence :
+
+- **Partie migrée** : une partie `braise-v1` avancée (étage 9) s'ouvre sans perte, est réécrite en version 7 avec les défauts d'équipement, de talents, de zone, d'objectifs et de récits ; inventaire, talents et carte s'ouvrent et se ferment ; export puis import confirmé rendent la même partie.
+- **Retour après huit heures** : une partie v7 en cours (zone, talents, objet équipé) relancée avec le même stockage après 8 h puis 30 h affiche le panneau d'absence avec les mêmes gains (plafond `OFFLINE_CAP_SECONDS`) ; un second lancement ne recrédite rien ; une horloge reculée ne donne aucun gain.
+
 ## Recette navigateur
 
 ```sh
