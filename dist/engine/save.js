@@ -4,7 +4,7 @@ import { AUDIO_DEFAUT, reglagesValides } from './audio.js';
 import { AFFICHAGE_DEFAUT, MOUVEMENTS, EFFETS, affichageValide, normaliserAffichage } from './affichage.js';
 import { SAVE_KEY, BACKUP_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP } from './state.js';
 import { enemyMaxHP } from './combat.js';
-import { ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, EQUIPMENT_BASE, EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, INVENTORY_CAP } from './balance.js';
+import { ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, EQUIPMENT_BASE, EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, INVENTORY_CAP, EQUIPMENT_UPGRADE_MAX } from './balance.js';
 
 export const COOLDOWN_SECONDS = 15;
 
@@ -32,15 +32,16 @@ export function migrate(raw) {
 const MAX_BONUS = 1e9;
 const validId = v => (typeof v === 'string' && v.length > 0 && v.length <= 64) || (typeof v === 'number' && Number.isSafeInteger(v) && v >= 0);
 
-// Un objet valide est renvoyé normalisé (champs connus seulement) ; sinon null. Les bonus attendus sont ceux de l'emplacement.
+// `amelioration` absente (objets des sauvegardes d'avant M3.3, même version 3) : +0. Un objet valide est renvoyé normalisé (champs connus seulement) ; sinon null. Les bonus attendus sont ceux de l'emplacement.
 function objetValide(o) {
   if (!isRecord(o) || !EQUIPMENT_SLOTS.includes(o.emplacement) || !EQUIPMENT_RARITIES.includes(o.rarete) || !validInt(o.niveau, 1, MAX_STAGE) || !isRecord(o.bonus)) return null;
+  if (o.amelioration !== undefined && !validInt(o.amelioration, 0, EQUIPMENT_UPGRADE_MAX)) return null;
   const bonus = {};
   for (const stat of Object.keys(EQUIPMENT_BASE[o.emplacement])) {
     if (!validInt(o.bonus[stat], 1, MAX_BONUS)) return null;
     bonus[stat] = o.bonus[stat];
   }
-  const objet = { emplacement: o.emplacement, rarete: o.rarete, niveau: o.niveau, bonus };
+  const objet = { emplacement: o.emplacement, rarete: o.rarete, niveau: o.niveau, amelioration: o.amelioration ?? 0, bonus };
   if (o.id !== undefined) { if (!validId(o.id)) return null; objet.id = o.id; }
   return objet;
 }

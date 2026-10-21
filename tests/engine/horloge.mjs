@@ -3,7 +3,7 @@
 let compteur = 0;
 
 // Le focus est suivi : focus() fixe document.activeElement. `contains` reconnaît le bouton enfant de son panneau.
-const ENFANTS = { guidepanel: ['guideclose'], bosspanel: ['bossclose'], bossintro: ['bossintroclose'], absenceintro: ['absenceintroclose'], inventairepanel: ['inventaireclose', 'equiper', 'inventairelist'] };
+const ENFANTS = { guidepanel: ['guideclose'], bosspanel: ['bossclose'], bossintro: ['bossintroclose'], absenceintro: ['absenceintroclose'], inventairepanel: ['inventaireclose', 'equiper', 'ameliorer', 'recycler', 'inventairelist'] };
 
 function element(id, doc) {
   const classes = new Set();

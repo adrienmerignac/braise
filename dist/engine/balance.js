@@ -61,3 +61,13 @@ export const LOOT_BOSS_RARITY_WEIGHTS = { rare: 85, epique: 15 };
 export const LOOT_CONVERSION_GOLD = { commun: 5, rare: 15, epique: 40 };
 // Butin hors ligne : espérance du tirage (victoires × chance de drop), arrondie bas, plafonnée ; jamais d'épique.
 export const OFFLINE_LOOT_CAP = 6;
+
+// Recyclage et amélioration (M3.3). Recyclage : or = floor(base de rareté × (1 + croissance × (niveau − 1))) ; confirmation pour rare et épique.
+export const RECYCLE_GOLD_BASE = { commun: 4, rare: 14, epique: 36 };
+export const RECYCLE_LEVEL_GROWTH = 0.15;
+export const RECYCLE_CONFIRM_RARITIES = ['rare', 'epique'];
+// Amélioration : jusqu'à +EQUIPMENT_UPGRADE_MAX ; coût du niveau suivant = floor(base de rareté × COST_GROWTH ^ niveau actuel).
+// Chaque niveau ajoute le bonus fixe ci-dessous aux statistiques présentes sur l'objet.
+export const EQUIPMENT_UPGRADE_MAX = 5;
+export const EQUIPMENT_UPGRADE_BASE_COST = { commun: 20, rare: 45, epique: 90 };
+export const EQUIPMENT_UPGRADE_STAT = { attaque: 1, vieMax: 4, reductionRiposte: 0, or: 1 };

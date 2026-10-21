@@ -112,3 +112,7 @@ button:disabled,.upgrade button:disabled,.guide-panel button:disabled,.audio-bar
 .inventaire-detail .primary{width:100%}
 .inventaire[hidden]{display:none}
 body .inventaire button.primary:enabled{background:var(--orange);color:#30261d}
+.inventaire-actions{display:flex;gap:10px;margin-top:10px}
+.inventaire-actions button{min-height:44px;flex:1}
+.inventaire-actions button[hidden]{display:none}
+#recycleconfirm .primary{background:var(--orange);color:#30261d}
