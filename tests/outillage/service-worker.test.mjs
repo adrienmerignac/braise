@@ -50,3 +50,9 @@ test('l’enregistrement est silencieux sans API ou si register échoue', async 
   assert.equal(url, './sw.js');
   enregistrerServiceWorker({ serviceWorker: { register() { throw Error('sync'); } } }, { document: { readyState: 'complete' } });
 });
+
+test('le worker attend le message SKIP_WAITING, sans skipWaiting automatique à l’install', () => {
+  assert.match(sw, /addEventListener\('message'[\s\S]*SKIP_WAITING[\s\S]*self\.skipWaiting\(\)/);
+  assert.equal(sw.match(/skipWaiting\(\)/g).length, 1);
+  assert.doesNotMatch(sw.match(/addEventListener\('install'[\s\S]*?\n\}\);/)[0], /skipWaiting/);
+});

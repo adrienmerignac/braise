@@ -2,6 +2,7 @@ import { libelleObjet } from './equipement.js';
 import { ZONES, OBJECTIFS } from './balance.js';
 
 export const SAUVEGARDE_FUTURE = 'Cette sauvegarde vient d’une version plus récente de Braise. Recharge la page pour retrouver ta partie ; rien n’a été modifié.';
+export const MISE_A_JOUR_DISPONIBLE = 'Nouvelle version de Braise disponible.';
 export const IMPORT_FUTURE = 'Import refusé : ce fichier vient d’une version plus récente de Braise. La partie en cours est inchangée.';
 
 // Texte d'un gardien vaincu : zone ouverte, étage atteint, ou héros retenu au dernier étage de sa zone. Pur.

@@ -1,8 +1,9 @@
 import {SAVE_KEY,BACKUP_KEY,KILLS_PER_STAGE,cheapestUpgrade,fresh as freshState,attack as attackOf,maxHP as maxHPOf,reward as rewardOf,cost as costOf} from './engine/state.js';
 import {normaliserReglages,peutJouer,creerAudio} from './engine/audio.js';
-import {annoncePour,annoncesPour,texteGardienVaincu,SAUVEGARDE_FUTURE,IMPORT_FUTURE} from './engine/annonces.js';
+import {annoncePour,annoncesPour,texteGardienVaincu,SAUVEGARDE_FUTURE,IMPORT_FUTURE,MISE_A_JOUR_DISPONIBLE} from './engine/annonces.js';
 import {normaliserAffichage} from './engine/affichage.js';
 import {enregistrerServiceWorker} from './engine/pwa.js';
+import {appliquerMiseAJour} from './engine/mise-a-jour.js';
 
 import {RECETTES} from './engine/sons.js';
 import {loadSave,writeSave,serializeSave,importSave} from './engine/save.js';
@@ -150,4 +151,5 @@ $('mouvement').onchange=e=>{affichageSet=normaliserAffichage({...affichageSet,mo
 $('texte').onchange=e=>{affichageSet=normaliserAffichage({...affichageSet,texte:e.target.value});renderAffichage();save()};
 $('effets').onchange=e=>{affichageSet=normaliserAffichage({...affichageSet,effets:e.target.value});renderAffichage();save()};
 renderAudio();renderAffichage();
-enregistrerServiceWorker();
+function afficherBandeauMiseAJour(worker){const clic=appliquerMiseAJour({worker,nav:navigator,sauvegarder:save,recharger:()=>location.reload()});$('majrecharger').addEventListener('click',clic,{once:true});$('maj').hidden=false;requestAnimationFrame(()=>{$('majtexte').textContent=MISE_A_JOUR_DISPONIBLE})}
+enregistrerServiceWorker(navigator,window,afficherBandeauMiseAJour);

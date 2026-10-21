@@ -68,6 +68,15 @@ Code de sortie 0 : version et fichiers servis conformes ; 1 : le rapport en fran
 
 L’automatisation de publication et une éventuelle migration d’hébergeur sont des décisions à prendre au jalon de diffusion. Préserver la même origine ou fournir export/import avant de changer d’URL : le stockage local est lié à l’origine.
 
+## Comment une release remplace le cache
+
+1. La release change la version (`package.json`), donc le nom `CACHE` de `dist/sw.js` (`braise-X.Y.Z`) : le navigateur voit un `sw.js` différent et installe un nouveau worker, qui pré-cache ses fichiers dans le nouveau cache.
+2. Ce worker **attend** : il ne prend pas la main tout seul (pas de `skipWaiting` à l'install). Les onglets ouverts continuent avec l'ancienne version et affichent le bandeau « Nouvelle version de Braise disponible. ».
+3. Au clic sur « Recharger » : sauvegarde immédiate, message `SKIP_WAITING`, activation, purge des anciens caches `braise-*` (jamais `braise-v2`, la sauvegarde), un seul rechargement. Sans clic, la nouvelle version s'active quand tous les onglets sont fermés.
+4. Un ancien onglet qui rencontre une sauvegarde plus récente affiche `SAUVEGARDE_FUTURE` et n'écrit rien.
+
+**Retour arrière avec le service worker** : ne jamais revenir à une version *antérieure* du nom de cache, le navigateur ne rechargerait pas un worker « plus ancien » de façon fiable et les clients déjà à jour resteraient sur le code fautif. Le retour arrière publie un état sain sous une version **supérieure** : revert du code fautif **et** bump de version (`package.json`, pied de page, `CHANGELOG.md`, donc `CACHE`), puis les étapes ci-dessus s'appliquent. La procédure « Retour arrière » plus haut vaut pour le code ; ajouter le bump au revert.
+
 ## Service worker
 
 - Mettre à jour la version (`package.json`), donc le nom du cache `CACHE` de `dist/sw.js`, à chaque release : c'est ce qui renouvelle le pré-cache et purge les anciens caches `braise-*`.
