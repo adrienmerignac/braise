@@ -58,7 +58,7 @@ test('défaite : repli au camp, butin conservé', () => {
   assert.deepEqual(r.events.map(e => e.type), ['combat', 'spawn', 'retreat']);
   assert.equal(r.f.hp, 100, 'vitalité restaurée');
   assert.equal(r.f.enemyHP, r.f.enemyMax, 'nouvel ennemi');
-  assert.deepEqual(r.s, s, 'or, expérience et victoires conservés');
+  assert.deepEqual({ ...r.s, bestiaire: s.bestiaire }, s, 'or, expérience et victoires conservés');
 });
 
 test('gardien : verrouillé avant 5 victoires, ouvert à 5, victoire ouvre l’étage suivant', () => {

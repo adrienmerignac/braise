@@ -21,5 +21,5 @@ export function voyager(s, f, zoneId) {
   if (!zoneOuverte(s, zoneId)) return { s, f, events: [], ok: false, motif: 'fermee' };
   const apres = { ...s, zone: zoneId, stage: etageDArrivee(s, zoneId), kills: 0 };
   const next = newFight(apres);
-  return { s: apres, f: { ...next.f, hp: f.hp }, events: [...next.events, { type: 'voyage', zone: zoneId, stage: apres.stage }], ok: true };
+  return { s: next.s, f: { ...next.f, hp: f.hp }, events: [...next.events, { type: 'voyage', zone: zoneId, stage: apres.stage }], ok: true };
 }

@@ -1,4 +1,5 @@
 // Recette de référence (M7.1) : deux parcours rejoués de bout en bout dans l'interface (dist/game.js piloté par l'horloge virtuelle).
+import { bestiaireNeuf } from '../../dist/engine/bestiaire.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { OFFLINE_CAP_SECONDS } from '../../dist/engine/balance.js';
@@ -18,7 +19,7 @@ async function avecJeu(options, scenario) {
 
 test('recette 1 : partie braise-v1 avancée migrée, panneaux, export puis import', () => avecJeu({ sauvegarde: AVANCEE }, async jeu => {
   const ecrite = jeu.stockage();
-  assert.equal(ecrite.version, 7);
+  assert.equal(ecrite.version, 8);
   assert.equal(jeu.stockageBrut('braise-v1') !== undefined, true, 'l’ancienne clé n’est pas supprimée');
   assert.deepEqual([ecrite.stage, ecrite.level, ecrite.weapon, ecrite.armor, ecrite.luck], [9, 5, 2, 1, 1]);
   assert.equal(jeu.texte('gold'), fmt(ecrite.gold));
@@ -56,7 +57,7 @@ test('recette 1 : partie braise-v1 avancée migrée, panneaux, export puis impor
 // Partie v7 en cours : zone, talents, objet équipé.
 async function partieEnCours() {
   const arme = creerObjet('arme', 'rare', 3);
-  return avecJeu({ stockageV2: { version: 7, gold: 50, xp: 0, level: 8, stage: 7, zone: 'ruines', meilleurEtage: 7, kills: 0, weapon: 3, armor: 2, luck: 1,
+  return avecJeu({ stockageV2: { version: 8, bestiaire: bestiaireNeuf(), gold: 50, xp: 0, level: 8, stage: 7, zone: 'ruines', meilleurEtage: 7, kills: 0, weapon: 3, armor: 2, luck: 1,
     last: T0, guide: 'done', vus: ['gardien', 'absence'], inventaire: [], equipe: { arme }, talents: { assaut: 1 },
     objectifs: { foret: { chasse: 0, faits: [] }, ruines: { chasse: 0, faits: [] }, cryptes: { chasse: 0, faits: [] } }, recitsLus: [] } }, jeu => {
     jeu.clic('pause'); jeu.clic('pause');
@@ -68,7 +69,7 @@ const relancer = (ecrite, debut) => ({ debut, stockageBrut: { 'braise-v2': JSON.
 
 test('recette 2 : retour après 8 h et 30 h — mêmes gains, rien de recrédité, partie conservée', async () => {
   const { ecrite, arme } = await partieEnCours();
-  assert.equal(ecrite.version, 7);
+  assert.equal(ecrite.version, 8);
   const retours = [];
   for (const heures of [8, 30]) {
     await avecJeu(relancer(ecrite, T0 + heures * HEURE), async jeu => {

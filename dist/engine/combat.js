@@ -8,6 +8,7 @@ import {
 } from './balance.js';
 import { soinVictoire } from './talents.js';
 import { objectifChasse, objectifGardien } from './objectifs.js';
+import { marquerVu, enregistrerVictoire, cleEnnemi } from './bestiaire.js';
 import { recitsNouveaux } from './recits.js';
 import { bonusEquipement, tirerButin, ajouterObjet } from './equipement.js';
 
@@ -69,6 +70,7 @@ export function gainXP(s, f, n) {
 
 export function spawn(s, f, boss = f.boss) {
   const enemyMax = enemyMaxHP(s, boss);
+  s = marquerVu(s, cleEnnemi(boss, s.zone, enemyKind(s)));
   return { s, f: { ...f, boss, enemyHP: enemyMax, enemyMax }, events: [{ type: 'spawn', boss, kind: boss ? null : enemyKind(s) }] };
 }
 
@@ -109,6 +111,7 @@ export function strike(s, f, mult = 1, rng = null) {
   if (defeated) {
     const wonBoss = f.boss, etageVaincu = s.stage;
     const gold = victoryGold(s, wonBoss);
+    s = enregistrerVictoire(s, cleEnnemi(wonBoss, s.zone, enemyKind(s)));
     s = { ...s, gold: s.gold + gold };
     const xp = gainXP(s, f, wonBoss ? XP_BOSS : XP_ENEMY);
     ({ s, f } = xp);
@@ -138,13 +141,13 @@ export function strike(s, f, mult = 1, rng = null) {
       }
     }
     const next = spawn(s, f);
-    return { s, f: next.f, events: [...events, ...next.events] };
+    return { s: next.s, f: next.f, events: [...events, ...next.events] };
   }
   f = { ...f, hp: f.hp - taken };
   if (f.hp <= 0) {
     const retreat = { type: 'retreat', boss: f.boss, taken, enemyHP: f.enemyHP };
     const next = spawn(s, { ...f, boss: false, hp: maxHP(s) });
-    return { s, f: next.f, events: [...events, ...next.events, retreat] };
+    return { s: next.s, f: next.f, events: [...events, ...next.events, retreat] };
   }
   return { s, f, events };
 }
