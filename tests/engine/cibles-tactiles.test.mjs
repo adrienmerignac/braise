@@ -56,3 +56,12 @@ test('chaque button, select, input et summary est couvert par un min-height ≥ 
     assert.ok(regles.some(r => couvre(r, el)), `${nom} sans règle min-height ≥ ${MIN}px`);
   }
 });
+
+test('panneau Carte : « Voyager » et « Fermer » ont une règle min-height ≥ 44px', () => {
+  const brut = readFileSync(new URL('../../dist/style.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  for (const sel of ['.zone button', '.inventaire .panel-head button']) {
+    const ok = [...brut.matchAll(/([^{}@]+)\{([^{}]*)\}/g)].some(([, s, corps]) =>
+      s.split(',').map(x => x.trim()).includes(sel) && Number(corps.match(/min-height:\s*(\d+)px/)?.[1]) >= MIN);
+    assert.ok(ok, `${sel} sans min-height ≥ ${MIN}px`);
+  }
+});
