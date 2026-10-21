@@ -98,6 +98,12 @@ for (const rel of ['assets/LICENSE-Kenney.txt', 'assets/lpc/LICENSE.txt', 'asset
 }
 const hosting = JSON.parse(readFileSync(resolve(root, '.openai/hosting.json'), 'utf8'));
 if (!hosting.project_id || hosting.static?.directory !== 'dist') errors.push('Manifest Sites statique invalide');
+const version = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')).version;
+const footerVersion = readFileSync(resolve(dist, 'index.html'), 'utf8').match(/<footer>.*?(?:Prototype|Bêta) (\d+\.\d+\.\d+)/s)?.[1];
+if (footerVersion !== version) errors.push(`Version : le pied de page de dist/index.html affiche ${footerVersion ?? 'aucune version'} mais package.json déclare ${version} — aligner le pied de page sur package.json`);
+const changelogPath = resolve(root, 'CHANGELOG.md');
+if (!existsSync(changelogPath)) errors.push('CHANGELOG.md manquant à la racine');
+else if (!readFileSync(changelogPath, 'utf8').split('\n').some(line => line.startsWith(`## [${version}]`))) errors.push(`CHANGELOG.md : section « ## [${version}] » manquante pour la version de package.json`);
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exitCode = 1;

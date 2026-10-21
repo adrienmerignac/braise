@@ -2,7 +2,7 @@
 
 Un idle RPG en pixel art LPC, jouable dans le navigateur sur desktop et mobile. Un chevalier affronte les gobelins de la forêt des Murmures, récolte de l’or, améliore son équipement et défie un gardien pour passer à l’étage suivant.
 
-**État : prototype jouable 0.2.1.** [Jouer à la version privée](https://braise-idle-rpg.lemonyhake5.chatgpt.site) (connexion ChatGPT). [Dépôt GitHub](https://github.com/adrienmerignac/braise).
+**État : bêta jouable 0.9.0.** [Changelog](CHANGELOG.md). [Jouer à la version privée](https://braise-idle-rpg.lemonyhake5.chatgpt.site) (connexion ChatGPT). [Dépôt GitHub](https://github.com/adrienmerignac/braise).
 
 ## Lancer en local
 
