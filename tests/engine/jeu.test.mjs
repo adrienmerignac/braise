@@ -78,13 +78,13 @@ test('import : fichier invalide signalé sans rien changer ; fichier valide conf
   assert.match(jeu.texte('message'), /Import refusé/);
   assert.equal(jeu.texte('gold'), '0');
   await jeu.el('importfile').onchange(fichier(JSON.stringify({ version: 2, ...AVANCEE })));
-  assert.equal(jeu.texte('gold'), '900');
-  assert.equal(jeu.stockage().gold, 900);
+  assert.equal(jeu.texte('gold'), (1100).toLocaleString('fr-FR'));
+  assert.equal(jeu.stockage().gold, 1100);
 }));
 
 test('reprise : une partie braise-v1 avancée est migrée en braise-v2 au démarrage', () => avecJeu({ sauvegarde: AVANCEE }, jeu => {
-  assert.equal(jeu.texte('gold'), '900');
-  assert.equal(jeu.stockage().version, 5);
+  assert.equal(jeu.texte('gold'), (1100).toLocaleString('fr-FR'));
+  assert.equal(jeu.stockage().version, 6);
   assert.equal(jeu.stockage().stage, 9);
 }));
 

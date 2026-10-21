@@ -33,7 +33,7 @@ test('sauvegarde sans le champ : partie conservée, défaut, pas de réparation'
   const r = parseSave(JSON.stringify({ version: 2, ...partie }), NOW);
   assert.equal(r.status, 'ok');
   assert.deepEqual(r.affichage, AFFICHAGE_DEFAUT);
-  assert.equal(r.s.gold, 4321);
+  assert.equal(r.s.gold, 4521);
 });
 
 test('sauvegarde avec champ valide : repris', () => {
@@ -48,7 +48,7 @@ test('sauvegarde avec champ invalide : défaut, repaired, or et niveau conservé
     const r = parseSave(JSON.stringify({ version: 2, ...partie, affichage }), NOW);
     assert.equal(r.status, 'repaired', JSON.stringify(affichage));
     assert.deepEqual(r.affichage, AFFICHAGE_DEFAUT);
-    assert.equal(r.s.gold, 4321);
+    assert.equal(r.s.gold, 4521);
     assert.equal(r.s.level, 5);
   }
   assert.equal(affichageValide({ mouvement: 'complet', effets: 'actifs' }), true);
@@ -74,7 +74,7 @@ test('texte : valeur invalide → normal, repaired, autres réglages et partie c
     const r = parseSave(JSON.stringify({ version: 2, ...partie, affichage: { mouvement: 'reduit', effets: 'discrets', texte } }), NOW);
     assert.equal(r.status, 'repaired', JSON.stringify(texte));
     assert.deepEqual(r.affichage, { mouvement: 'reduit', effets: 'discrets', texte: 'normal' });
-    assert.equal(r.s.gold, 4321);
+    assert.equal(r.s.gold, 4521);
   }
 });
 

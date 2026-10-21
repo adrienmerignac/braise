@@ -7,6 +7,7 @@ import {
   ZONES, RETALIATION_BASE, RETALIATION_BOSS_BASE, RETALIATION_PER_STAGE, RETALIATION_ARMOR_REDUCTION,
 } from './balance.js';
 import { soinVictoire } from './talents.js';
+import { objectifChasse, objectifGardien } from './objectifs.js';
 import { bonusEquipement, tirerButin, ajouterObjet } from './equipement.js';
 
 export {
@@ -119,11 +120,13 @@ export function strike(s, f, mult = 1, rng = null) {
       const healed = Math.max(0, maxHP(s) - f.hp);
       f = { ...f, boss: false, hp: maxHP(s) };
       events.push({ type: 'bossVictory', stage: s.stage, gold, xp: XP_BOSS, healed, ...(zoneOuverte && { zoneOuverte }), ...(s.stage === etageVaincu && { plafond: true }) });
+      s = objectifGardien(s, etageVaincu, events);
     } else {
       s = { ...s, kills: Math.min(KILLS_PER_STAGE, s.kills + 1) };
       const healed = Math.min(maxHP(s), f.hp + soinVictoire(s)) - f.hp;
       f = { ...f, hp: f.hp + healed };
       events.push({ type: 'victory', gold, xp: XP_ENEMY, healed });
+      s = objectifChasse(s, events);
     }
     if (rng) {
       for (const objet of tirerButin({ ennemi: wonBoss ? 'gardien' : 'ordinaire', etape: etageVaincu, rng })) {

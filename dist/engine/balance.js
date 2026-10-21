@@ -102,3 +102,12 @@ export const ZONES = {
   ruines: { nom: 'Ruines englouties', debut: 6, fin: 10 },
   cryptes: { nom: 'Cryptes de cendre', debut: 11, fin: Infinity },
 };
+
+// Objectifs de zone (M4.4) : deux par zone, chacun accompli une fois, or versé à l'accomplissement.
+// `chasse` : ennemis ordinaires vaincus en ligne dans la zone ; `gardien` : vaincre le gardien de l'étage `cible`.
+export const OBJECTIF_IDS = ['chasse', 'gardien'];
+export const OBJECTIFS = {
+  foret: { chasse: { cible: 25, or: 100 }, gardien: { cible: 5, or: 200 } },
+  ruines: { chasse: { cible: 25, or: 300 }, gardien: { cible: 10, or: 600 } },
+  cryptes: { chasse: { cible: 25, or: 700 }, gardien: { cible: 15, or: 1400 } },
+};

@@ -16,7 +16,7 @@ test('snapshot : premier achat et premier gardien', () => {
   assert.equal(r.firstPurchaseSeconds, 7.2);
   assert.equal(r.firstBossSeconds, 34.8);
   assert.equal(r.stage1AvgWinSeconds, 3.84);
-  assert.equal(r.stageReached, 26);
+  assert.equal(r.stageReached, 27);
 });
 
 test('talents : assaut max et rempart max atteignent le premier gardien dans le budget de temps', () => {

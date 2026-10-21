@@ -8,8 +8,8 @@ const v4 = (stage, extra = {}) => ({ version: 4, gold: 321, xp: 5, level: 12, st
   inventaire: [{ emplacement: 'arme', rarete: 'rare', niveau: 4, amelioration: 1, bonus: { attaque: 9 }, id: 7 }], equipe: {}, talents: { assaut: 2 }, ...extra });
 const lire = (data, v) => parseSave(JSON.stringify(data), v ?? NOW);
 
-test('schéma : version courante 5, partie neuve en forêt', () => {
-  assert.equal(SAVE_VERSION, 5);
+test('schéma : version courante 6, partie neuve en forêt', () => {
+  assert.equal(SAVE_VERSION, 6);
   assert.deepEqual([fresh(0).zone, fresh(0).meilleurEtage], ['foret', 1]);
 });
 
@@ -24,14 +24,14 @@ test('migration v4 à l’étage 25 : cryptes, trois zones ouvertes, même étag
   const r = lire(v4(25));
   assert.equal(r.status, 'ok');
   assert.deepEqual([r.s.zone, r.s.meilleurEtage, r.s.stage], ['cryptes', 25, 25]);
-  assert.deepEqual([r.s.gold, r.s.inventaire.length, r.s.talents], [321, 1, { assaut: 2 }]);
-  assert.deepEqual(migrate(v4(25)).version, 5);
+  assert.deepEqual([r.s.gold, r.s.inventaire.length, r.s.talents], [321 + 200 + 600 + 1400, 1, { assaut: 2 }]);
+  assert.deepEqual(migrate(v4(25)).version, 6);
 });
 
-test('aller-retour export/import v5 identique', () => {
+test('aller-retour export/import v6 identique', () => {
   const s = { ...lire(v4(8)).s, meilleurEtage: 12 };
   const texte = serializeSave(s);
-  assert.equal(JSON.parse(texte).version, 5);
+  assert.equal(JSON.parse(texte).version, 6);
   const r = importSave(texte, NOW);
   assert.equal(r.ok, true);
   assert.deepEqual(r.s, s);
@@ -49,8 +49,8 @@ test('zone inconnue ou incohérente corrigée, meilleurEtage < stage corrigé', 
   assert.equal(r.s.meilleurEtage, 8);
 });
 
-test('sauvegarde v6 : statut future', () => {
-  const t = JSON.stringify({ ...v4(3), version: 6 });
+test('sauvegarde v7 : statut future', () => {
+  const t = JSON.stringify({ ...v4(3), version: 7 });
   assert.equal(isFutureSave(t), true);
   assert.equal(parseSave(t, NOW).status, 'future');
 });
