@@ -3,10 +3,9 @@
 // Décision : estimation sans défaite — le héros est supposé gagner chaque combat à l'étage courant.
 import { attack, maxHP, reward } from './state.js';
 import { enemyMaxHP, gainXP, XP_ENEMY } from './combat.js';
+import { OFFLINE_CAP_SECONDS, OFFLINE_PANEL_MIN_SECONDS, OFFLINE_FIGHT_FACTOR } from './balance.js';
 
-export const OFFLINE_CAP_SECONDS = 28800;
-export const OFFLINE_PANEL_MIN_SECONDS = 60;
-export const OFFLINE_FIGHT_FACTOR = 1.2;
+export { OFFLINE_CAP_SECONDS, OFFLINE_PANEL_MIN_SECONDS, OFFLINE_FIGHT_FACTOR };
 
 // Renvoie { s, f, events, away, wins, gold, show }. `s.last` est toujours ramené à `now` :
 // une seconde collecte immédiate donne donc 0, et une horloge reculée ne produit aucun gain.
