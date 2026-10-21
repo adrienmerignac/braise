@@ -31,6 +31,14 @@ test('chaque image chargée par scene.js, index.html ou game.js est pré-cachée
   for (const chemin of attendues) assert.ok(precache.has(chemin), chemin);
 });
 
+test('les polices sont auto-hébergées et pré-cachées, sans requête vers Google Fonts', () => {
+  const css = lire('style.css');
+  assert.doesNotMatch(css, /fonts\.(googleapis|gstatic)\.com/);
+  const polices = [...css.matchAll(/url\('(assets\/fonts\/[^']+\.woff2)'\)/g)].map(m => m[1]);
+  assert.equal(polices.length, 8);
+  for (const chemin of polices) assert.ok(precache.has(chemin), chemin);
+});
+
 test('le nom du cache porte la version de package.json', () => {
   assert.match(sw, new RegExp(`const CACHE = 'braise-${version.replaceAll('.', '\\.')}'`));
 });

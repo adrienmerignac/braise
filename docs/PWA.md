@@ -16,7 +16,7 @@
   - `assets/lpc/portrait.png` (`index.html`) ; les images de `files` dans `dist/scene.js` (couches héros `body|pants|boots|mail|plate|hood` × `walk|swing|hurt`, `sword`, puis `goblin-sword, goblin, grass, dirt, treetop, trunk, rock, chests` ; `hero-*.png` n'est plus chargé par la scène), chargées par `new Image()` à `dist/scene.js:57-61` ;
   - 3 tuiles `assets/Tiles/tile_0100|0104|0110.png`, construites dynamiquement à `dist/game.js:44` (`assets/Tiles/tile_${…}.png`) ;
   - `credits.html` : ouvert à la demande (lien du pied de page).
-- **⚠ Dépendance externe** : `dist/style.css:1` fait `@import` de **Google Fonts** (DM Sans, Space Grotesk). Hors ligne, ces polices manquent : le jeu s'affiche avec la police de repli (`sans-serif`), sans erreur bloquante. Mettre ces polices en cache est possible mais ce sont des ressources tierces opaques ; les héberger soi-même demande de les ajouter aux assets (licence OFL, à créditer) : **décision du propriétaire** (§7).
+- **Polices auto-hébergées** : DM Sans et Space Grotesk (400/500/600/700, sous-ensemble latin, woff2, licence OFL créditée dans `credits.html`) vivent dans `dist/assets/fonts/`, déclarées par des `@font-face` locaux en tête de `dist/style.css` (`font-display: swap`) et pré-cachées : plus aucune requête vers Google Fonts, le rendu est identique hors ligne.
 - **Sauvegarde** : `localStorage`, clé `braise-v2` (`SAVE_KEY`, `dist/engine/state.js:2`), ancienne clé `braise-v1` conservée (`LEGACY_SAVE_KEY`). Schéma `SAVE_VERSION = 2`. API en lecture/écriture de `dist/engine/save.js` : `loadSave` (`:117`), `writeSave` (`:130`, un `setItem`), `serializeSave` (`:33`), `importSave` (`:135`), `migrate` (`:22`). Le stockage est injecté : `dist/game.js:13` (lecture) et `:17` (écriture) lui passent `localStorage`.
 
 ## 2. Ce que l'installabilité exigerait
@@ -41,7 +41,7 @@
 | Vieux `game.js` | possible jusqu'au rechargement | rare (hors ligne uniquement) |
 
 **A. Pré-cache versionné** (`CACHE = 'braise-<version>'`, tous les fichiers de §5 listés dans `install`)
-- *Hors ligne* : démarrage immédiat et complet, même sans réseau (polices tierces exclues, §1).
+- *Hors ligne* : démarrage immédiat et complet, même sans réseau.
 - *Mise à jour* : à chaque release, changer le nom du cache (ex. relier à `version` de `package.json`, `0.2.1`) ; l'événement `activate` supprime les anciens caches de `braise-*`. Le nouveau worker reste « en attente » tant que des onglets utilisent l'ancien. Il faut une liste de fichiers tenue à jour (ou générée par un petit script `node`, sans dépendance).
 - *Risque* : l'onglet ouvert reste sur l'ancien `game.js` jusqu'à fermeture/rechargement. Si une version plus récente a écrit un schéma plus récent depuis un autre appareil/onglet puis qu'on rouvre l'ancienne : `parseSave` renvoie `status: 'reset'` pour toute `version !== SAVE_VERSION` (`dist/engine/save.js:75`) et le jeu **repart d'une partie neuve** puis écrase `braise-v2` à la prochaine sauvegarde. Le risque est donc réel dans ce sens (« vieux code, schéma plus récent »), et la parade doit être décidée avant d'implémenter (§6/§7). Mélanger anciens et nouveaux fichiers est le second risque : d'où un cache **unique** par version, rempli de façon atomique.
 
@@ -78,7 +78,7 @@ Tests voisins : `tests/engine/save.test.mjs`, `tests/engine/persistance.test.mjs
   - code (`index.html`, `style.css`, `game.js`, `scene.js`, `engine/*.js`) : **74 543 octets** ;
   - images chargées par le jeu (10 de `files` + `portrait.png`) : **139 055 octets** ; 3 tuiles : environ 0,6 Kio ; `credits.html` : 2,2 Kio ;
   - **Pré-cache utile : ~217 Kio** (code + images utilisées + tuiles + crédits). Pré-cacher tout `dist/` coûterait ~700 Kio, dont ~490 Kio d'images LPC (calques `body-*`, `hood-*`, `mail-*`, `plate-*`, `pants-*`, `boots-*`, `goblin.png`, `sword.png`, `water.png`) que ni `scene.js:21` ni `index.html` ne référencent (non vérifié pour un usage futur).
-  - Polices Google : hors décompte, non mesurées.
+  - Polices : 8 fichiers woff2 (~108 Kio) ajoutés au pré-cache.
 
 ## 6. Coût estimé (tranches d'une heure, sans dépendance)
 
@@ -93,12 +93,12 @@ Total : environ **5 à 6 h**, plus les polices si elles sont auto-hébergées (+
 
 ## 7. Recommandation et décisions attendues
 
-**Go conditionnel.** Pour : jeu statique, peu de fichiers (~217 Kio utiles), sauvegarde indépendante du cache, usage typique « petites pauses » sur mobile qui profite d'une icône d'accueil et d'un démarrage sans réseau. Contre : risque de vieux code face à un schéma plus récent (à traiter), polices tierces non couvertes, comportement iOS à vérifier sur appareil, charge de maintenance de la liste de pré-cache à chaque release. Tant que le jeu reste privé sur Sites, le gain est faible ; à reprendre avec M7.3.
+**Go conditionnel.** Pour : jeu statique, peu de fichiers (~217 Kio utiles), sauvegarde indépendante du cache, usage typique « petites pauses » sur mobile qui profite d'une icône d'accueil et d'un démarrage sans réseau. Contre : risque de vieux code face à un schéma plus récent (à traiter), comportement iOS à vérifier sur appareil, charge de maintenance de la liste de pré-cache à chaque release. Tant que le jeu reste privé sur Sites, le gain est faible ; à reprendre avec M7.3.
 
 Décisions attendues du propriétaire :
 - **Icônes** : fournir ou choisir un visuel (192, 512, maskable 512, 180 ; licence gratuite créditée). Aucune n'est générée ici.
 - **Nom** : `name` complet (« Braise · Idle RPG ») et **nom court affiché** sous l'icône (≤ 12 caractères conseillés, ex. « Braise »).
 - **Hébergement cible (M7.3)** : domaine et chemin définitifs, HTTPS, et politique de migration d'origine (le stockage suit l'origine). Le `scope` et le `start_url` en dépendent.
-- **Polices** : accepter la police de repli hors ligne, ou auto-héberger DM Sans/Space Grotesk (licence à créditer).
+- **Polices** : tranché — auto-hébergées (voir §1).
 - **Stratégie** : pré-cache versionné (conseillé) ou réseau d'abord ; et la parade au « vieux code face à une sauvegarde plus récente » (bandeau + refus d'écraser, ou migration descendante).
 - **Go / no-go** et, si go, l'ordre par rapport à M7.

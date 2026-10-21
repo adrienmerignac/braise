@@ -44,5 +44,13 @@
   "assets/icons/icon-192.png": "dérivé de portrait.png (couches LPC body, hood, mail, plate, pants, boots : Redshrike, wulax, makrohn et contributeurs Liberated Pixel Cup), recadré et agrandi au plus proche voisin par tools/make-icons.mjs, sans retouche — CC BY-SA 3.0",
   "assets/icons/icon-512.png": "dérivé de portrait.png (couches LPC body, hood, mail, plate, pants, boots : Redshrike, wulax, makrohn et contributeurs Liberated Pixel Cup), recadré et agrandi au plus proche voisin par tools/make-icons.mjs, sans retouche — CC BY-SA 3.0",
   "assets/icons/icon-maskable-512.png": "dérivé de portrait.png (couches LPC body, hood, mail, plate, pants, boots : Redshrike, wulax, makrohn et contributeurs Liberated Pixel Cup), recadré et agrandi au plus proche voisin par tools/make-icons.mjs, sans retouche — CC BY-SA 3.0",
-  "assets/icons/apple-touch-icon-180.png": "dérivé de portrait.png (couches LPC body, hood, mail, plate, pants, boots : Redshrike, wulax, makrohn et contributeurs Liberated Pixel Cup), recadré et agrandi au plus proche voisin par tools/make-icons.mjs, sans retouche — CC BY-SA 3.0"
+  "assets/icons/apple-touch-icon-180.png": "dérivé de portrait.png (couches LPC body, hood, mail, plate, pants, boots : Redshrike, wulax, makrohn et contributeurs Liberated Pixel Cup), recadré et agrandi au plus proche voisin par tools/make-icons.mjs, sans retouche — CC BY-SA 3.0",
+  "assets/fonts/dm-sans-latin-400-normal.woff2": "DM Sans 400, sous-ensemble latin, paquet @fontsource/dm-sans (fontsource.org) — SIL OFL 1.1",
+  "assets/fonts/dm-sans-latin-500-normal.woff2": "DM Sans 500, sous-ensemble latin, paquet @fontsource/dm-sans (fontsource.org) — SIL OFL 1.1",
+  "assets/fonts/dm-sans-latin-600-normal.woff2": "DM Sans 600, sous-ensemble latin, paquet @fontsource/dm-sans (fontsource.org) — SIL OFL 1.1",
+  "assets/fonts/dm-sans-latin-700-normal.woff2": "DM Sans 700, sous-ensemble latin, paquet @fontsource/dm-sans (fontsource.org) — SIL OFL 1.1",
+  "assets/fonts/space-grotesk-latin-400-normal.woff2": "Space Grotesk 400, sous-ensemble latin, paquet @fontsource/space-grotesk (fontsource.org) — SIL OFL 1.1",
+  "assets/fonts/space-grotesk-latin-500-normal.woff2": "Space Grotesk 500, sous-ensemble latin, paquet @fontsource/space-grotesk (fontsource.org) — SIL OFL 1.1",
+  "assets/fonts/space-grotesk-latin-600-normal.woff2": "Space Grotesk 600, sous-ensemble latin, paquet @fontsource/space-grotesk (fontsource.org) — SIL OFL 1.1",
+  "assets/fonts/space-grotesk-latin-700-normal.woff2": "Space Grotesk 700, sous-ensemble latin, paquet @fontsource/space-grotesk (fontsource.org) — SIL OFL 1.1"
 }
