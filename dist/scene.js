@@ -1,7 +1,7 @@
 import { createSceneQueue } from './engine/scene-queue.js';
 import { sonsPourEvenement } from './engine/sons.js';
 import { ajouterEtincelles, doitRedessiner } from './engine/etincelles.js';
-import { enemyLook, BASE_SCALE } from './engine/ennemis-visuels.js';
+import { enemyLook, gardienLook, sequenceGardien, ancrageEnnemi } from './engine/ennemis-visuels.js';
 import { AFFICHAGE_DEFAUT, normaliserAffichage, mouvementReduit, effetsDiscrets, echelleTexte } from './engine/affichage.js';
 // Direction rows belong to each sheet, not to the LPC family as a whole.
 const HERO_ROWS = Object.freeze({ east: 3 });
@@ -84,6 +84,19 @@ b.restore();b.fillStyle='#15233255';b.fillRect(0,0,960,480);
 function actor(name, frame, row, x,y,scale=2,alpha=1) {
   ctx.globalAlpha=alpha;image(name,frame*64,row*64,64,64,x,y,64*scale,64*scale);ctx.globalAlpha=1;
 }
+// Teinte braise du gardien : calque hors écran limité aux pixels du sprite (source-atop), puis lueur additive pendant la charge et le coup.
+const calque=document.createElement('canvas');calque.width=calque.height=64;
+const cctx=calque.getContext('2d');cctx.imageSmoothingEnabled=false;
+function teinteBraise(look,x,y,sc,frame,row,lueur,alpha) {
+  const img=assets[look.sheet];if(!img)return;
+  cctx.clearRect(0,0,64,64);cctx.globalCompositeOperation='source-over';
+  cctx.drawImage(img,frame*64,row*64,64,64,0,0,64,64);
+  cctx.globalCompositeOperation='source-atop';cctx.fillStyle=look.teinte;
+  cctx.globalAlpha=Math.min(.9,look.teinteForce+lueur*.5);cctx.fillRect(0,0,64,64);cctx.globalAlpha=1;
+  ctx.save();ctx.globalAlpha=alpha;ctx.drawImage(calque,0,0,64,64,Math.round(x),Math.round(y),64*sc,64*sc);
+  if(lueur>0){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=alpha*lueur*.35;ctx.drawImage(calque,0,0,64,64,Math.round(x),Math.round(y),64*sc,64*sc);}
+  ctx.restore();
+}
 function fire(t) {
   const x=192,y=339;
   const glow=ctx.createRadialGradient(x,y-10,0,x,y-10,140);
@@ -124,15 +137,16 @@ function draw(now) {
   const lunging=age>=0&&age<650;
   const approach=lunging&&!reduit()?Math.sin(Math.min(1,age/650)*Math.PI)*70:0;
   const heroX=330+approach, heroY=210;
-  const enemyX=515+(age>370&&age<560&&!reduit()?Math.sin(age/35)*6:0);
-  ellipse(heroX+64,heroY+117,36,11,'#111b2580');ellipse(enemyX+64,327,isBoss?43:35,12,'#111b2580');
+  const seq=isBoss&&!dying?sequenceGardien(age,{reduit:reduit(),discret:discret()}):{dx:0,lueur:0};
+  const enemyX=515+seq.dx+(age>370&&age<560&&!reduit()?Math.sin(age/35)*6:0);
+  ellipse(heroX+64,heroY+117,36,11,'#111b2580');ellipse(enemyX+64,327,isBoss?gardienLook().ombreRayon:35,isBoss?15:12,'#111b2580');
   if(lunging&&age<190)actor('hero-walk',reduit()?0:1+Math.floor(age/25)%8,HERO_ROWS.east,heroX,heroY);
   else if(lunging)actor('hero-swing',Math.min(5,Math.floor((age-190)/76)),HERO_ROWS.east,heroX,heroY);
   else actor('hero-walk',0,HERO_ROWS.east,heroX,heroY);
-  // Le gardien garde la planche de l'Éclaireur ; les autres types lisent leur entrée du catalogue visuel.
-  const look=enemyLook(isBoss?null:kind), sc=isBoss?2.25:look.scale, rows=look.rows;
+  // Le gardien a sa propre planche et échelle ; les autres types lisent leur entrée du catalogue visuel.
+  const look=isBoss?gardienLook():enemyLook(kind), sc=look.scale, rows=look.rows;
   // Pieds et centre restent à la même place quelle que soit l'échelle.
-  const shrink=isBoss?0:64*(BASE_SCALE-sc), ex=(dx=0)=>enemyX+dx+shrink/2, ey=isBoss?194:210+shrink;
+  const ancre=ancrageEnnemi(sc), ex=(dx=0)=>enemyX+dx+ancre.x, ey=ancre.y;
   const deathAge=age-360;
   if(dying&&deathAge>0&&deathAge<650){actor(look.sheet,Math.min(4,Math.floor(deathAge/100)),rows.death,ex(),ey,sc,Math.max(0,1-deathAge/650));}
   else {
@@ -140,6 +154,7 @@ function draw(now) {
     const frame=reduit()?0:Math.floor(t/150)%9;
     const attack=age>650&&age<1000&&!dying;
     actor(look.sheet,attack?9+Math.floor((age-650)/175)%2:frame,rows.west,ex(reduit()?0:entering*.13),ey,sc,Math.max(.15,1-entering/1000));
+    if(isBoss&&!dying)teinteBraise(look,ex(reduit()?0:entering*.13),ey,sc,attack?9+Math.floor((age-650)/175)%2:frame,rows.west,seq.lueur,Math.max(.15,1-entering/1000));
   }
   if(lunging&&age>230&&age<530){
     ctx.save();ctx.globalAlpha=Math.sin((age-230)/300*Math.PI);ctx.strokeStyle=strong?'#fff1a4':'#d4e9ec';ctx.lineWidth=strong?8:4;

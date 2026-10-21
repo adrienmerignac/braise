@@ -28,3 +28,56 @@ test('un type absent ou inconnu retombe sur l’Éclaireur', () => {
   assert.deepEqual(enemyLook(undefined), enemyLook('eclaireur'));
   assert.deepEqual(enemyLook('x'), enemyLook('eclaireur'));
 });
+
+import { gardienLook, sequenceGardien, GARDIEN_SEQUENCE as S, GARDIEN_LOOK } from '../../dist/engine/ennemis-visuels.js';
+
+test('le gardien a une planche existante, une échelle supérieure à celle des ennemis normaux et ses lignes', () => {
+  const look = gardienLook();
+  assert.ok(ENEMY_SHEETS[look.sheet]);
+  assert.deepEqual(look.rows, ENEMY_SHEETS[look.sheet]);
+  assert.ok(look.scale > Math.max(...Object.values(ENEMY_LOOKS).map(l => l.scale)));
+  assert.ok(GARDIEN_LOOK.ombreRayon > 35);
+});
+
+test('séquence du gardien : repos, recul vers l’arrière, élan vers le héros, coup puis repos', () => {
+  assert.equal(sequenceGardien(S.reculDebut - 1).phase, 'repos');
+  const recul = sequenceGardien(S.reculDebut + 25);
+  assert.equal(recul.phase, 'recul');
+  assert.ok(recul.dx > 0 && recul.dx < S.reculPx);
+  const elan = sequenceGardien(S.elanDebut + 20);
+  assert.equal(elan.phase, 'elan');
+  assert.ok(elan.dx < S.reculPx);
+  const coup = sequenceGardien(S.coupDebut);
+  assert.equal(coup.phase, 'coup');
+  assert.ok(coup.dx < 0 && coup.lueur === 1);
+  assert.ok(sequenceGardien(S.coupDebut + 200).lueur < coup.lueur);
+  assert.deepEqual(sequenceGardien(S.coupFin), { phase: 'repos', dx: 0, lueur: 0 });
+});
+
+test('la charge dure quelques dizaines de ms et finit au début du coup', () => {
+  const ages = Array.from({ length: 1200 }, (_, i) => i);
+  const charge = ages.filter(a => ['recul', 'elan'].includes(sequenceGardien(a).phase));
+  assert.ok(charge.length >= 30 && charge.length <= 150, `durée ${charge.length} ms`);
+  assert.equal(charge[charge.length - 1] + 1, S.coupDebut);
+  assert.equal(sequenceGardien(S.coupDebut).phase, 'coup');
+});
+
+test('mouvement réduit : aucun décalage, la lueur reste ; effets discrets : lueur atténuée', () => {
+  for (const age of [S.reculDebut + 10, S.elanDebut + 10, S.coupDebut + 50]) {
+    const plein = sequenceGardien(age);
+    const reduit = sequenceGardien(age, { reduit: true });
+    assert.equal(reduit.dx, 0);
+    assert.equal(reduit.lueur, plein.lueur);
+    assert.ok(reduit.lueur > 0);
+    assert.equal(sequenceGardien(age, { discret: true }).lueur, plein.lueur / 2);
+  }
+});
+
+test('pieds et centre tombent au même point pour l’Éclaireur, le Traqueur et le gardien', async () => {
+  const { ancrageEnnemi, gardienLook, SOL_ENNEMI } = await import('../../dist/engine/ennemis-visuels.js');
+  for (const [nom, scale] of [['eclaireur', enemyLook('eclaireur').scale], ['traqueur', enemyLook('traqueur').scale], ['gardien', gardienLook().scale]]) {
+    const a = ancrageEnnemi(scale, 515);
+    assert.equal(a.y + 64 * scale, SOL_ENNEMI, `${nom} : bas de case`);
+    assert.equal(a.x + 32 * scale, 515 + 64, `${nom} : centre`);
+  }
+});
