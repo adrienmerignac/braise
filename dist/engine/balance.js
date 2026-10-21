@@ -41,3 +41,18 @@ export const SKILL_MULT = 4, SKILL_COOLDOWN_SECONDS = 15;
 export const OFFLINE_CAP_SECONDS = 28800;
 export const OFFLINE_PANEL_MIN_SECONDS = 60;
 export const OFFLINE_FIGHT_FACTOR = 1.2;
+
+// Équipement (M3.1) : 3 emplacements, 3 raretés. Valeur d'un bonus = floor(base × multiplicateur de rareté × (1 + croissance × (niveau − 1))),
+// au moins 1 ; le niveau d'objet suit l'étape du jeu. Chances de butin documentées dans docs/GAME_DESIGN.md.
+export const EQUIPMENT_SLOTS = ['arme', 'armure', 'charme'];
+export const EQUIPMENT_RARITIES = ['commun', 'rare', 'epique'];
+export const EQUIPMENT_RARITY_MULT = { commun: 1, rare: 1.6, epique: 2.5 };
+export const EQUIPMENT_LEVEL_GROWTH = 0.15;
+export const EQUIPMENT_BASE = {
+  arme: { attaque: 3 },
+  armure: { vieMax: 20, reductionRiposte: 1 },
+  charme: { or: 2 },
+};
+export const LOOT_DROP_CHANCE = 0.12;
+export const LOOT_RARITY_WEIGHTS = { commun: 75, rare: 22, epique: 3 };
+export const LOOT_BOSS_RARITY_WEIGHTS = { rare: 85, epique: 15 };
