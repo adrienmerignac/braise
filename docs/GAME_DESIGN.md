@@ -94,6 +94,14 @@ Deux objectifs par zone, chacun accompli une seule fois, avec de l’or versé �
 - Sauvegarde v7 : `recitsLus`. Une partie v6 qui a progressé (`meilleurEtage` > 1) reprend avec tous ses récits débloqués considérés comme lus ; une partie sans progrès reprend avec une liste vide. Identifiants inconnus ignorés, doublons retirés, valeur non tableau réparée.
 - Affichage : un encart non bloquant (titre et texte, bouton « Fermer » qui marque le récit lu) apparaît quand aucun autre encart n’est ouvert et jamais avant la fin du guide ; rechargé sans fermer, il réapparaît. Le panneau Carte liste les fragments : texte complet si débloqué, sinon la condition écrite (« Vaincre le gardien de l’étage 10 »).
 
+### Collection du bestiaire
+
+- Douze entrées : les 9 types de `ENEMY_CATALOG` (par clé) et un gardien par zone (`gardien:foret`, `gardien:ruines`, `gardien:cryptes`). Chacune porte `vus` (rencontré au moins une fois) et `victoires` (entier ≥ 0, borné à `Number.MAX_SAFE_INTEGER`). Logique pure dans `dist/engine/bestiaire.js`.
+- L’apparition d’un ennemi (nouvel adversaire, gardien, voyage, ennemi repris au chargement) le marque `vu` ; une victoire en session incrémente `victoires` de l’ennemi vaincu.
+- **L’absence ne crédite jamais la collection** (comme elle ne fait jamais avancer les étages) : le calcul hors ligne ne modifie ni `vus` ni `victoires`.
+- Informative : aucun bonus, aucun effet sur la puissance ni sur l’équilibrage. Interface à venir.
+- Sauvegarde v8 : `bestiaire`. Une partie v7 reprend avec les types des zones déjà atteintes (`ZONES[z].debut <= meilleurEtage`) `vus` et 0 victoire ; le gardien d’une zone est `vu` si `meilleurEtage > ZONES[z].fin`. Clés inconnues ignorées, nombres non finis ou négatifs ramenés à 0, champ non objet remplacé par une collection vierge (sauvegarde `repaired`, reste de la partie conservé). Une v9 reste `future`.
+
 ## Objectifs à valider
 
 - Premier achat accessible rapidement et effet immédiatement lisible.

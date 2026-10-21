@@ -8,6 +8,7 @@ import {
 } from './balance.js';
 import { soinVictoire } from './talents.js';
 import { objectifChasse, objectifGardien } from './objectifs.js';
+import { marquerVu, enregistrerVictoire, cleEnnemi } from './bestiaire.js';
 import { recitsNouveaux } from './recits.js';
 import { bonusEquipement, tirerButin, ajouterObjet } from './equipement.js';
 
@@ -30,8 +31,9 @@ export function heroDamage(s, boss, mult = 1) {
   return m === 1 ? base : Math.max(1, Math.floor(base * m));
 }
 // Modificateur en clair pour l'affichage ; vide si l'ennemi n'en a pas.
-export function modificateurTexte(s) {
-  const k = kindOf(s), parts = [];
+export const modificateurTexte = s => modificateurDe(enemyKind(s));
+export function modificateurDe(type) {
+  const k = ENEMY_CATALOG[type], parts = [];
   if (k.coups !== undefined) parts.push(k.coups < 1 ? 'résiste aux coups' : 'fragile aux coups');
   if (k.braise !== undefined) parts.push(k.braise < 1 ? 'résiste à la braise' : 'vulnérable à la braise');
   const texte = parts.join(' · ');
@@ -69,6 +71,7 @@ export function gainXP(s, f, n) {
 
 export function spawn(s, f, boss = f.boss) {
   const enemyMax = enemyMaxHP(s, boss);
+  s = marquerVu(s, cleEnnemi(boss, s.zone, enemyKind(s)));
   return { s, f: { ...f, boss, enemyHP: enemyMax, enemyMax }, events: [{ type: 'spawn', boss, kind: boss ? null : enemyKind(s) }] };
 }
 
@@ -109,6 +112,7 @@ export function strike(s, f, mult = 1, rng = null) {
   if (defeated) {
     const wonBoss = f.boss, etageVaincu = s.stage;
     const gold = victoryGold(s, wonBoss);
+    s = enregistrerVictoire(s, cleEnnemi(wonBoss, s.zone, enemyKind(s)));
     s = { ...s, gold: s.gold + gold };
     const xp = gainXP(s, f, wonBoss ? XP_BOSS : XP_ENEMY);
     ({ s, f } = xp);
@@ -138,13 +142,13 @@ export function strike(s, f, mult = 1, rng = null) {
       }
     }
     const next = spawn(s, f);
-    return { s, f: next.f, events: [...events, ...next.events] };
+    return { s: next.s, f: next.f, events: [...events, ...next.events] };
   }
   f = { ...f, hp: f.hp - taken };
   if (f.hp <= 0) {
     const retreat = { type: 'retreat', boss: f.boss, taken, enemyHP: f.enemyHP };
     const next = spawn(s, { ...f, boss: false, hp: maxHP(s) });
-    return { s, f: next.f, events: [...events, ...next.events, retreat] };
+    return { s: next.s, f: next.f, events: [...events, ...next.events, retreat] };
   }
   return { s, f, events };
 }

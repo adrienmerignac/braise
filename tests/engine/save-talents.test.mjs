@@ -1,3 +1,4 @@
+import { bestiaireMigre } from '../../dist/engine/bestiaire.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseSave, writeSave, serializeSave, importSave, migrate } from '../../dist/engine/save.js';
@@ -14,7 +15,7 @@ const avecTalents = talents => parseSave(JSON.stringify({ version: 6, ...base, i
 test('partie v3 avec inventaire et équipé : passe en v4 sans perte, talents vides, aucune réparation', () => {
   const r = parseSave(JSON.stringify({ version: 3, ...base, inventaire: inv, equipe: eq, guide: 'done', vus: [] }), NOW);
   assert.equal(r.status, 'ok');
-  assert.deepEqual(r.s, { ...base, inventaire: inv, equipe: eq, talents: {}, objectifs: objectifsNeufs(), recitsLus: ['braise'] });
+  assert.deepEqual(r.s, { ...base, inventaire: inv, equipe: eq, talents: {}, objectifs: objectifsNeufs(), recitsLus: ['braise'], bestiaire: bestiaireMigre(4) });
   assert.equal(migrate({ version: 3, ...base }).version, SAVE_VERSION);
 });
 
@@ -29,7 +30,7 @@ test('talents invalides ou en excès : remis à {} sans toucher au reste', () =>
   for (const t of [{ inconnu: 1 }, { assaut: 4 }, { assaut: -1 }, { assaut: 1.5 }, { assaut: '1' }, { assaut: 2, rempart: 1 }, [], 'x', null]) {
     const r = avecTalents(t);
     assert.equal(r.status, 'repaired', JSON.stringify(t));
-    assert.deepEqual(r.s, { ...base, inventaire: inv, equipe: eq, talents: {}, objectifs: objectifsNeufs(), recitsLus: ['braise'] }, JSON.stringify(t));
+    assert.deepEqual(r.s, { ...base, inventaire: inv, equipe: eq, talents: {}, objectifs: objectifsNeufs(), recitsLus: ['braise'], bestiaire: bestiaireMigre(4) }, JSON.stringify(t));
   }
 });
 
@@ -47,7 +48,7 @@ test('recharge plus courte : `cool` reste valide et ne dépasse pas la recharge 
 });
 
 test('une sauvegarde v5 n’est jamais écrasée', () => {
-  const futur = JSON.stringify({ version: 8, ...base, talents: { mystere: 1 } });
+  const futur = JSON.stringify({ version: 9, ...base, talents: { mystere: 1 } });
   const store = mem({ [SAVE_KEY]: futur });
   assert.equal(parseSave(futur, NOW).status, 'future');
   assert.equal(writeSave(store, { ...base, inventaire: [], equipe: {}, talents: {} }), false);
