@@ -2,6 +2,7 @@ import { createSceneQueue } from './engine/scene-queue.js';
 import { sonsPourEvenement } from './engine/sons.js';
 import { ajouterEtincelles, doitRedessiner } from './engine/etincelles.js';
 import { enemyLook, gardienLook, sequenceGardien, ancrageEnnemi } from './engine/ennemis-visuels.js';
+import { couchesHeros, ACTIONS_HEROS } from './engine/apparence-heros.js';
 import { AFFICHAGE_DEFAUT, normaliserAffichage, mouvementReduit, effetsDiscrets, echelleTexte } from './engine/affichage.js';
 // Direction rows belong to each sheet, not to the LPC family as a whole.
 const HERO_ROWS = Object.freeze({ east: 3 });
@@ -11,13 +12,17 @@ canvas.width = 960;
 canvas.height = 480;
 ctx.imageSmoothingEnabled = false;
 const systemeReduit = matchMedia('(prefers-reduced-motion: reduce)');
+// Apparence du héros : composée hors écran une fois par changement d'équipement, jamais à chaque image.
+let equipement = { arme: false, armure: false }, heroADessiner = true;
+const heroFeuilles = {};
 let affichage = { ...AFFICHAGE_DEFAUT };
 // Lu à chaque usage : le réglage et la préférence système s'appliquent immédiatement, sans recharger.
 const reduit = () => mouvementReduit(affichage.mouvement, systemeReduit.matches);
 const police = px => `bold ${Math.round(px * echelleTexte(affichage.texte))}px monospace`;
 const discret = () => effetsDiscrets(affichage.effets);
 const assets = {};
-const files = ['hero-walk','hero-swing','hero-hurt','goblin-sword','goblin','grass','dirt','treetop','trunk','rock','chests'];
+const COUCHES_FICHIERS = ['body','pants','boots','mail','plate','hood'].flatMap(c => ACTIONS_HEROS.map(a => `${c}-${a}`)).concat('sword');
+const files = [...COUCHES_FICHIERS,'goblin-sword','goblin','grass','dirt','treetop','trunk','rock','chests'];
 let failed = false;
 let time = 0, previous = 0, paused = false, attackAt = -5000, spawnAt = 0;
 let kind = null, dying = false, strong = false, isBoss = false, damage = 0, taken = 0, heroRatio = 1;
@@ -45,6 +50,7 @@ function reveiller() {
 function receive(type, detail) {
   if (type === 'braise:pause') { paused = detail; if (!paused) imageFinalePosee = false; }
   else if (type === 'braise:affichage') affichage = normaliserAffichage(detail);
+  else if (type === 'braise:equipement') { equipement = detail; heroADessiner = true; }
   else queue.push(type.slice(7), detail, time);
   reveiller();
 }
@@ -52,7 +58,7 @@ function receive(type, detail) {
 const backlog = window.braiseBacklog || [];
 window.braiseBacklog = null;
 for (const [type, detail] of backlog) receive(type, detail);
-for (const type of ['braise:combat', 'braise:pause', 'braise:spawn', 'braise:affichage']) window.addEventListener(type, ({detail}) => receive(type, detail));
+for (const type of ['braise:combat', 'braise:pause', 'braise:spawn', 'braise:affichage', 'braise:equipement']) window.addEventListener(type, ({detail}) => receive(type, detail));
 await Promise.all(files.map(name => new Promise(resolve => {
   const image = new Image();
   image.onload = () => { assets[name] = image; resolve(); };
@@ -81,8 +87,21 @@ for(let y=0;y<480;y+=32)for(let x=0;x<960;x+=32){
 b.save();b.beginPath();b.ellipse(485,307,410,106,0,0,Math.PI*2);b.clip();
 for(let y=192;y<448;y+=32)for(let x=32;x<960;x+=32)if(assets.dirt)b.drawImage(assets.dirt,32,160,32,32,x,y,32,32);
 b.restore();b.fillStyle='#15233255';b.fillRect(0,0,960,480);
+const HERO_TAILLES = { walk: [9, 4], swing: [6, 4], hurt: [6, 1] };
+// Les couches héros partagent la planche du héros (HERO_ROWS.east = 3) ; les planches de coup comptent 7 colonnes, on garde les 6 utilisées.
+function composerHero() {
+  for (const action of ACTIONS_HEROS) {
+    const [cols, rows] = HERO_TAILLES[action];
+    const c = heroFeuilles[action] ||= Object.assign(document.createElement('canvas'), { width: cols * 64, height: rows * 64 });
+    const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.clearRect(0, 0, c.width, c.height);
+    for (const nom of couchesHeros(equipement, action)) if (assets[nom]) g.drawImage(assets[nom], 0, 0, c.width, c.height, 0, 0, c.width, c.height);
+  }
+  heroADessiner = false;
+}
 function actor(name, frame, row, x,y,scale=2,alpha=1) {
-  ctx.globalAlpha=alpha;image(name,frame*64,row*64,64,64,x,y,64*scale,64*scale);ctx.globalAlpha=1;
+  const src=name.startsWith('hero-')?heroFeuilles[name.slice(5)]:assets[name];
+  if(!src)return;
+  ctx.globalAlpha=alpha;ctx.drawImage(src,frame*64,row*64,64,64,Math.round(x),Math.round(y),64*scale,64*scale);ctx.globalAlpha=1;
 }
 // Teinte braise du gardien : calque hors écran limité aux pixels du sprite (source-atop), puis lueur additive pendant la charge et le coup.
 const calque=document.createElement('canvas');calque.width=calque.height=64;
@@ -124,6 +143,7 @@ function playDueSounds() {
 function draw(now) {
   const dt=previous?Math.min(50,now-previous):0;previous=now;if(!paused)time+=dt;
   queue.flush(time);
+  if(heroADessiner)composerHero();
   playDueSounds();
   const t=reduit()?0:time, age=time-attackAt;
   ctx.save();

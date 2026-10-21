@@ -64,6 +64,7 @@ for (const path of documents.filter(path => path.endsWith('.md'))) {
 // Frame bounds used by the scene: catch missing/truncated or incompatible sheets.
 for (const [name, width, height] of [
   ['hero-walk', 576, 256], ['hero-swing', 384, 256],
+  ...['body','pants','boots','mail','plate','hood'].flatMap(c => [[`${c}-walk`, 576, 256], [`${c}-swing`, 448, 256], [`${c}-hurt`, 448, 64]]), ['sword', 384, 256],
   ['goblin-sword', 704, 320], ['grass', 96, 192],
   ['dirt', 64, 192], ['treetop', 96, 224], ['trunk', 90, 80], ['rock', 64, 32],
 ]) {
