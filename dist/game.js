@@ -17,6 +17,7 @@ import {decrireCarte,decrireRecits,recitAAfficher,messageVoyage} from './engine/
 import {decrireBestiaire} from './engine/bestiaire.js';
 import {RECITS,marquerRecitLu} from './engine/recits.js';
 import {marquerVu,cleEnnemi} from './engine/bestiaire.js';
+import {verifierSucces} from './engine/succes.js';
 import {voyager,ZONE_IDS} from './engine/zones.js';
 import {nomTalent,rangTexte,effetSuivant,pointsTexte,investissable,libelleInvestir,comparerTalent,messageInvestir,texteConfirmation} from './engine/talents-libelles.js';
 import {ATTACK_INTERVAL_MS,SKILL_MULT,SKILL_COOLDOWN_SECONDS,ATTACK_PER_WEAPON,HEALTH_PER_ARMOR,REWARD_PER_LUCK,OFFLINE_CAP_SECONDS,BOSS_HP_MULT,BOSS_GOLD_MULT,RETALIATION_BASE,RETALIATION_BOSS_BASE,ENEMY_CATALOG,INVENTORY_CAP} from './engine/balance.js';
@@ -43,6 +44,7 @@ case'retreat':{const m=`Repli : ${e.boss?'le gardien':'l’ennemi'} frappait pou
 case'butin':log(annoncePour(e));if(!$('inventairepanel').hidden)renderInventaire();break
 case'objectif':log(annoncePour(e));if(!$('cartepanel').hidden)renderCarte();break;
 case'recit':majRecit();break;
+case'succes':log(`Succès obtenu : ${e.libelle}`);break;
 case'voyage':log(messageVoyage(e.zone,ZONES[e.zone].nom,e.stage));break;
 case'bossStart':log('Le gardien approche. Fais parler la braise !');break;
 case'upgrade':log(`${titles[e.kind]} : niveau ${e.level}${e.healed>0?` · +${e.healed} vitalité`:''}.`);if(e.healed>0)setVit(`+${e.healed} soins`);break}}
@@ -57,11 +59,11 @@ function hideIntros(){fermer('bossintro');fermer('absenceintro');recitCourant=nu
 // Récit : encart non bloquant, montré quand plus aucun autre encart n'est ouvert ; fermé, il est marqué lu puis sauvegardé. Une seule annonce par fragment.
 let recitCourant=null;
 function majRecit(){if(recitCourant)return;const id=recitAAfficher(s,guide);if(!id||!$('guidepanel').hidden||!$('bossintro').hidden||!$('absenceintro').hidden)return;const r=RECITS.find(x=>x.id===id);recitCourant=id;$('recittitre').textContent=r.titre;$('recittexte').textContent=r.texte;$('recit').hidden=false;annonce(`${r.titre}. ${r.texte}`)}
-function fermerRecit(){const id=recitCourant;recitCourant=null;fermer('recit');if(id){s=marquerRecitLu(s,id);save();if(!$('cartepanel').hidden)renderCarte();majRecit()}}
+function fermerRecit(){const id=recitCourant;recitCourant=null;fermer('recit');if(id){s=marquerRecitLu(s,id);verifSucces();save();if(!$('cartepanel').hidden)renderCarte();majRecit()}}
 let guideAnnounced=false;const BOSS_PANEL_SECONDS=8;let bossPanelLeft=0;
 function showBossPanel(e){$('bosspanel').hidden=false;$('bosstitle').textContent='Gardien vaincu';$('bossgold').textContent=`+${e.gold.toLocaleString('fr-FR')} or`;$('bossxp').textContent=`+${e.xp} expérience`;$('bossstage').textContent=`Étage ${e.stage} atteint`;bossPanelLeft=BOSS_PANEL_SECONDS}
 function hideBossPanel(){bossPanelLeft=0;fermer('bosspanel');$('bosstitle').textContent=''}
-function run(r){s=r.s;f=r.f;const m=annoncesPour(r.events);if(m)annonce(m);r.events.forEach(apply)}
+function run(r){const ev=[...r.events];s=verifierSucces(r.s,ev);f=r.f;r={...r,events:ev};const m=annoncesPour(r.events);if(m)annonce(m);r.events.forEach(apply)}
 
 // Inventaire : lignes = trois emplacements équipés puis les objets rangés ; la sélection suit l'objet (référence), le focus un index.
 let invSel=null,invIdx=0;
@@ -80,7 +82,8 @@ const equipe=o&&s.equipe?.[o.emplacement]===o;if(o)$('equiper').textContent=equi
 $('ameliorer').hidden=!o;$('recycler').hidden=!o;if(o){const niv=o.amelioration||0;$('ameliorer').textContent=niv>=EQUIPMENT_UPGRADE_MAX?`Amélioré au maximum (+${EQUIPMENT_UPGRADE_MAX})`:`Améliorer en +${niv+1} · ◈ ${coutAmelioration(o)}`;$('ameliorer').disabled=niv>=EQUIPMENT_UPGRADE_MAX;$('recycler').textContent=equipe?'Recycler (retire-le d’abord)':`Recycler · +${orRecyclage(o)} or`}}
 const plus=o=>o.amelioration?` +${o.amelioration}`:'';
 function focusInv(){const li=$('inventairelist').children[invIdx];if(li)li.focus()}
-function changerEquipement(r,msg){if(!r.ok){if(r.motif==='plein'){const m='Inventaire plein : fais de la place avant de déséquiper.';$('inventairemsg').textContent=m;annonce(m);log(m)}return}s=r.s;f={...f,hp:Math.min(f.hp,maxHP())};annonce(msg);log(msg);save();render();renderInventaire()}
+function verifSucces(){const ev=[];s=verifierSucces(s,ev);ev.forEach(apply)}
+function changerEquipement(r,msg){if(!r.ok){if(r.motif==='plein'){const m='Inventaire plein : fais de la place avant de déséquiper.';$('inventairemsg').textContent=m;annonce(m);log(m)}return}s=r.s;f={...f,hp:Math.min(f.hp,maxHP())};annonce(msg);log(msg);verifSucces();save();render();renderInventaire()}
 $('inventaire').onclick=()=>{if($('inventairepanel').hidden){fermer('talentspanel');fermer('cartepanel');$('inventairepanel').hidden=false;$('inventaire').setAttribute('aria-expanded','true');invIdx=0;renderInventaire();focusInv()}else fermer('inventairepanel')};
 function messageInv(m){$('inventairemsg').textContent=m;annonce(m);log(m)}
 $('ameliorer').onclick=()=>{const o=invSel;if(!o)return;const r=ameliorer(s,o);if(!r.ok){if(r.motif==='fonds')messageInv(`Pas assez d’or : il faut ${r.cout} or pour améliorer ${libelleObjet(o)}.`);else if(r.motif==='max')messageInv(`${libelleObjet(o)} est déjà au maximum (+${EQUIPMENT_UPGRADE_MAX}).`);return}s=r.s;invSel=r.objet;f={...f,hp:Math.min(f.hp,maxHP())};save();render();renderInventaire();messageInv(`${libelleObjet(r.objet)} amélioré en +${r.objet.amelioration} pour ${r.cout} or.`)};
@@ -101,7 +104,7 @@ const focusablesTalents=()=>FOCUS_TALENTS.map($).filter(b=>!b.disabled&&b.offset
 function renderTalentsCompte(){const n=pointsLibres(s);$('talentscompte').textContent=n>0?`● ${n} point${n>1?'s':''} libre${n>1?'s':''}`:'';$('talents').setAttribute('aria-label',n>0?`Talents, ${pointsTexte(s)}`:'Talents')}
 function renderTalents(){$('talentspoints').textContent=pointsTexte(s)+' · 1 point tous les 3 niveaux.';for(const id of TALENT_IDS){$('talent-nom-'+id).textContent=nomTalent(id);$('talent-rang-'+id).textContent=rangTexte(s,id);$('talent-effet-'+id).textContent=effetSuivant(s,id);const b=$('talent-invest-'+id);b.textContent=libelleInvestir(s,id);b.disabled=!investissable(s,id);b.setAttribute('aria-label',`${nomTalent(id)} : ${libelleInvestir(s,id)}`)}$('talentsreset').disabled=pointsDepenses(s)===0;$('talentscomp').replaceChildren(...talentsComp.map(r=>{const li=document.createElement('li');li.append(spanInv('',r.nom),spanInv(r.delta*r.meilleur>0?'gain':'perte',`${r.avant} → ${r.apres} (${signe(r.delta)})`));return li}));renderTalentsCompte()}
 function messageTalents(m){$('talentsmsg').textContent=m;annonce(m);log(m)}
-function majTalents(avant,apres,msg){s=apres;f={...f,hp:Math.min(f.hp,maxHP())};talentsComp=comparerTalent(avant,apres);save();render();renderTalents();messageTalents(msg)}
+function majTalents(avant,apres,msg){s=apres;verifSucces();f={...f,hp:Math.min(f.hp,maxHP())};talentsComp=comparerTalent(avant,apres);save();render();renderTalents();messageTalents(msg)}
 function premierFocusTalents(){const b=focusablesTalents()[0];if(b)b.focus()}
 $('talents').onclick=()=>{if($('talentspanel').hidden){fermer('inventairepanel');fermer('cartepanel');$('talentspanel').hidden=false;$('talents').setAttribute('aria-expanded','true');talentsComp=[];$('talentsmsg').textContent='';renderTalents();premierFocusTalents()}else fermer('talentspanel')};
 $('talentsclose').onclick=()=>fermer('talentspanel');

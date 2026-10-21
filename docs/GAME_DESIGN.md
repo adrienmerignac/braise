@@ -102,6 +102,17 @@ Deux objectifs par zone, chacun accompli une seule fois, avec de l’or versé �
 - Informative : aucun bonus, aucun effet sur la puissance ni sur l’équilibrage. Interface à venir.
 - Sauvegarde v8 : `bestiaire`. Une partie v7 reprend avec les types des zones déjà atteintes (`ZONES[z].debut <= meilleurEtage`) `vus` et 0 victoire ; le gardien d’une zone est `vu` si `meilleurEtage > ZONES[z].fin`. Clés inconnues ignorées, nombres non finis ou négatifs ramenés à 0, champ non objet remplacé par une collection vierge (sauvegarde `repaired`, reste de la partie conservé). Une v9 reste `future`.
 
+### Succès
+
+Neuf succès, obtenus une seule fois, **informatifs** : aucun or, aucun bonus, aucun effet sur l'équilibrage, aucune condition liée au calendrier. Table `SUCCES` dans `dist/engine/succes.js` (valeurs de départ, réversibles) ; sauvegarde v9 (`succes`, liste d'identifiants).
+
+- **Étages** : atteindre l'étage 25, 50, 100 (`meilleurEtage`).
+- **Bestiaire** : rencontrer les 12 entrées ; remporter 500 victoires (somme du bestiaire).
+- **Objectifs** : accomplir les 6 objectifs de zone ; lire les 4 récits.
+- **Build** : équiper un objet épique ; investir 5 points de talent.
+
+Évalués en session après chaque changement (victoire, gardien, équipement, talent, récit lu, voyage) ; l'absence n'en déclenche aucun. Une partie reprise reçoit sans annonce les succès déjà remplis. Pour l'instant, seule une ligne du journal annonce un succès ; l'encart et la liste viennent ensuite.
+
 ## Objectifs à valider
 
 - Premier achat accessible rapidement et effet immédiatement lisible.
