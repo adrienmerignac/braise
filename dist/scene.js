@@ -1,0 +1,103 @@
+// LPC sheets use 64 × 64 frames; rows: north, west, south, east.
+const canvas = document.getElementById('world');
+const ctx = canvas.getContext('2d');
+canvas.width = 960;
+canvas.height = 480;
+ctx.imageSmoothingEnabled = false;
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+const assets = {};
+const files = ['hero-walk','hero-swing','hero-hurt','goblin-sword','grass','dirt','treetop','trunk','rock','chests'];
+let failed = false;
+await Promise.all(files.map(name => new Promise(resolve => {
+  const image = new Image();
+  image.onload = () => { assets[name] = image; resolve(); };
+  image.onerror = () => { failed = true; resolve(); };
+  image.src = `assets/lpc/${name}.png`;
+})));
+if (failed) document.getElementById('message').textContent = 'Certains décors n’ont pas chargé. Recharge la page pour réessayer.';
+let time = 0, previous = 0, paused = false, attackAt = -5000, spawnAt = 0;
+let dying = false, strong = false, isBoss = false, damage = 0, heroRatio = 1;
+const sparks = [];
+window.addEventListener('braise:combat', ({detail}) => {
+  attackAt = time; dying = detail.defeated; strong = detail.strong;
+  damage = detail.damage; isBoss = detail.boss; heroRatio = detail.health;
+  for (let i = 0; i < (strong ? 30 : 10); i++) sparks.push({start:time + 330,x:556,y:270,vx:Math.cos(i*2.4)*(25+i*3),vy:-30-i*5});
+});
+window.addEventListener('braise:pause', ({detail}) => { paused = detail; });
+window.addEventListener('braise:spawn', ({detail}) => { isBoss = detail.boss; spawnAt = time; });
+function image(name, sx, sy, sw, sh, x, y, w, h) {
+  if (assets[name]) ctx.drawImage(assets[name], sx, sy, sw, sh, Math.round(x), Math.round(y), w, h);
+}
+function ellipse(x,y,w,h,color) { ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,w,h,0,0,Math.PI*2);ctx.fill(); }
+function tree(x,y,size=1,fir=false) {
+  ellipse(x+48*size,y+130*size,55*size,16*size,'#0a181c80');
+  image('trunk',0,0,90,80,x+3*size,y+65*size,90*size,80*size);
+  const sway = reduced.matches ? 0 : Math.sin(time/1400+x)*1.4;
+  image('treetop',0,fir?96:0,96,fir?128:96,x+sway,y,96*size,(fir?128:96)*size);
+}
+const background = document.createElement('canvas');
+background.width=960;background.height=480;
+const b = background.getContext('2d');b.imageSmoothingEnabled=false;
+for(let y=0;y<480;y+=32)for(let x=0;x<960;x+=32){
+  if(assets.grass)b.drawImage(assets.grass,((x/32+y/32)%3)*32,160,32,32,x,y,32,32);
+  else {b.fillStyle='#3c6235';b.fillRect(x,y,32,32);}
+}
+b.save();b.beginPath();b.ellipse(485,307,410,106,0,0,Math.PI*2);b.clip();
+for(let y=192;y<448;y+=32)for(let x=32;x<960;x+=32)if(assets.dirt)b.drawImage(assets.dirt,32,160,32,32,x,y,32,32);
+b.restore();b.fillStyle='#15233255';b.fillRect(0,0,960,480);
+function actor(name, frame, row, x,y,scale=2,alpha=1) {
+  ctx.globalAlpha=alpha;image(name,frame*64,row*64,64,64,x,y,64*scale,64*scale);ctx.globalAlpha=1;
+}
+function fire(t) {
+  const x=192,y=339;
+  const glow=ctx.createRadialGradient(x,y-10,0,x,y-10,140);
+  glow.addColorStop(0,'#ffc17b50');glow.addColorStop(.3,'#ed8c3730');glow.addColorStop(1,'#ed8c3700');
+  ctx.fillStyle=glow;ctx.fillRect(x-140,y-150,280,280);
+  ellipse(x,y+12,32,10,'#10171a99');
+  for(let i=0;i<8;i++){const a=i*Math.PI/4;ctx.fillStyle=i%2?'#777c75':'#505b5d';ctx.fillRect(x+Math.cos(a)*22-5,y+Math.sin(a)*8+6,10,7);}
+  ctx.fillStyle='#6d432c';ctx.fillRect(x-18,y+4,36,7);ctx.fillStyle='#8c5936';ctx.fillRect(x-11,y-1,27,6);
+  for(let i=0;i<7;i++){const height=12+(Math.sin(t/100+i*2)+1)*12;ctx.fillStyle=i%2?'#f5a542':'#e57235';ctx.fillRect(x-15+i*4,y-height,5,height+5);}
+  ctx.fillStyle='#ffe5a0';ctx.fillRect(x-6,y-17,10,21);
+  if(!reduced.matches)for(let i=0;i<8;i++){const f=(t/1200+i*.16)%1;ctx.globalAlpha=1-f;ctx.fillStyle='#ffcf76';ctx.fillRect(x+Math.sin(i*8+f*4)*18,y-f*100,2,3);}
+  ctx.globalAlpha=1;
+}
+function draw(now) {
+  const dt=previous?Math.min(50,now-previous):0;previous=now;if(!paused)time+=dt;
+  const t=reduced.matches?0:time, age=time-attackAt;
+  ctx.save();
+  if(strong&&age>280&&age<520&&!reduced.matches)ctx.translate(Math.sin(age)*3,Math.cos(age)*2);
+  ctx.drawImage(background,0,0);
+  for(const [x,y,z,f] of [[-35,-65,1.8,true],[95,-78,1.65,false],[245,-110,1.8,true],[410,-110,1.7,false],[560,-100,1.65,true],[710,-90,1.8,false],[860,-50,1.8,true]])tree(x,y,z,f);
+  image('rock',0,0,32,32,732,246,48,48);image('rock',32,0,32,32,247,222,32,32);
+  // Broken stone markers and small mushrooms along the path.
+  for(let i=0;i<14;i++){let x=75+i*62,y=390+Math.sin(i*9)*23;ctx.fillStyle='#394e40';ctx.fillRect(x,y,6,12);ctx.fillStyle=i%3?'#8f8270':'#b97e5c';ctx.fillRect(x-4,y-2,14,5);}
+  fire(t);
+  const lunging=age>=0&&age<650;
+  const approach=lunging&&!reduced.matches?Math.sin(Math.min(1,age/650)*Math.PI)*70:0;
+  const heroX=330+approach, heroY=210;
+  const enemyX=515+(age>370&&age<560&&!reduced.matches?Math.sin(age/35)*6:0);
+  ellipse(heroX+64,heroY+117,36,11,'#111b2580');ellipse(enemyX+64,327,isBoss?43:35,12,'#111b2580');
+  if(lunging&&age<190)actor('hero-walk',reduced.matches?0:1+Math.floor(age/25)%8,3,heroX,heroY);
+  else if(lunging)actor('hero-swing',Math.min(5,Math.floor((age-190)/76)),3,heroX,heroY);
+  else actor('hero-walk',0,3,heroX,heroY);
+  const deathAge=age-360;
+  if(dying&&deathAge>0&&deathAge<650){actor('goblin-sword',Math.min(4,Math.floor(deathAge/100)),4,enemyX,210,2,Math.max(0,1-deathAge/650));}
+  else {
+    const entering=dying&&deathAge>=650?(Math.max(0,1350-age)):Math.max(0,650-(time-spawnAt));
+    const frame=reduced.matches?0:Math.floor(t/150)%9;
+    const attack=age>650&&age<1000&&!dying;
+    actor('goblin-sword',attack?9+Math.floor((age-650)/175)%2:frame,1,enemyX+(reduced.matches?0:entering*.13),isBoss?194:210,isBoss?2.25:2,Math.max(.15,1-entering/1000));
+  }
+  if(lunging&&age>230&&age<530){
+    ctx.save();ctx.globalAlpha=Math.sin((age-230)/300*Math.PI);ctx.strokeStyle=strong?'#fff1a4':'#d4e9ec';ctx.lineWidth=strong?8:4;
+    ctx.beginPath();ctx.arc(510,265,strong?75:50,-1.2,1.1);ctx.stroke();ctx.restore();
+  }
+  for(let i=sparks.length-1;i>=0;i--){const p=sparks[i],a=(time-p.start)/1000;if(a>1){sparks.splice(i,1);continue}if(a<0||reduced.matches)continue;ctx.globalAlpha=1-a;ctx.fillStyle=strong?'#ffd47e':'#e4c8a2';ctx.fillRect(p.x+p.vx*a,p.y+p.vy*a+100*a*a,4,4);ctx.globalAlpha=1;}
+  if(age>330&&age<1050){const a=(age-330)/720;ctx.globalAlpha=1-a;ctx.font=`bold ${strong?30:23}px monospace`;ctx.textAlign='center';ctx.fillStyle='#19202c';ctx.fillText(`−${damage}`,582,215-a*32);ctx.fillStyle=strong?'#ffdb89':'#fff4db';ctx.fillText(`−${damage}`,580,213-a*32);ctx.globalAlpha=1;}
+  ctx.fillStyle='#1a2b27';ctx.fillRect(365,207,62,4);ctx.fillStyle='#bfd4a0';ctx.fillRect(365,207,62*heroRatio,4);
+  tree(-50,255,1.65,true);tree(825,265,1.8,true);tree(710,390,1.5,false);
+  const shade=ctx.createLinearGradient(0,0,0,480);shade.addColorStop(0,'#101d3b88');shade.addColorStop(.5,'#17243c00');shade.addColorStop(1,'#07151d77');ctx.fillStyle=shade;ctx.fillRect(0,0,960,480);
+  if(!reduced.matches)for(let i=0;i<15;i++){const x=(i*163+Math.sin(t/2500+i)*32)%960,y=120+(i*73)%280+Math.sin(t/1700+i)*14;ctx.globalAlpha=.2+(Math.sin(t/700+i)+1)*.25;ctx.fillStyle='#dfdf9f';ctx.fillRect(x,y,2,2);}ctx.globalAlpha=1;
+  ctx.restore();requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);

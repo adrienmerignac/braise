@@ -14,3 +14,8 @@ Tiny Dungeon de Kenney, CC0 : https://kenney.nl/assets/tiny-dungeon. Licence inc
 
 ## Limites du prototype
 Sauvegarde locale uniquement, pas de compte ni synchronisation. Équilibrage initial à affiner. Les gains hors ligne sont estimés, sans simulation des défaites. Pas de monétisation.
+
+## Direction graphique 0.2
+Forêt LPC au crépuscule, héros en armure par couches, gobelin de Redshrike. Marche d’approche, coup d’épée, attaque du gobelin, chute/disparition, particules d’impact, frappe spéciale, feu animé et lucioles. La pause fige aussi la scène et les préférences de réduction des mouvements sont respectées.
+
+Crédits accessibles depuis le jeu dans `dist/credits.html`. Sources et licences accompagnent les fichiers de `dist/assets/lpc`. `tools/fetch-lpc.py` récupère les ressources depuis le dépôt officiel ; `tools/compose-hero.py` compose les couches (Pillow requis uniquement pour cette opération). La sauvegarde `braise-v1` est conservée.
