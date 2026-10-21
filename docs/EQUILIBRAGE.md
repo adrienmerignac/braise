@@ -45,9 +45,10 @@ jour 1 ; trois emplacements équipés suffisent, le reste est converti en or.
 
 1. **Aucun mur, aucun softlock en 7 jours.** Les deux profils progressent tous les jours, jusqu'à 263 et 219 étages. Les Cryptes
    n'ont pas de fin : sans prestige, le jeu n'a pas de point d'arrivée, seulement un ralentissement.
-2. **L'expédition est très courte.** Le gardien 15 tombe après 22 min d'horloge en profil actif (9 min de jeu continu avec
-   `tools/simulate.mjs`) et après 5 h en profil occasionnel, soit à la deuxième session du jour 1. Les trois zones sont consommées
-   avant que le joueur ait eu le temps de se poser des questions d'équipement ou de talents.
+2. **L'expédition est courte en temps de jeu.** Le gardien 15 tombe après 9 min de jeu continu (`tools/simulate.mjs`) ; en profil
+   actif, 22 min d'horloge, absences comprises, ce qui représente environ 10 sessions de 2 min, soit 20 min de jeu. En profil
+   occasionnel, il tombe à la deuxième session du jour 1 (5 h d'horloge, une dizaine de minutes de jeu). Les trois zones sont
+   consommées avant que le joueur ait eu le temps de se poser des questions d'équipement ou de talents.
 3. **Le premier jour s'emballe.** 166 étages en profil actif, 44 en occasionnel, contre 10 à 25 par jour ensuite.
 4. **Le hors ligne domine.** Il fournit 67 % de l'or le jour 1 puis 75 à 77 % en profil actif, 94 à 97 % en occasionnel. Conséquence :
    à 7 jours, le profil occasionnel atteint 83 % de l'étage du profil actif (219 contre 263). Être présent est peu récompensé.
@@ -55,20 +56,27 @@ jour 1 ; trois emplacements équipés suffisent, le reste est converti en or.
    amélioration reste autour du niveau 28–29 (coût du suivant ≈ 20 M). La puissance vient ensuite des niveaux, qui ralentissent
    (35 × niveau d'expérience par niveau) : c'est ce qui produit la décélération du constat 3.
 6. **Les défaites apparaissent tôt en actif** : 3 429 retraites en 7 jours (≈ 2,5 par minute de jeu en ligne) ; aucune hors ligne, car
-   l'estimation d'absence ignore les défaites (règle connue). Un joueur occasionnel monte donc par le seul hors ligne sans jamais se
-   replier.
+   l'estimation d'absence ignore les défaites (règle connue). L'absence ne fait jamais avancer `stage` ni `meilleurEtage`
+   (`docs/GAME_DESIGN.md:92`) : elle apporte or, expérience et butin sans retraite, et les étages se franchissent en session. Le
+   joueur occasionnel monte donc pendant ses sessions, avec un héros que l'absence a rendu plus fort (constat 4).
 
 ## Durée cible d'une expédition
 
-**Cible retenue : environ 1 h d'horloge en jeu actif pour atteindre le gardien de l'étage 15, et de 1 à 2 jours pour le joueur
-occasionnel.** Les trois zones doivent durer plus qu'un trajet en transports, sans que la première soirée suffise à tout voir.
+**Cible retenue : 20 à 30 min de temps de jeu pour atteindre le gardien de l'étage 15**, l'objectif déjà documenté
+(`docs/GAME_DESIGN.md:103` : « un parcours intéressant de 20–30 minutes avant d'étendre la durée de vie »). Elle se mesure en **temps
+de jeu** (session ouverte, héros qui combat), pas en temps d'horloge : les absences ne comptent pas, sinon un joueur qui revient
+dans la journée paraîtrait plus lent sans avoir joué davantage. Le temps d'horloge reste relevé à titre indicatif. Pour le joueur
+occasionnel, la même cible vaut en temps de jeu, répartie sur plusieurs sessions.
 
-| Profil | Mesuré | Cible | Écart |
+| Profil | Mesuré (temps de jeu) | Cible | Écart |
 | --- | --- | --- | --- |
-| actif | 22 min | ≈ 1 h | 3× trop court |
-| occasionnel | 5 h | 1 à 2 jours | 5× à 10× trop court |
+| continu | 9 min | 20 à 30 min | 2× à 3× trop court |
+| actif | ≈ 20 min (22 min d'horloge) | 20 à 30 min | dans la cible |
+| occasionnel | ≈ 10 min (5 h d'horloge) | 20 à 30 min | 2× à 3× trop court |
 
-La cible est une valeur de départ, à confirmer par les premiers retours de joueurs (`docs/BETA.md`).
+L'écart réel est donc celui du jeu continu et du joueur occasionnel : le profil actif n'atteint la cible que parce que ses absences
+lui apportent or et expérience pendant qu'il ne joue pas. La cible est une valeur de départ, à confirmer par les premiers retours de
+joueurs (`docs/BETA.md`).
 
 ## Réglage
 
@@ -86,12 +94,13 @@ en mettant à jour les instantanés de `tests/engine/equilibrage.test.mjs`.
 ## Conclusion
 
 **Sans prestige, l'équilibrage tient techniquement sur 7 jours** (pas de mur, pas de valeur infinie, progression quotidienne), **mais
-il ne tient pas comme jeu** : l'expédition dure de 3× à 10× moins que la cible et, passé le jour 1, la progression ne fait plus que
-ralentir en étages sans fin. Le prestige ne devra pas masquer cela : régler d'abord le rythme des premiers étages (pistes 1 et 2).
+il ne tient qu'à moitié comme jeu** : en temps de jeu, l'expédition dure 2× à 3× moins que la cible de 20 à 30 min pour le joueur
+continu et l'occasionnel (le profil actif l'atteint grâce à l'absence) et, passé le jour 1, la progression ne fait plus que ralentir
+en étages sans fin. Le prestige ne devra pas masquer cela : régler d'abord le rythme des premiers étages (pistes 1 et 2).
 
 Paliers à surveiller :
-- **Étages 15 → 20** (22 à 40 min en actif) : fin du contenu écrit, point où le joueur occasionnel décroche.
-- **Étages 50 → 100** : les retraites deviennent la norme en ligne ; le hors ligne continue de monter sans les subir.
+- **Étages 15 → 20** (22 à 40 min d'horloge en actif) : fin du contenu écrit, point où le joueur occasionnel décroche.
+- **Étages 50 → 100** : les retraites deviennent la norme en ligne ; l'absence n'en subit aucune mais n'avance pas les étages, qui se franchissent en session.
 - **Jour 1 → jour 2** : de 166 à 24 étages par jour en actif ; rupture de rythme la plus visible.
 - **Niveau d'amélioration ≈ 28–29** : l'or n'achète plus rien d'utile ; seul le niveau (expérience) progresse.
 - **Part du hors ligne > 90 %** (occasionnel) : la présence ne compte plus.
