@@ -63,7 +63,7 @@ Le chargement combine valeurs par défaut et JSON ; seule la validité minimale 
 
 Champ optionnel `audio: { muet, volume }` (volume dans [0, 1]) : absent → défaut (son actif, 60 %) sans réparation ; invalide → défaut et statut `repaired`, le reste de la partie est conservé. `SAVE_VERSION` reste 2.
 
-Champ optionnel `affichage: { mouvement, effets }` (`mouvement` : `systeme` | `reduit` | `complet`, `effets` : `actifs` | `discrets`) : absent → `systeme` / `actifs` sans réparation ; invalide → défaut et statut `repaired`, le reste de la partie est conservé. Règles pures dans `dist/engine/affichage.js` ; `game.js` les transmet à la scène par `braise:affichage`.
+Champ optionnel `affichage: { mouvement, effets, texte }` (`mouvement` : `systeme` | `reduit` | `complet`, `effets` : `actifs` | `discrets`, `texte` : `normal` | `grand`, ≈ 125 %, via `--texte` sur `:root` et les tailles de police en `rem`) : absent → `systeme` / `actifs` / `normal` sans réparation (une sauvegarde sans `texte` reste valide, `SAVE_VERSION` inchangé) ; `texte` invalide → `normal` et `repaired`, les deux autres réglages valides conservés ; ensemble invalide → défaut et statut `repaired`, le reste de la partie est conservé. Règles pures dans `dist/engine/affichage.js` ; `game.js` les transmet à la scène par `braise:affichage`.
 
 ## Évolution prévue
 
