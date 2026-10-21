@@ -1,14 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ENEMY_SHEETS, ENEMY_LOOKS, enemyLook } from '../../dist/engine/ennemis-visuels.js';
-import { ENEMY_KINDS } from '../../dist/engine/balance.js';
+import { ENEMY_CATALOG, ZONE_IDS } from '../../dist/engine/balance.js';
+import { readFileSync } from 'node:fs';
+const ENEMY_KINDS = Object.keys(ENEMY_CATALOG);
 
 test('chaque type d’ennemi a une planche déclarée, des lignes et une échelle', () => {
   for (const kind of ENEMY_KINDS) {
     const look = enemyLook(kind);
     assert.ok(ENEMY_SHEETS[look.sheet], kind);
     assert.ok(look.scale > 0, kind);
-    assert.ok(Number.isInteger(look.rows.west) && Number.isInteger(look.rows.death), kind);
+    assert.ok(Number.isInteger(look.rows.west) && Number.isInteger(look.rows.cols), kind);
+    assert.ok(look.rows.death === null || Number.isInteger(look.rows.death), kind);
   }
   assert.deepEqual(Object.keys(ENEMY_LOOKS).sort(), [...ENEMY_KINDS].sort());
 });
@@ -29,7 +32,7 @@ test('un type absent ou inconnu retombe sur l’Éclaireur', () => {
   assert.deepEqual(enemyLook('x'), enemyLook('eclaireur'));
 });
 
-import { gardienLook, sequenceGardien, GARDIEN_SEQUENCE as S, GARDIEN_LOOK } from '../../dist/engine/ennemis-visuels.js';
+import { gardienLook, sequenceGardien, GARDIEN_SEQUENCE as S, GARDIEN_LOOK, tailleCase, placeEnnemi, colonneEnnemi } from '../../dist/engine/ennemis-visuels.js';
 
 test('le gardien a une planche existante, une échelle supérieure à celle des ennemis normaux et ses lignes', () => {
   const look = gardienLook();
@@ -80,4 +83,58 @@ test('pieds et centre tombent au même point pour l’Éclaireur, le Traqueur et
     assert.equal(a.y + 64 * scale, SOL_ENNEMI, `${nom} : bas de case`);
     assert.equal(a.x + 32 * scale, 515 + 64, `${nom} : centre`);
   }
+});
+
+const png = nom => {
+  const b = readFileSync(new URL(`../../dist/assets/lpc/${nom}.png`, import.meta.url));
+  return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+};
+const sources = JSON.parse(readFileSync(new URL('../../dist/assets/lpc/sources.json', import.meta.url), 'utf8'));
+const manifeste = JSON.parse(readFileSync(new URL('../../tools/assets-manifest.json', import.meta.url), 'utf8'));
+const planches = [...new Set([...ENEMY_KINDS.map(k => enemyLook(k).sheet), ...ZONE_IDS.map(z => gardienLook(z).sheet)])];
+
+test('chaque planche d’ennemi ou de gardien est déclarée (sources, manifeste) et ses lignes tiennent dans l’image', () => {
+  for (const nom of planches) {
+    assert.ok(sources[`${nom}.png`], `${nom} absente de sources.json`);
+    assert.ok(manifeste.fichiers.some(f => f.chemin === `assets/lpc/${nom}.png`), `${nom} absente du manifeste`);
+    const r = ENEMY_SHEETS[nom], [cw, ch] = tailleCase(r), { w, h } = png(nom);
+    const lignes = [r.west, r.death, ...(r.attack ? [r.west] : [])].filter(x => x != null);
+    for (const l of lignes) assert.ok((l + 1) * ch <= h, `${nom} : ligne ${l} hors image`);
+    const colMax = Math.max(r.cols, ...(r.attack || []).map(c => c + 1));
+    assert.ok(colMax * cw <= w, `${nom} : ${colMax} colonnes de ${cw} px hors image`);
+  }
+});
+
+test('chaque zone a un gardien avec une planche déclarée ; celui de la forêt est inchangé, les autres s’en distinguent', () => {
+  for (const z of ZONE_IDS) assert.ok(ENEMY_SHEETS[gardienLook(z).sheet], z);
+  assert.equal(gardienLook('foret').sheet, GARDIEN_LOOK.sheet);
+  assert.equal(gardienLook('foret').scale, GARDIEN_LOOK.scale);
+  assert.notEqual(gardienLook('ruines').sheet, gardienLook('foret').sheet);
+  assert.notEqual(gardienLook('cryptes').sheet, gardienLook('ruines').sheet);
+  assert.equal(gardienLook('inconnue').sheet, GARDIEN_LOOK.sheet);
+});
+
+test('chaque type des ruines et des cryptes a sa propre silhouette, plus aucun gobelin', () => {
+  const autres = ENEMY_KINDS.filter(k => !['eclaireur', 'pillard', 'traqueur'].includes(k));
+  assert.equal(autres.length, 6);
+  assert.equal(new Set(autres.map(k => enemyLook(k).sheet)).size, 6);
+  for (const k of autres) assert.ok(!enemyLook(k).sheet.startsWith('goblin'), k);
+});
+
+test('une case plus petite que 64 px reste centrée, pieds au sol, dans sa boîte d’ancrage', () => {
+  for (const k of ENEMY_KINDS) {
+    const look = enemyLook(k), p = placeEnnemi(look);
+    assert.ok(Math.abs(p.dy + p.h - (look.rows.sol || 0) * (look.zoom || look.scale) - 64 * look.scale) < 1e-9, `${k} : pieds`);
+    assert.equal(p.dx * 2 + p.w, 64 * look.scale, `${k} : centre`);
+    assert.ok(p.dy >= 0, k);
+  }
+});
+
+test('colonne affichée : cycle de la planche, cases d’attaque des gobelins seulement, case 0 en mouvement réduit', () => {
+  const gob = ENEMY_SHEETS.goblin, bat = ENEMY_SHEETS.bat;
+  assert.equal(colonneEnnemi(gob, { attaque: true, age: 650 }), 9);
+  assert.equal(colonneEnnemi(gob, { attaque: true, age: 830 }), 10);
+  assert.equal(colonneEnnemi(bat, { attaque: true, age: 830, t: 0 }), 0);
+  assert.equal(colonneEnnemi(bat, { t: 150 * 4 }), 1);
+  assert.equal(colonneEnnemi(gob, { t: 1000, reduit: true }), 0);
 });

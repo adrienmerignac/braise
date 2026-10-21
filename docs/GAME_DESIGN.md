@@ -21,12 +21,12 @@ Combat automatique → or et expérience → amélioration → cinq victoires �
 | Éclaireur gobelin | PV ×1 · riposte ×1 · or ×1 |
 | Pillard des Murmures | PV ×0,7 · riposte ×1,4 · or ×1,2 |
 | Traqueur des sous-bois | PV ×1,3 · riposte ×0,8 · or ×1,3 |
-| Squelette des ruines | PV ×1,1 · riposte ×1 · or ×1,1 · coups normaux ×0,75 · braise ×1,5 |
+| Araignée des ruines | PV ×1,1 · riposte ×1 · or ×1,1 · coups normaux ×0,75 · braise ×1,5 |
 | Chauve-souris des voûtes | PV ×0,6 · riposte ×1,5 · or ×1,2 |
 | Gelée des citernes | PV ×1,5 · riposte ×0,7 · or ×1,3 · braise ×0,6 |
-| Squelette de cendre | PV ×1,2 · riposte ×1,1 · or ×1,2 · coups normaux ×0,75 · braise ×1,5 |
+| Serpent de cendre | PV ×1,2 · riposte ×1,1 · or ×1,2 · coups normaux ×0,75 · braise ×1,5 |
 | Spectre des caveaux | PV ×0,8 · riposte ×1,6 · or ×1,3 · braise ×1,5 |
-| Goule des cryptes | PV ×1,4 · riposte ×1,2 · or ×1,4 · coups normaux ×0,85 |
+| Œil des cryptes | PV ×1,4 · riposte ×1,2 · or ×1,4 · coups normaux ×0,85 |
 | Modificateurs de dégâts | « coups normaux » (attaque auto) et « braise » (frappe de braise) multiplient les dégâts du héros, arrondi bas, au moins 1 ; le gardien n’en a pas |
 | Nom du gardien | Forêt : Gardien de braise · Ruines : Sentinelle engloutie · Cryptes : Gardien des cendres (PV ×5 et or ×8 inchangés) |
 | Riposte d’un ennemi | `(3 + 1,4 × étage) × multiplicateur − 1,5 × armure`, au moins 1 |

@@ -28,8 +28,8 @@ window.braiseBacklog=[];
 const emit=(type,detail)=>{if(window.braiseBacklog){window.braiseBacklog.push([type,detail]);if(window.braiseBacklog.length>200)window.braiseBacklog.splice(0,100)}window.dispatchEvent(new CustomEvent(type,{detail}))};
 function annonce(m){const a=$('alert');a.textContent='';if(m)requestAnimationFrame(()=>{a.textContent=m})}
 function apply(e){switch(e.type){
-case'combat':emit('braise:combat',{damage:e.damage,strong:e.strong,defeated:e.defeated,boss:e.boss,kind:e.kind,health:e.health,taken:e.taken});if(e.taken>0)setVit(`−${e.taken} reçus`);$('float').textContent=`−${e.damage}`;$('float').classList.remove('hit');void $('float').offsetWidth;$('float').classList.add('hit');break;
-case'spawn':emit('braise:spawn',{boss:e.boss,kind:e.kind});break;
+case'combat':emit('braise:combat',{zone:s.zone,damage:e.damage,strong:e.strong,defeated:e.defeated,boss:e.boss,kind:e.kind,health:e.health,taken:e.taken});if(e.taken>0)setVit(`−${e.taken} reçus`);$('float').textContent=`−${e.damage}`;$('float').classList.remove('hit');void $('float').offsetWidth;$('float').classList.add('hit');break;
+case'spawn':emit('braise:spawn',{zone:s.zone,boss:e.boss,kind:e.kind});break;
 case'levelup':log(`Niveau ${e.level} ! La braise grandit. Vitalité restaurée${e.healed>0?` (+${e.healed})`:''}.`);if(e.healed>0)setVit(`+${e.healed} soins`);if(!$('talentspanel').hidden)renderTalents();break;
 case'victory':log(`Ennemi vaincu · +${e.gold} or · +${e.xp} expérience${gain(e.healed)}`);if(e.healed>0)setVit(`+${e.healed} soins`);break;
 case'bossVictory':if(e.zoneOuverte){carteNouveau=true;renderCarteNouveau()}log(`${texteGardienVaincu(e)} Vitalité restaurée${e.healed>0?` (+${e.healed})`:''}.`);if(e.healed>0)setVit(`+${e.healed} soins`);showBossPanel(e);break;

@@ -29,5 +29,13 @@
   "LICENSE.txt": "LICENSE.txt",
   "LICENSE-CC-BY-SA-3.0.txt": "LICENSE-CC-BY-SA-3.0.txt",
   "README.md": "README.md",
-  "chests.png": "tileset/original/Sharm/object/chests.png"
+  "chests.png": "tileset/original/Sharm/object/chests.png",
+  "bat.png": "sprite/original/CharlesGabriel/PNG/bat.png",
+  "slime.png": "sprite/original/CharlesGabriel/PNG/slime.png",
+  "ghost.png": "sprite/original/CharlesGabriel/PNG/ghost.png",
+  "eyeball.png": "sprite/original/CharlesGabriel/PNG/eyeball.png",
+  "snake.png": "sprite/original/CharlesGabriel/PNG/snake.png",
+  "spider.png": "sprite/original/Redshrike/spider/PNG/spider01.png",
+  "golem.png": "sprite/original/Redshrike/golem/PNG/golem-walk.png",
+  "imp.png": "sprite/original/Redshrike/imp/PNG/red/walk - sword.png"
 }
