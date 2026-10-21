@@ -89,7 +89,7 @@ export function strike(s, f, mult = 1) {
       s = { ...s, stage: s.stage + 1, kills: 0 };
       const healed = Math.max(0, maxHP(s) - f.hp);
       f = { ...f, boss: false, hp: maxHP(s) };
-      events.push({ type: 'bossVictory', stage: s.stage, gold, healed });
+      events.push({ type: 'bossVictory', stage: s.stage, gold, xp: XP_BOSS, healed });
     } else {
       s = { ...s, kills: Math.min(KILLS_PER_STAGE, s.kills + 1) };
       const healed = Math.min(maxHP(s), f.hp + HEAL_ON_VICTORY) - f.hp;
