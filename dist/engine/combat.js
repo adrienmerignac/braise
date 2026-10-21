@@ -3,7 +3,7 @@
 // Chaque fonction renvoie { s, f, events } sans modifier ses arguments ; game.js applique les événements.
 import { KILLS_PER_STAGE, attack, maxHP, reward, cost } from './state.js';
 import {
-  XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE,
+  XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, ENEMY_KINDS, ENEMY_CATALOG,
   RETALIATION_BASE, RETALIATION_BOSS_BASE, RETALIATION_PER_STAGE, RETALIATION_ARMOR_REDUCTION,
 } from './balance.js';
 
@@ -12,8 +12,12 @@ export {
 };
 
 export const xpNeeded = s => s.level * XP_PER_LEVEL;
-export const enemyMaxHP = (s, boss) => Math.floor((ENEMY_BASE_HP + s.stage * ENEMY_HP_PER_STAGE) * (boss ? BOSS_HP_MULT : 1));
-export const retaliation = (s, boss) => Math.max(1, Math.floor((boss ? RETALIATION_BOSS_BASE : RETALIATION_BASE) + s.stage * RETALIATION_PER_STAGE - s.armor * RETALIATION_ARMOR_REDUCTION));
+// Type de l'ennemi normal courant : fonction pure de l'état persisté, rien de plus à sauvegarder.
+export const enemyKind = s => ENEMY_KINDS[(s.stage - 1 + s.kills) % ENEMY_KINDS.length];
+const kindOf = s => ENEMY_CATALOG[enemyKind(s)];
+export const enemyMaxHP = (s, boss) => Math.floor((ENEMY_BASE_HP + s.stage * ENEMY_HP_PER_STAGE) * (boss ? BOSS_HP_MULT : kindOf(s).hp));
+export const retaliation = (s, boss) => Math.max(1, Math.floor(((boss ? RETALIATION_BOSS_BASE : RETALIATION_BASE) + s.stage * RETALIATION_PER_STAGE) * (boss ? 1 : kindOf(s).retaliation) - s.armor * RETALIATION_ARMOR_REDUCTION));
+export const victoryGold = (s, boss) => Math.floor(reward(s) * (boss ? BOSS_GOLD_MULT : kindOf(s).gold));
 
 // Évaluation du danger, sans compter la compétence : coups pour vaincre l'ennemi vs coups que le héros encaisse.
 export function assess(s, f) {
@@ -43,7 +47,7 @@ export function gainXP(s, f, n) {
 
 export function spawn(s, f, boss = f.boss) {
   const enemyMax = enemyMaxHP(s, boss);
-  return { s, f: { ...f, boss, enemyHP: enemyMax, enemyMax }, events: [{ type: 'spawn', boss }] };
+  return { s, f: { ...f, boss, enemyHP: enemyMax, enemyMax }, events: [{ type: 'spawn', boss, kind: boss ? null : enemyKind(s) }] };
 }
 
 export function newFight(s) {
@@ -76,11 +80,11 @@ export function strike(s, f, mult = 1) {
   const enemyHP = f.enemyHP - damage;
   const defeated = enemyHP <= 0;
   const taken = defeated ? 0 : retaliation(s, f.boss);
-  const events = [{ type: 'combat', damage, strong: mult > 1, defeated, boss: f.boss, health: f.hp / maxHP(s), taken }];
+  const events = [{ type: 'combat', damage, strong: mult > 1, defeated, boss: f.boss, kind: f.boss ? null : enemyKind(s), health: f.hp / maxHP(s), taken }];
   f = { ...f, enemyHP };
   if (defeated) {
     const wonBoss = f.boss;
-    const gold = reward(s) * (wonBoss ? BOSS_GOLD_MULT : 1);
+    const gold = victoryGold(s, wonBoss);
     s = { ...s, gold: s.gold + gold };
     const xp = gainXP(s, f, wonBoss ? XP_BOSS : XP_ENEMY);
     ({ s, f } = xp);

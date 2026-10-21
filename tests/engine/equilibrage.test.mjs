@@ -13,9 +13,9 @@ test('la simulation est déterministe', () => {
 test('snapshot : premier achat et premier gardien', () => {
   const r = simulate({ minutes: 30 });
   // Toute différence signale un changement d'équilibrage : à décider, pas à corriger en silence.
-  assert.equal(r.firstPurchaseSeconds, 16.8);
-  assert.equal(r.firstBossSeconds, 42);
-  assert.equal(r.stage1AvgWinSeconds, 5.28);
+  assert.equal(r.firstPurchaseSeconds, 7.2);
+  assert.equal(r.firstBossSeconds, 34.8);
+  assert.equal(r.stage1AvgWinSeconds, 3.84);
   assert.equal(r.stageReached, 25);
 });
 

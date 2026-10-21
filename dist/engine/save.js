@@ -4,6 +4,7 @@ import { AUDIO_DEFAUT, reglagesValides } from './audio.js';
 import { AFFICHAGE_DEFAUT, MOUVEMENTS, EFFETS, affichageValide, normaliserAffichage } from './affichage.js';
 import { SAVE_KEY, BACKUP_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP } from './state.js';
 import { enemyMaxHP } from './combat.js';
+import { ENEMY_BASE_HP, ENEMY_HP_PER_STAGE } from './balance.js';
 
 export const COOLDOWN_SECONDS = 15;
 
@@ -58,8 +59,11 @@ function parseFight(data, s, now) {
   const hasEnemy = data.boss !== undefined || data.enemyHP !== undefined;
   const boss = data.boss === undefined ? false : data.boss;
   if (hasEnemy) {
-    if (typeof boss === 'boolean' && (!boss || s.kills >= KILLS_PER_STAGE) && validInt(data.enemyHP, 1, enemyMaxHP(s, boss))) {
-      fight.boss = boss; fight.enemyHP = data.enemyHP;
+    // Avant les types d'ennemis, un ennemi normal pouvait avoir jusqu'au maximum de base : toléré, puis ramené au maximum du type.
+    const max = enemyMaxHP(s, boss);
+    const accepte = boss ? max : Math.max(max, ENEMY_BASE_HP + s.stage * ENEMY_HP_PER_STAGE);
+    if (typeof boss === 'boolean' && (!boss || s.kills >= KILLS_PER_STAGE) && validInt(data.enemyHP, 1, accepte)) {
+      fight.boss = boss; fight.enemyHP = Math.min(data.enemyHP, max);
     } else repaired = true;
   }
   return { fight, repaired };

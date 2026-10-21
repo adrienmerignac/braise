@@ -20,6 +20,15 @@ export const BOSS_GOLD_MULT = 8, BOSS_HP_MULT = 5;
 export const HEAL_ON_VICTORY = 8, HEAL_ON_ARMOR = 35;
 export const ENEMY_BASE_HP = 32, ENEMY_HP_PER_STAGE = 14;
 
+// Ennemis normaux de la forêt : multiplicateurs de PV, de riposte et d'or. Le type courant est une fonction pure de
+// l'état persisté (voir `enemyKind` dans combat.js) ; le gardien ignore ces valeurs.
+export const ENEMY_KINDS = ['eclaireur', 'pillard', 'traqueur'];
+export const ENEMY_CATALOG = {
+  eclaireur: { name: 'Éclaireur gobelin', hp: 1, retaliation: 1, gold: 1 },
+  pillard: { name: 'Pillard des Murmures', hp: 0.7, retaliation: 1.4, gold: 1.2 },
+  traqueur: { name: 'Traqueur des sous-bois', hp: 1.3, retaliation: 0.8, gold: 1.3 },
+};
+
 // Riposte : (base + étage × croissance − armure × réduction), au moins 1
 export const RETALIATION_BASE = 3, RETALIATION_BOSS_BASE = 10;
 export const RETALIATION_PER_STAGE = 1.4, RETALIATION_ARMOR_REDUCTION = 1.5;
