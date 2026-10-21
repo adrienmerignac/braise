@@ -1,3 +1,4 @@
+COMMIT='f61104a1ecc54e7bce54b82ada7d7ba4c41bc524'  # OpenGameArt/LiberatedPixelCup, référence figée
 import urllib.request,urllib.parse,json,pathlib,concurrent.futures
 root=pathlib.Path('dist/assets/lpc');root.mkdir(parents=True,exist_ok=True)
 files={}
@@ -9,7 +10,9 @@ for n in ['grass','dirt','treetop','trunk','rock','water']:files[n+'.png']=f'til
 for n in ['LICENSE.txt','LICENSE-CC-BY-SA-3.0.txt','README.md']:files[n]=n
 files['chests.png']='tileset/original/Sharm/object/chests.png'
 def get(item):
- name,path=item;url='https://raw.githubusercontent.com/OpenGameArt/LiberatedPixelCup/master/'+urllib.parse.quote(path)
+ name,path=item
+ if (root/name).exists():return name,'déjà présent'
+ url='https://raw.githubusercontent.com/OpenGameArt/LiberatedPixelCup/'+COMMIT+'/'+urllib.parse.quote(path)
  try: urllib.request.urlretrieve(url,root/name);return name,'ok'
  except Exception as e:return name,str(e)
 with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:

@@ -34,11 +34,13 @@ export async function lancerJeu({ debut = 1_000_000, sauvegarde = null, stockage
 
   Date.now = () => maintenant;
   const touches = [];
+  const racine = { dataset: {} };
   const doc = { elements, activeElement: null };
   globalThis.document = Object.assign(doc, {
     getElementById: id => { if (!elements.has(id)) elements.set(id, element(id, doc)); return elements.get(id); },
     createElement: () => element(null, doc),
     addEventListener(type, fn) { if (type === 'keydown') touches.push(fn); },
+    documentElement: racine,
   });
   globalThis.window = { dispatchEvent: e => evenements.push(e), addEventListener() {} };
   globalThis.localStorage = { getItem: k => stockage.get(k) ?? null, setItem: (k, v) => stockage.set(k, String(v)) };
@@ -56,6 +58,7 @@ export async function lancerJeu({ debut = 1_000_000, sauvegarde = null, stockage
     actif: () => doc.activeElement,
     focus: id => elements.get(id).focus(),
     echap: () => touches.forEach(fn => fn({ key: 'Escape' })),
+    racine,
     clic: id => elements.get(id).onclick(),
     avancer(ms) {
       const fin = maintenant + ms;
