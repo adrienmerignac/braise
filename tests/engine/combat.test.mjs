@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fresh, attack, cost, reward, maxHP } from '../../dist/engine/state.js';
-import { newFight, strike, gainXP, buyUpgrade, startBoss, retaliation, XP_BOSS, BOSS_GOLD_MULT, assess, assessGuardian } from '../../dist/engine/combat.js';
+import { parseSave } from '../../dist/engine/save.js';
+import { fresh, attack, cost, reward, maxHP, KILLS_PER_STAGE } from '../../dist/engine/state.js';
+import { enemyKind, enemyMaxHP, victoryGold, restoreFight, newFight, strike, gainXP, buyUpgrade, startBoss, retaliation, XP_BOSS, BOSS_GOLD_MULT, assess, assessGuardian } from '../../dist/engine/combat.js';
 
 test('victoire d’un ennemi : or, expérience, kill, nouvel ennemi', () => {
   const s = fresh(0);
@@ -13,7 +14,7 @@ test('victoire d’un ennemi : or, expérience, kill, nouvel ennemi', () => {
   assert.equal(r.f.hp, 58);
   assert.equal(r.f.enemyHP, r.f.enemyMax);
   assert.deepEqual(r.events.map(e => e.type), ['combat', 'victory', 'spawn']);
-  assert.deepEqual(r.events[0], { type: 'combat', damage: 8, strong: false, defeated: true, boss: false, health: 0.5, taken: 0 });
+  assert.deepEqual(r.events[0], { type: 'combat', damage: 8, strong: false, defeated: true, boss: false, kind: 'eclaireur', health: 0.5, taken: 0 });
   assert.equal(s.gold, 0, 'l’état d’entrée n’est pas modifié');
 });
 
@@ -76,7 +77,7 @@ test('gardien : verrouillé avant 5 victoires, ouvert à 5, victoire ouvre l’�
   assert.equal(victoire.s.stage, 2);
   assert.equal(victoire.s.kills, 0);
   assert.equal(victoire.f.boss, false);
-  assert.equal(victoire.f.enemyMax, 60, 'ennemi de l’étage 2');
+  assert.equal(victoire.f.enemyMax, 42, 'Pillard de l’étage 2 : 60 × 0,7');
   assert.deepEqual(victoire.events.map(e => e.type), ['combat', 'levelup', 'bossVictory', 'spawn']);
   const bv = victoire.events.find(e => e.type === 'bossVictory');
   assert.deepEqual(bv, { type: 'bossVictory', stage: 2, gold: reward(s5) * BOSS_GOLD_MULT, xp: XP_BOSS, healed: 0 });
@@ -191,4 +192,66 @@ test('repli : l’événement dit qui a frappé, combien, et la vie restante de 
   assert.deepEqual(retreat, { type: 'retreat', boss: true, taken: retaliation(s, true), enemyHP: 492 });
   const simple = strike(s, { hp: 3, boss: false, enemyHP: 40, enemyMax: 46 });
   assert.deepEqual(simple.events.find(e => e.type === 'retreat'), { type: 'retreat', boss: false, taken: retaliation(s, false), enemyHP: 32 });
+});
+
+// --- Catalogue d'ennemis de forêt ---
+test('ennemis : 6 victoires de suite donnent Éclaireur, Pillard, Traqueur, Éclaireur, Pillard, Traqueur', () => {
+  let s = { ...fresh(0), level: 20 }, f = newFight(s).f; // niveau haut : aucun repli
+  assert.equal(enemyKind(s), 'eclaireur', 'étage 1 sans victoire');
+  const vus = [];
+  for (let i = 0; i < 6; i++) {
+    const r = strike(s, { ...f, enemyHP: 1 });
+    vus.push(r.events.find(e => e.type === 'combat').kind);
+    assert.equal(r.events.find(e => e.type === 'spawn').kind, enemyKind(r.s), 'le spawn annonce le type suivant');
+    ({ s, f } = r);
+    if (s.kills >= KILLS_PER_STAGE) s = { ...s, stage: s.stage + 1, kills: 0 }; // le gardien est hors sujet ici
+  }
+  assert.deepEqual(vus.slice(0, 5), ['eclaireur', 'pillard', 'traqueur', 'eclaireur', 'pillard']);
+  assert.equal(vus.length, 6);
+});
+
+test('ennemis : PV, riposte et or de chaque type aux étages 1 et 5', () => {
+  // armure 0, sans charme : PV 32 + 14 × étage ; riposte 3 + 1,4 × étage ; or 8 + 3 × étage
+  const attendu = [
+    [1, 0, 'eclaireur', 46, 4, 11], [1, 1, 'pillard', 32, 6, 13], [1, 2, 'traqueur', 59, 3, 14],
+    [5, 2, 'eclaireur', 102, 10, 23], [5, 3, 'pillard', 71, 14, 27], [5, 4, 'traqueur', 132, 8, 29],
+  ];
+  for (const [stage, kills, kind, hp, ret, gold] of attendu) {
+    const place = { ...fresh(0), stage, kills };
+    assert.equal(enemyKind(place), kind);
+    assert.equal(enemyMaxHP(place, false), hp, `${kind} étage ${stage} : PV`);
+    assert.equal(retaliation(place, false), ret, `${kind} étage ${stage} : riposte`);
+    assert.equal(victoryGold(place, false), gold, `${kind} étage ${stage} : or`);
+  }
+});
+
+test('ennemis : le gardien ignore le type', () => {
+  for (const kills of [0, 1, 2]) {
+    const s = { ...fresh(0), stage: 5, kills };
+    assert.equal(enemyMaxHP(s, true), (32 + 14 * 5) * 5);
+    assert.equal(retaliation(s, true), Math.floor(10 + 5 * 1.4));
+    assert.equal(victoryGold(s, true), reward(s) * BOSS_GOLD_MULT);
+  }
+});
+
+test('ennemis : le danger affiché suit la riposte du type courant', () => {
+  const p = { ...fresh(0), stage: 5, kills: 3 }; // (5 − 1 + 3) % 3 = 1 → Pillard
+  assert.equal(enemyKind(p), 'pillard');
+  assert.equal(assess(p, { ...newFight(p).f, hp: 100 }).hitsToSurvive, Math.ceil(100 / 14));
+  assert.equal(assessGuardian(p).hitsToSurvive, Math.ceil(maxHP(p) / retaliation(p, true)));
+});
+
+test('ennemis : une sauvegarde braise-v2 existante recharge le même type et des PV valides', () => {
+  const brut = JSON.stringify({ gold: 40, xp: 3, level: 1, stage: 3, kills: 2, weapon: 1, armor: 0, luck: 0, last: 1000, boss: false, enemyHP: 50 });
+  const { s, fight, status } = parseSave(brut, 2000);
+  assert.equal(status, 'ok');
+  assert.equal(enemyKind(s), 'pillard', '(3 − 1 + 2) % 3 = 1');
+  const f = restoreFight(s, fight);
+  assert.equal(f.enemyMax, Math.floor((32 + 14 * 3) * 0.7));
+  assert.equal(f.enemyMax, enemyMaxHP(s, false));
+  assert.equal(parseSave(JSON.stringify({ ...JSON.parse(brut), enemyHP: 52 }), 2000).status, 'repaired', 'PV au-dessus du maximum du type : réparés');
+  const eclaireur = { ...JSON.parse(brut), stage: 1, kills: 0, enemyHP: 46 };
+  const r = parseSave(JSON.stringify(eclaireur), 2000);
+  assert.equal(r.status, 'ok');
+  assert.equal(restoreFight(r.s, r.fight).enemyMax, 46, 'Éclaireur inchangé');
 });
