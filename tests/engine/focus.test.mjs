@@ -85,3 +85,31 @@ test('absence : Échap n’est pas détourné pendant le dialogue, « Reprendre 
     assert.equal(jeu.el('welcome').open, false);
   });
 });
+
+const ENTREE_TALENTS = { stockageV2: { version: 4, ...BASE, level: 7, guide: 'done', vus: ['gardien', 'absence'], inventaire: [], equipe: {}, talents: {} } };
+
+test('talents : le bouton ouvre le panneau, le focus entre dedans, Échap le ferme et rend le focus', () => avecJeu(ENTREE_TALENTS, jeu => {
+  jeu.clic('talents');
+  assert.equal(jeu.el('talentspanel').hidden, false);
+  assert.equal(jeu.actif(), jeu.el('talent-invest-assaut'));
+  jeu.echap();
+  assert.equal(jeu.el('talentspanel').hidden, true);
+  assert.equal(jeu.actif(), jeu.el('talents'));
+}));
+
+test('talents : Tab reste piégé dans le panneau, dans les deux sens', () => avecJeu(ENTREE_TALENTS, jeu => {
+  jeu.clic('talents');
+  const tab = shift => jeu.el('talentspanel').onkeydown({ key: 'Tab', shiftKey: shift });
+  jeu.focus('talentsclose');
+  tab(false);
+  assert.equal(jeu.actif(), jeu.el('talent-invest-assaut'), 'après le dernier : retour au premier');
+  tab(true);
+  assert.equal(jeu.actif(), jeu.el('talentsclose'), 'avant le premier : le dernier');
+}));
+
+test('talents : « Fermer » rend aussi le focus au bouton d’ouverture', () => avecJeu(ENTREE_TALENTS, jeu => {
+  jeu.clic('talents');
+  jeu.focus('talentsclose');
+  jeu.clic('talentsclose');
+  assert.equal(jeu.actif(), jeu.el('talents'));
+}));

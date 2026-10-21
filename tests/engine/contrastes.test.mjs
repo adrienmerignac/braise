@@ -128,6 +128,10 @@ const paires = [
   ['inventaire : delta positif / panneau', lire(css, '#inventairecomp .gain', 'color'), panel, TEXTE],
   ['inventaire : delta négatif / panneau', lire(css, '#inventairecomp .perte', 'color'), panel, TEXTE],
   ['inventaire : bouton Équiper', lire(css, 'body .inventaire button.primary:enabled', 'color'), lire(css, 'body .inventaire button.primary:enabled', 'background'), TEXTE],
+  ['talents : rang et repère de point libre / panneau', lire(css, '.talent .rang', 'color'), panel, TEXTE],
+  ['talents : repère de point libre / bouton secondaire', lire(css, '#talentscompte:not(:empty)', 'color'), secondaire.fond, TEXTE],
+  ['talents : delta positif / panneau', lire(css, '#talentscomp .gain', 'color'), panel, TEXTE],
+  ['talents : delta négatif / panneau', lire(css, '#talentscomp .perte', 'color'), panel, TEXTE],
   // Contours et indicateurs : 3:1.
   ['contour de focus / panneau', lire(css, 'a:focus-visible', 'outline'), panel, CONTROLE],
   ['contour de focus / fond de page', orange, bg, CONTROLE],

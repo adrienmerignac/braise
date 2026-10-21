@@ -116,3 +116,16 @@ body .inventaire button.primary:enabled{background:var(--orange);color:#30261d}
 .inventaire-actions button{min-height:44px;flex:1}
 .inventaire-actions button[hidden]{display:none}
 #recycleconfirm .primary{background:var(--orange);color:#30261d}
+/* M3.5b — talents (réutilise le panneau .inventaire) */
+#talentslist{list-style:none;margin:0;padding:0}
+.talent{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 22px;border-top:1px solid var(--line);font-size:0.75rem}
+.talent p{margin:2px 0 0}
+.talent .rang{font-weight:700;color:var(--orange)}
+.talent button{min-height:44px;flex:0 0 auto;max-width:44%}
+#talentscomp{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:6px;font-size:0.75rem}
+#talentscomp:empty{display:none}
+#talentscomp li{display:flex;justify-content:space-between;gap:12px}
+#talentscomp .gain{color:var(--green)}#talentscomp .perte{color:#f0a198}
+.talents #talentsreset{width:100%;min-height:44px}
+#talentscompte:not(:empty){color:var(--orange)}
+.talents[hidden]{display:none}
