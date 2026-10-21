@@ -54,7 +54,7 @@ for(const ev of ['pointerdown','keydown','touchstart'])document.addEventListener
 $('sound').onclick=()=>{audioSet={...audioSet,muet:!audioSet.muet};renderAudio();syncAudio();save()};
 $('volume').oninput=e=>{audioSet={...audioSet,volume:Number(e.target.value)/100};renderAudio();syncAudio()};$('volume').onchange=save;
 {const pauseClic=$('pause').onclick;$('pause').onclick=()=>{pauseClic();syncAudio()}}document.addEventListener('visibilitychange',syncAudio);
-function renderAffichage(){$('mouvement').value=affichageSet.mouvement;$('effets').value=affichageSet.effets;emit('braise:affichage',affichageSet)}
+function renderAffichage(){document.documentElement.dataset.mouvement=affichageSet.mouvement;$('mouvement').value=affichageSet.mouvement;$('effets').value=affichageSet.effets;emit('braise:affichage',affichageSet)}
 $('mouvement').onchange=e=>{affichageSet=normaliserAffichage({...affichageSet,mouvement:e.target.value});renderAffichage();save()};
 $('effets').onchange=e=>{affichageSet=normaliserAffichage({...affichageSet,effets:e.target.value});renderAffichage();save()};
 renderAudio();renderAffichage();
