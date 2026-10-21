@@ -1,3 +1,6 @@
+export const SAUVEGARDE_FUTURE = 'Cette sauvegarde vient d’une version plus récente de Braise. Recharge la page pour retrouver ta partie ; rien n’a été modifié.';
+export const IMPORT_FUTURE = 'Import refusé : ce fichier vient d’une version plus récente de Braise. La partie en cours est inchangée.';
+
 // Décide ce qui est annoncé aux lecteurs d'écran (région #alert) : seulement les événements rares. Pur, sans DOM.
 // Un coup ordinaire, une victoire ordinaire, une recharge ou une mise à jour de barre ne sont jamais annoncés.
 export function annoncePour(e) {
@@ -10,6 +13,8 @@ export function annoncePour(e) {
       return `Niveau ${e.level} atteint.`;
     case 'achatImpossible':
       return 'Achat impossible : pas assez d’or.';
+    case 'sauvegardeFuture':
+      return SAUVEGARDE_FUTURE;
     default:
       return null;
   }
