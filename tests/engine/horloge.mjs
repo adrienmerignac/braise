@@ -12,21 +12,22 @@ function element(id, doc) {
     id, textContent: '', innerHTML: '', disabled: false, onclick: null, style: {}, offsetWidth: 0, open: false,
     classList: { add: c => classes.add(c), remove: c => classes.delete(c), contains: c => classes.has(c) },
     append() {}, setAttribute() {},
+    click() { doc.telechargements.push({ nom: el.download, blob: el.href }); },
     showModal() { el.open = true; },
     close() { if (!el.open) return; el.open = false; (ecouteurs.close || []).forEach(fn => fn({ type: 'close' })); },
     addEventListener(type, fn) { (ecouteurs[type] ||= []).push(fn); },
     contains: x => x === el || (ENFANTS[id] || []).some(c => doc.elements.get(c) === x),
     focus() { doc.activeElement = el; },
-    hidden: id in ENFANTS, offsetParent: {}, isConnected: true, firstElementChild: { textContent: '' },
+    hidden: id in ENFANTS || id === 'secours' || id === 'secoursancien', offsetParent: {}, isConnected: true, firstElementChild: { textContent: '' },
   };
   return el;
 }
 
-export async function lancerJeu({ debut = 1_000_000, sauvegarde = null, stockageV2 = null } = {}) {
+export async function lancerJeu({ debut = 1_000_000, sauvegarde = null, stockageV2 = null, stockageBrut = null } = {}) {
   let maintenant = debut;
   const minuteurs = [];
   const elements = new Map();
-  const stockage = new Map(sauvegarde ? [['braise-v1', JSON.stringify(sauvegarde)]] : stockageV2 ? [['braise-v2', JSON.stringify(stockageV2)]] : []);
+  const stockage = new Map(stockageBrut ? Object.entries(stockageBrut) : sauvegarde ? [['braise-v1', JSON.stringify(sauvegarde)]] : stockageV2 ? [['braise-v2', JSON.stringify(stockageV2)]] : []);
   const evenements = [];
   const dateNow = Date.now;
   const precedent = { document: globalThis.document, window: globalThis.window,
@@ -35,7 +36,9 @@ export async function lancerJeu({ debut = 1_000_000, sauvegarde = null, stockage
   Date.now = () => maintenant;
   const touches = [];
   const racine = { dataset: {} };
-  const doc = { elements, activeElement: null };
+  const doc = { elements, activeElement: null, telechargements: [] };
+  const urlPrecedent = { c: URL.createObjectURL, r: URL.revokeObjectURL };
+  URL.createObjectURL = blob => blob; URL.revokeObjectURL = () => {};
   globalThis.document = Object.assign(doc, {
     getElementById: id => { if (!elements.has(id)) elements.set(id, element(id, doc)); return elements.get(id); },
     createElement: () => element(null, doc),
@@ -71,7 +74,9 @@ export async function lancerJeu({ debut = 1_000_000, sauvegarde = null, stockage
       }
       maintenant = fin;
     },
-    fermer() { Date.now = dateNow; Object.assign(globalThis, precedent); },
+    telechargements: doc.telechargements,
+    stockageBrut: cle => stockage.get(cle),
+    fermer() { Date.now = dateNow; URL.createObjectURL = urlPrecedent.c; URL.revokeObjectURL = urlPrecedent.r; Object.assign(globalThis, precedent); },
   };
   return jeu;
 }
