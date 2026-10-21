@@ -3,7 +3,9 @@
 import {
   EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, EQUIPMENT_RARITY_MULT, EQUIPMENT_LEVEL_GROWTH, EQUIPMENT_BASE,
   LOOT_DROP_CHANCE, LOOT_RARITY_WEIGHTS, LOOT_BOSS_RARITY_WEIGHTS, INVENTORY_CAP, LOOT_CONVERSION_GOLD, OFFLINE_LOOT_CAP, EQUIPMENT_UPGRADE_STAT,
+  LOOT_ZONE_SLOT_WEIGHTS,
 } from './balance.js';
+import { idDecor } from './decors.js';
 
 export { EQUIPMENT_SLOTS, EQUIPMENT_RARITIES };
 
@@ -32,12 +34,20 @@ function choisirPoids(poids, rng) {
   return entrees[entrees.length - 1][0];
 }
 
+// Poids d'emplacement de la zone ; zone inconnue → forêt (comme idDecor).
+export const poidsEmplacements = zone => LOOT_ZONE_SLOT_WEIGHTS[idDecor(zone)];
+export const emplacementDePredilection = zone => {
+  const poids = poidsEmplacements(zone);
+  return EQUIPMENT_SLOTS.reduce((a, b) => (poids[b] > poids[a] ? b : a));
+};
+
 // Butin d'un ennemi vaincu : tableau de 0 ou 1 objet. Ordinaire : chance de drop puis rareté ; gardien : toujours un objet, au moins rare.
-export function tirerButin({ ennemi, etape, rng }) {
+// L'emplacement suit les poids de la zone.
+export function tirerButin({ ennemi, etape, rng, zone }) {
   const gardien = ennemi === 'gardien' || ennemi?.boss === true;
   if (!gardien && rng() >= LOOT_DROP_CHANCE) return [];
   const rarete = choisirPoids(gardien ? LOOT_BOSS_RARITY_WEIGHTS : LOOT_RARITY_WEIGHTS, rng);
-  const emplacement = EQUIPMENT_SLOTS[Math.min(EQUIPMENT_SLOTS.length - 1, Math.floor(rng() * EQUIPMENT_SLOTS.length))];
+  const emplacement = choisirPoids(poidsEmplacements(zone), rng);
   return [creerObjet(emplacement, rarete, Math.max(1, etape))];
 }
 
@@ -60,10 +70,13 @@ export function ajouterObjet(s, objet) {
 }
 
 // Butin estimé d'une absence : déterministe (espérance du tirage), sans épique. Communs et rares dans les proportions des poids,
-// emplacements en rotation, niveau de l'étape courante.
-export function butinHorsLigne(victoires, etape) {
+// emplacements en rotation de 4 (prédilection de la zone, autre 1, prédilection, autre 2), niveau de l'étape courante.
+export function butinHorsLigne(victoires, etape, zone) {
   const n = Math.min(OFFLINE_LOOT_CAP, Math.floor(Math.max(0, victoires) * LOOT_DROP_CHANCE));
   const { commun, rare } = LOOT_RARITY_WEIGHTS;
   const nbRares = Math.floor(n * rare / (commun + rare));
-  return Array.from({ length: n }, (_, i) => creerObjet(EQUIPMENT_SLOTS[i % EQUIPMENT_SLOTS.length], i < nbRares ? 'rare' : 'commun', Math.max(1, etape)));
+  const pref = emplacementDePredilection(zone);
+  const [autre1, autre2] = EQUIPMENT_SLOTS.filter(e => e !== pref);
+  const rotation = [pref, autre1, pref, autre2];
+  return Array.from({ length: n }, (_, i) => creerObjet(rotation[i % rotation.length], i < nbRares ? 'rare' : 'commun', Math.max(1, etape)));
 }

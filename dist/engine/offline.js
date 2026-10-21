@@ -21,7 +21,7 @@ export function offlineGains(s, now, f = { hp: maxHP(s), boss: false, enemyHP: 0
   const wins = Math.floor(away / (Math.ceil(enemyMaxHP(s, false) / heroDamage(s, false)) * OFFLINE_FIGHT_FACTOR));
   const gold = wins * reward(s);
   let r = gainXP({ ...base, gold: base.gold + gold }, f, wins * XP_ENEMY);
-  const butin = butinHorsLigne(wins, s.stage), convertis = [];
+  const butin = butinHorsLigne(wins, s.stage, s.zone), convertis = [];
   for (const objet of butin) {
     const a = ajouterObjet(r.s, objet);
     r = { ...r, s: a.s };

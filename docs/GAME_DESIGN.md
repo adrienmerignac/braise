@@ -53,10 +53,10 @@ Les objets tombent en combat et pendant l'absence, et sont sauvegardés dans l'i
 | Ennemi ordinaire | 12 % | 75 % / 22 % / 3 % |
 | Gardien | 100 % | 0 % / 85 % / 15 % |
 
-Soit, par ennemi ordinaire : 9 % commun, 2,64 % rare, 0,36 % épique. L'emplacement est tiré à parts égales.
+Soit, par ennemi ordinaire : 9 % commun, 2,64 % rare, 0,36 % épique. L'emplacement dépend de la zone courante (gardien compris) : la zone favorise un emplacement (50 %, les deux autres 25 %) — forêt : arme, ruines : armure, cryptes : charme. Poids dans `LOOT_ZONE_SLOT_WEIGHTS` (`balance.js`), zone inconnue → forêt. Le panneau Carte l'indique pour chaque zone, fermée comprise.
 
 - **Inventaire plein** (24 objets) : l'objet de moindre rareté est converti en or (commun 5, rare 15, épique 40) et le journal le dit.
-- **Absence** : espérance du tirage (12 % des victoires, arrondi bas, 6 objets maximum, jamais d'épique), listée dans le panneau de retour.
+- **Absence** : espérance du tirage (12 % des victoires, arrondi bas, 6 objets maximum, jamais d'épique, emplacements en rotation de 4 : prédilection de la zone courante, autre, prédilection, autre), listée dans le panneau de retour.
 
 ## Zones
 
