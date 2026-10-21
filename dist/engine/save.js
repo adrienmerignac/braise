@@ -7,11 +7,12 @@ import { enemyMaxHP } from './combat.js';
 import { objectifsNeufs, gardienDepasse } from './objectifs.js';
 import { RECIT_IDS, recitsDebloques } from './recits.js';
 import { pointsTalents, rechargeCompetence } from './talents.js';
-import { ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, EQUIPMENT_BASE, EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, INVENTORY_CAP, EQUIPMENT_UPGRADE_MAX, TALENT_IDS, TALENT_MAX_RANK, ZONE_IDS, OBJECTIFS, OBJECTIF_IDS } from './balance.js';
+import { UPGRADE_MAX_LEVEL, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, EQUIPMENT_BASE, EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, INVENTORY_CAP, EQUIPMENT_UPGRADE_MAX, TALENT_IDS, TALENT_MAX_RANK, ZONE_IDS, OBJECTIFS, OBJECTIF_IDS } from './balance.js';
 
 export const COOLDOWN_SECONDS = 15;
 
-const MAX_AMOUNT = 1e15, MAX_LEVEL = 1000, MAX_STAGE = 100000, MAX_UPGRADE = 200;
+// Le niveau suit l'étage (≈ 1,6 niveau par étage en jeu soutenu) : plafond au même ordre que MAX_STAGE, sinon une partie avancée serait remise au niveau 1.
+const MAX_AMOUNT = 1e15, MAX_LEVEL = 100000, MAX_STAGE = 100000, MAX_UPGRADE = UPGRADE_MAX_LEVEL;
 // min/max inclusifs ; `last` est borné dynamiquement par « maintenant ».
 const FIELDS = {
   gold: [0, MAX_AMOUNT], xp: [0, MAX_AMOUNT], level: [1, MAX_LEVEL], stage: [1, MAX_STAGE],
