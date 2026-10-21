@@ -42,6 +42,12 @@ Ouvrir http://localhost:8080 dans un vrai navigateur. Pour tester un téléphone
 
 Pour un changement de sprite, vérifier au moins marche, attaque et chute, pas seulement une frame immobile. Pour une évolution du moteur, ajouter des tests déterministes avec horloge et stockage simulés avant d’étendre la recette manuelle.
 
+## Recette de référence
+
+`tests/engine/recette-nouvelle-partie.test.mjs` rejoue une nouvelle partie (aucun stockage) par l'interface, avec le harnais `tests/engine/horloge.mjs` : horloge virtuelle, `Math.random` fixé, aucun timer réel. Parcours : tutoriel et premier achat guidé (coût débité une fois), coup toutes les 1,2 s et pause qui fige tout, explication puis combat du premier gardien (le panneau de victoire ne bloque pas la suite), objet équipé depuis l'inventaire, point de talent investi, ouverture des ruines (condition de `dist/engine/zones.js`), voyage par la Carte, récit annoncé sans bloquer, retour en forêt. Après chaque étape, la sauvegarde relue par `jeu.stockage()` est validée et comparée à l'affichage (or, niveau, étage, zone) : la partie est mise en pause le temps d'une écriture périodique de 5 s pour que la copie soit à jour.
+
+Le joueur simulé suit la politique « patient » de `tools/simulate.mjs` (gardien lancé seulement s'il n'est pas « Mortel »). Le parcours demande environ 3 minutes de jeu simulé, donc aucune sauvegarde intermédiaire. Cette recette ne remplace pas la vérification visuelle en navigateur ci-dessus.
+
 ## Contrastes
 
 `tests/engine/contrastes.test.mjs` lit les couleurs de `dist/style.css` (et du `<style>` de `dist/credits.html`) et calcule le ratio WCAG de chaque paire. Seuils : 4,5:1 pour le texte, 3:1 pour les contours et indicateurs. Le calcul ne dépend pas de la taille de texte ; le test vérifie que « Grand » ne redéfinit que `--texte`.
