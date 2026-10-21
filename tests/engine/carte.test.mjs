@@ -88,3 +88,8 @@ test('interface : « nouveau » après l’ouverture d’une zone, effacé à l�
   jeu.clic('carte');
   assert.equal(jeu.texte('cartenouveau'), '');
 }));
+
+test('chaque zone, fermée comprise, annonce son butin en texte', () => {
+  const l = decrireCarte(partie(), { boss: false });
+  assert.deepEqual(l.map(x => x.butin), ['Butin : armes plus fréquentes', 'Butin : armures plus fréquentes', 'Butin : charmes plus fréquents']);
+});

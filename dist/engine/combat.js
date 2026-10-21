@@ -126,7 +126,7 @@ export function strike(s, f, mult = 1, rng = null) {
       events.push({ type: 'victory', gold, xp: XP_ENEMY, healed });
     }
     if (rng) {
-      for (const objet of tirerButin({ ennemi: wonBoss ? 'gardien' : 'ordinaire', etape: etageVaincu, rng })) {
+      for (const objet of tirerButin({ ennemi: wonBoss ? 'gardien' : 'ordinaire', etape: etageVaincu, rng, zone: s.zone })) {
         const r = ajouterObjet(s, objet);
         s = r.s;
         events.push({ type: 'butin', objet, converti: r.converti });
