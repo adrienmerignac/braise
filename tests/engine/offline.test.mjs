@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fresh } from '../../dist/engine/state.js';
-import { offlineGains, OFFLINE_CAP_SECONDS } from '../../dist/engine/offline.js';
+import { offlineGains, OFFLINE_CAP_SECONDS, OFFLINE_FIGHT_FACTOR } from '../../dist/engine/offline.js';
+import { enemyMaxHP, heroDamage } from '../../dist/engine/combat.js';
 
 const T0 = 1_700_000_000_000;
 const apres = secondes => T0 + secondes * 1000;
@@ -13,6 +14,14 @@ test('même durée, même gain, quel que soit le point d’entrée', () => {
   assert.equal(a.gold, b.gold);
   assert.ok(a.wins > 0 && a.show);
   assert.equal(a.s.gold, a.gold);
+});
+
+test('1 h d’absence : moitié moins de victoires qu’avec l’ancien facteur 1,2 (arrondi bas)', () => {
+  const s = fresh(T0), ANCIEN_FACTEUR = 1.2;
+  const coups = Math.ceil(enemyMaxHP(s, false) / heroDamage(s, false));
+  const ancien = Math.floor(3600 / (coups * ANCIEN_FACTEUR));
+  assert.equal(OFFLINE_FIGHT_FACTOR, 2.4);
+  assert.equal(offlineGains(s, apres(3600)).wins, Math.floor(ancien / 2));
 });
 
 test('plafond de 8 h', () => {

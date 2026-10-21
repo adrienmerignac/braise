@@ -54,7 +54,7 @@ export const SKILL_MULT = 4, SKILL_COOLDOWN_SECONDS = 15;
 // Absence
 export const OFFLINE_CAP_SECONDS = 28800;
 export const OFFLINE_PANEL_MIN_SECONDS = 60;
-export const OFFLINE_FIGHT_FACTOR = 1.2;
+export const OFFLINE_FIGHT_FACTOR = 2.4;
 
 // Équipement (M3.1) : 3 emplacements, 3 raretés. Valeur d'un bonus = floor(base × multiplicateur de rareté × (1 + croissance × (niveau − 1))),
 // au moins 1 ; le niveau d'objet suit l'étape du jeu. Chances de butin documentées dans docs/GAME_DESIGN.md.
