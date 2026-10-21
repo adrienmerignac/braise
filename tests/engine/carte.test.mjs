@@ -99,3 +99,8 @@ test('zone ouverte : deux objectifs écrits avec progression et récompense, rie
   assert.equal(o.accompli, true);
   assert.equal(o.texte, 'Vaincre 25 ennemis de la zone — ✓ Accompli · 100 or');
 });
+
+test('chaque zone, fermée comprise, annonce son butin en texte', () => {
+  const l = decrireCarte(partie(), { boss: false });
+  assert.deepEqual(l.map(x => x.butin), ['Butin : armes plus fréquentes', 'Butin : armures plus fréquentes', 'Butin : charmes plus fréquents']);
+});
