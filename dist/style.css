@@ -151,9 +151,9 @@ body .inventaire button.primary:enabled{background:var(--orange);color:#30261d}
 #voyageconfirm .primary{background:var(--orange);color:#30261d}
 .enemy-card>small{display:block;margin:-3px 0 7px;font-size:0.625rem;line-height:1.3;color:var(--orange)}.enemy-card>small:empty{display:none}
 
-#recit>div{flex:1;min-width:0}#recit b{display:block;color:var(--orange)}#recit p{margin:4px 0 0;overflow-wrap:anywhere}
+#recit>div,#succes>div{flex:1;min-width:0}#recit b,#succes b{display:block;color:var(--orange)}#recit p,#succes p{margin:4px 0 0;overflow-wrap:anywhere}
 .recits{padding:10px 22px;border-top:1px solid var(--line);font-size:0.75rem}.recits ul{list-style:none;margin:6px 0 0;padding:0}.recits li{margin:8px 0;overflow-wrap:anywhere}.recits li b{display:block}.recits li p{margin:2px 0 0}.recits .verrouille{color:var(--muted)}
-.bestiaire ul{list-style:none;margin:6px 0 0;padding:0}.bestiaire-zone>b{display:block;color:var(--orange)}.bestiaire-zone li{margin:6px 0;overflow-wrap:anywhere}.bestiaire-zone li span{display:block}.bestiaire-nom{font-weight:700}.bestiaire .inconnu{color:var(--muted)}
+.bestiaire ul{list-style:none;margin:6px 0 0;padding:0}.bestiaire-zone>b{display:block;color:var(--orange)}.bestiaire-zone li{margin:6px 0;overflow-wrap:anywhere}.bestiaire-zone li span{display:block}.bestiaire-nom{font-weight:700}.bestiaire .inconnu{color:var(--muted)}.succes-section li span{display:block}.succes-libelle{font-weight:700}
 @media(max-width:680px){.carte .panel-head,.carte .recits{padding-left:16px;padding-right:16px}.carte .inventaire-aide{margin-left:16px;margin-right:16px}}
 
 .perf{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:6px 10px;background:#000c;color:#d2dfc9;font:0.6875rem monospace;display:flex;flex-wrap:wrap;gap:8px;align-items:center}.perf[hidden]{display:none}.perfligne{flex-basis:100%;user-select:text;-webkit-user-select:text;overflow-wrap:anywhere;white-space:normal}.perfligne[hidden]{display:none}.perf button{min-height:44px;min-width:44px;padding:8px 14px;background:#252f29;color:#d2dfc9;border:1px solid var(--control);border-radius:4px}

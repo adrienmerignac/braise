@@ -3,6 +3,7 @@ import { emplacementDePredilection } from './equipement.js';
 import { etatZones, etageDArrivee } from './zones.js';
 import { etatObjectifs } from './objectifs.js';
 import { etatRecits, RECITS } from './recits.js';
+import { etatSucces } from './succes.js';
 
 export const plageTexte = z => (Number.isFinite(z.fin) ? `Étages ${z.debut} à ${z.fin}` : `Étages ${z.debut} et au-delà`);
 
@@ -41,3 +42,16 @@ export function decrireRecits(s) {
 
 // Prochain récit à montrer dans l'encart : le premier débloqué et pas encore lu, jamais avant la fin du guide du premier parcours.
 export const recitAAfficher = (s, guide) => (guide === 'done' ? etatRecits(s).find(r => r.debloque && !r.lu)?.id ?? null : null);
+
+// Section « Succès » du panneau Carte : compteur en tête, puis une ligne par succès. L'état est écrit (« Obtenu » / « À obtenir »),
+// jamais porté par la couleur ni par une icône ; le progrès chiffré n'apparaît que s'il y a quelque chose à compter (cible > 1).
+export function decrireSucces(s) {
+  const liste = etatSucces(s);
+  return {
+    compteur: `${liste.filter(x => x.obtenu).length} / ${liste.length} succès`,
+    lignes: liste.map(x => ({ id: x.id, libelle: x.libelle, obtenu: x.obtenu, etat: x.obtenu ? 'Obtenu' : 'À obtenir', progres: x.cible > 1 ? `${x.progres} / ${x.cible}` : '' })),
+  };
+}
+
+// Prochain succès de la file à annoncer dans l'encart : seulement après le guide, et jamais par-dessus un autre encart ouvert.
+export const succesAAfficher = (file, guide, encartOuvert) => (guide === 'done' && !encartOuvert && file.length ? file[0] : null);
