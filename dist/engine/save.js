@@ -1,7 +1,7 @@
 // Lecture et écriture de la sauvegarde `braise-v2` (migrée depuis `braise-v1`) : validation champ par champ, sans DOM.
 // Le stockage est injecté (localStorage dans le jeu, un faux dans les tests).
 import { AUDIO_DEFAUT, reglagesValides } from './audio.js';
-import { AFFICHAGE_DEFAUT, affichageValide } from './affichage.js';
+import { AFFICHAGE_DEFAUT, MOUVEMENTS, EFFETS, affichageValide, normaliserAffichage } from './affichage.js';
 import { SAVE_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP } from './state.js';
 import { enemyMaxHP } from './combat.js';
 
@@ -29,7 +29,7 @@ export function migrate(raw) {
 // `guide` : avancement du premier parcours ('todo' | 'done'), absent si non fourni.
 // `vus` : explications ponctuelles déjà montrées (voir GUIDE_VUS), absent si non fourni.
 // `audio` : { muet, volume }, absent si non fourni.
-// `affichage` : { mouvement, effets }, absent si non fourni.
+// `affichage` : { mouvement, effets, texte }, absent si non fourni.
 export const serializeSave = (s, fight, guide, vus, audio, affichage) => JSON.stringify({ version: SAVE_VERSION, ...s, ...fight, ...(guide ? { guide } : {}), ...(vus ? { vus } : {}), ...(audio ? { audio } : {}), ...(affichage ? { affichage } : {}) });
 
 export const GUIDE_STATES = ['todo', 'done'];
@@ -99,7 +99,13 @@ export function parseSave(text, now) {
   // Même règle pour `affichage`.
   let affichage = { ...AFFICHAGE_DEFAUT };
   if (data.affichage !== undefined) {
-    if (affichageValide(data.affichage)) affichage = { mouvement: data.affichage.mouvement, effets: data.affichage.effets }; else repaired = true;
+    if (affichageValide(data.affichage)) affichage = normaliserAffichage(data.affichage);
+    else {
+      repaired = true;
+      // `texte` seul invalide : les deux autres réglages valides sont conservés.
+      const a = data.affichage;
+      if (typeof a === 'object' && a !== null && !Array.isArray(a) && MOUVEMENTS.includes(a.mouvement) && EFFETS.includes(a.effets)) affichage = normaliserAffichage(a);
+    }
   }
   const result = { s, status: repaired ? 'repaired' : 'ok', guide, vus, audio, affichage };
   if (Object.keys(f.fight).length) result.fight = f.fight;

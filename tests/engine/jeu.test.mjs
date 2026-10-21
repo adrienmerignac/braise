@@ -186,3 +186,11 @@ test('mouvement : le choix pilote l’attribut racine qui fige les animations CS
   select.onchange({ target: { value: 'complet' } });
   assert.equal(jeu.racine.dataset.mouvement, 'complet');
 }));
+
+test('texte : le choix pilote l’attribut racine, immédiatement', () => avecJeu({ sauvegarde: SAUVEGARDE }, jeu => {
+  assert.equal(jeu.racine.dataset.texte, 'normal');
+  jeu.el('texte').onchange({ target: { value: 'grand' } });
+  assert.equal(jeu.racine.dataset.texte, 'grand');
+  jeu.el('texte').onchange({ target: { value: 'normal' } });
+  assert.equal(jeu.racine.dataset.texte, 'normal');
+}));
