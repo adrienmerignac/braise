@@ -12,12 +12,12 @@ const roundtrip = (state, fight) => parseSave(serializeSave(state, fight), NOW);
 
 test('aller-retour : vie, ennemi et recharge sont restitués', () => {
   const fight = { hp: 17, boss: false, enemyHP: 20, cool: 9 };
-  assert.deepEqual(roundtrip(s, fight), { s, status: 'ok', fight });
+  assert.deepEqual(roundtrip(s, fight), { s, status: 'ok', guide: 'done', fight });
 });
 
 test('aller-retour : le gardien en cours est repris', () => {
   const fight = { hp: 40, boss: true, enemyHP: 99, cool: 0 };
-  assert.deepEqual(roundtrip(sBoss, fight), { s: sBoss, status: 'ok', fight });
+  assert.deepEqual(roundtrip(sBoss, fight), { s: sBoss, status: 'ok', guide: 'done', fight });
 });
 
 test('chaque champ est indépendant (aller-retour seul)', () => {

@@ -11,11 +11,11 @@ function element() {
   };
 }
 
-export async function lancerJeu({ debut = 1_000_000, sauvegarde = null } = {}) {
+export async function lancerJeu({ debut = 1_000_000, sauvegarde = null, stockageV2 = null } = {}) {
   let maintenant = debut;
   const minuteurs = [];
   const elements = new Map();
-  const stockage = new Map(sauvegarde ? [['braise-v1', JSON.stringify(sauvegarde)]] : []);
+  const stockage = new Map(sauvegarde ? [['braise-v1', JSON.stringify(sauvegarde)]] : stockageV2 ? [['braise-v2', JSON.stringify(stockageV2)]] : []);
   const evenements = [];
   const dateNow = Date.now;
   const precedent = { document: globalThis.document, window: globalThis.window,
