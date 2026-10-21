@@ -37,7 +37,7 @@ test('fermer le récit le marque lu et sauvegarde ; recharger sans fermer le mon
 });
 
 test('récit débloqué par le gardien : annoncé une fois, combats non bloqués', () => {
-  const stockageV2 = { version: 7, ...BASE, stage: 5, meilleurEtage: 5, kills: 5, weapon: 20, level: 20, guide: 'done', vus: ['gardien', 'absence'], recitsLus: ['braise'] };
+  const stockageV2 = { version: 7, ...BASE, stage: 5, meilleurEtage: 5, kills: 5, weapon: 40, level: 20, guide: 'done', vus: ['gardien', 'absence'], recitsLus: ['braise'] };
   return avec({ stockageV2 }, jeu => {
     jeu.clic('boss');
     for (let i = 0; i < 10 && jeu.el('recit').hidden; i++) jeu.avancer(1_000);

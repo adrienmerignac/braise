@@ -52,7 +52,7 @@ test('le coût reste fini au-delà du niveau maximal et l\'achat y est refusé',
   assert.equal(upgradeAtMax({ ...fresh(0), weapon: UPGRADE_MAX_LEVEL - 1 }, 'weapon'), false);
   // Valeurs des paliers jalonnés inchangées.
   assert.equal(cost(fresh(0), 'weapon'), 24);
-  assert.equal(cost({ ...fresh(0), armor: 10 }, 'armor'), Math.floor(30 * 1.6 ** 10));
+  assert.equal(cost({ ...fresh(0), armor: 10 }, 'armor'), Math.floor(30 * 1.5 ** 10));
 });
 
 test('coûts, vie des ennemis, rendements et expérience sont monotones', () => {
