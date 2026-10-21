@@ -111,7 +111,7 @@ export const AUTO_ACHAT_DEBLOCAGE = 15;
 // Rallumage (M5.2a) : valeurs de départ, réversibles. Possible quand le gardien de l'étage `RALLUMAGE_DEBLOCAGE` est vaincu.
 // Éclats gagnés = max(0, floor(meilleurEtage / RALLUMAGE_PAS) - RALLUMAGE_DECALAGE), plafonnés ; chaque éclat : +RALLUMAGE_BONUS (multiplicatif) d'attaque, de vie max et d'or.
 export const RALLUMAGE_DEBLOCAGE = 15;
-export const RALLUMAGE_PAS = 5, RALLUMAGE_DECALAGE = 2, RALLUMAGE_BONUS = 0.05;
+export const RALLUMAGE_PAS = 5, RALLUMAGE_DECALAGE = 2, RALLUMAGE_BONUS = 0.075;
 export const RALLUMAGE_ECLATS_MAX = 100000;
 export const ZONE_IDS = ['foret', 'ruines', 'cryptes'];
 export const ZONES = {

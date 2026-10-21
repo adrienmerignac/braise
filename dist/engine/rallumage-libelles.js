@@ -2,7 +2,7 @@
 import { RALLUMAGE_DEBLOCAGE } from './balance.js';
 import { rallumageDisponible, apercuRallumage } from './rallumage.js';
 
-const pct = x => `+${Math.round(x * 100).toLocaleString('fr-FR')} %`;
+const pct = x => `+${(Math.round(x * 1000) / 10).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} %`; // 7,5 % par éclat : un demi-point doit rester visible
 const eclats = n => `${n.toLocaleString('fr-FR')} ${n > 1 ? 'éclats' : 'éclat'}`;
 
 export const CONDITION_RALLUMAGE = `Rallumer la braise : vaincre le gardien de l’étage ${RALLUMAGE_DEBLOCAGE}`;

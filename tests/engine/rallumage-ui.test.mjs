@@ -24,8 +24,8 @@ test('avant déblocage : condition écrite, pas de bouton', () => avecJeu(sauve(
 test('après déblocage : éclats, bonus, gain et bouton', () => avecJeu(avance({ rallumage: { eclats: 3, nombre: 1, record: 20 } }), jeu => {
   jeu.clic('carte');
   assert.equal(jeu.texte('rallumagecondition'), '');
-  assert.equal(jeu.texte('rallumageetat'), '3 éclats · +15 % attaque, vie et or');
-  assert.match(jeu.texte('rallumagegain'), /\+8 éclats → \+55 %/);
+  assert.equal(jeu.texte('rallumageetat'), '3 éclats · +22,5 % attaque, vie et or');
+  assert.match(jeu.texte('rallumagegain'), /\+8 éclats → \+82,5 %/);
   assert.equal(jeu.el('rallumage-ouvrir').hidden, false);
 }));
 
