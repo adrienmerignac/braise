@@ -129,3 +129,12 @@ body .inventaire button.primary:enabled{background:var(--orange);color:#30261d}
 .talents #talentsreset{width:100%;min-height:44px}
 #talentscompte:not(:empty){color:var(--orange)}
 .talents[hidden]{display:none}
+/* M4.1b — carte (réutilise le panneau .inventaire) */
+#cartelist{list-style:none;margin:0;padding:0}
+.zone{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 22px;border-top:1px solid var(--line);font-size:0.75rem}
+.zone p{margin:2px 0 0}
+.zone-etat{font-weight:700}
+.zone button{min-height:44px;flex:0 0 auto}
+.zone button[hidden]{display:none}
+#cartenouveau:not(:empty){color:var(--orange);font-weight:700}
+#voyageconfirm .primary{background:var(--orange);color:#30261d}
