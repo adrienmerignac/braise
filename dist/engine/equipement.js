@@ -41,8 +41,8 @@ export function tirerButin({ ennemi, etape, rng }) {
   return [creerObjet(emplacement, rarete, Math.max(1, etape))];
 }
 
-const NOMS_EMPLACEMENT = { arme: 'Arme', armure: 'Armure', charme: 'Charme' };
-const NOMS_RARETE = { commun: 'commun', rare: 'rare', epique: 'épique' };
+export const NOMS_EMPLACEMENT = { arme: 'Arme', armure: 'Armure', charme: 'Charme' };
+export const NOMS_RARETE = { commun: 'commun', rare: 'rare', epique: 'épique' };
 export const libelleObjet = o => `${NOMS_EMPLACEMENT[o.emplacement]} (${NOMS_RARETE[o.rarete]}, niveau ${o.niveau})`;
 
 // Range un objet dans l'inventaire. Plein : l'objet de moindre rareté (le nouveau à égalité) est converti en or, jamais perdu en silence.
