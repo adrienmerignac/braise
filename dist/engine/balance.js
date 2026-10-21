@@ -53,6 +53,7 @@ export const EQUIPMENT_BASE = {
   armure: { vieMax: 20, reductionRiposte: 1 },
   charme: { or: 2 },
 };
+export const INVENTORY_CAP = 24;
 export const LOOT_DROP_CHANCE = 0.12;
 export const LOOT_RARITY_WEIGHTS = { commun: 75, rare: 22, epique: 3 };
 export const LOOT_BOSS_RARITY_WEIGHTS = { rare: 85, epique: 15 };
