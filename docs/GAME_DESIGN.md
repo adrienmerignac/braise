@@ -32,6 +32,21 @@ Combat automatique → or et expérience → amélioration → cinq victoires �
 
 Ces chiffres décrivent le code actuel ; ils ne sont pas un objectif d’équilibrage définitif.
 
+## Équipement (moteur uniquement)
+
+Le moteur sait décrire et tirer des objets ; ils ne tombent pas encore en jeu, ne s'affichent pas et ne sont pas sauvegardés.
+
+- **Emplacements** : arme (attaque), armure (vitalité max et réduction de riposte), charme (or par victoire). Les bonus s'ajoutent aux améliorations achetées.
+- **Bonus d'un objet** : `floor(base × multiplicateur de rareté × (1 + 0,15 × (niveau − 1)))`, au moins 1 ; le niveau d'objet est l'étage. Bases : arme +3 attaque, armure +20 vitalité et −1 riposte, charme +2 or.
+- **Raretés** : commun ×1, rare ×1,6, épique ×2,5.
+
+| Source | Chance d'objet | Commun / rare / épique |
+| --- | --- | --- |
+| Ennemi ordinaire | 12 % | 75 % / 22 % / 3 % |
+| Gardien | 100 % | 0 % / 85 % / 15 % |
+
+Soit, par ennemi ordinaire : 9 % commun, 2,64 % rare, 0,36 % épique. L'emplacement est tiré à parts égales.
+
 ## Objectifs à valider
 
 - Premier achat accessible rapidement et effet immédiatement lisible.

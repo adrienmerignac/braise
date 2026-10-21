@@ -6,6 +6,7 @@ import {
   XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, ENEMY_KINDS, ENEMY_CATALOG,
   RETALIATION_BASE, RETALIATION_BOSS_BASE, RETALIATION_PER_STAGE, RETALIATION_ARMOR_REDUCTION,
 } from './balance.js';
+import { bonusEquipement } from './equipement.js';
 
 export {
   XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE,
@@ -16,7 +17,7 @@ export const xpNeeded = s => s.level * XP_PER_LEVEL;
 export const enemyKind = s => ENEMY_KINDS[(s.stage - 1 + s.kills) % ENEMY_KINDS.length];
 const kindOf = s => ENEMY_CATALOG[enemyKind(s)];
 export const enemyMaxHP = (s, boss) => Math.floor((ENEMY_BASE_HP + s.stage * ENEMY_HP_PER_STAGE) * (boss ? BOSS_HP_MULT : kindOf(s).hp));
-export const retaliation = (s, boss) => Math.max(1, Math.floor(((boss ? RETALIATION_BOSS_BASE : RETALIATION_BASE) + s.stage * RETALIATION_PER_STAGE) * (boss ? 1 : kindOf(s).retaliation) - s.armor * RETALIATION_ARMOR_REDUCTION));
+export const retaliation = (s, boss) => Math.max(1, Math.floor(((boss ? RETALIATION_BOSS_BASE : RETALIATION_BASE) + s.stage * RETALIATION_PER_STAGE) * (boss ? 1 : kindOf(s).retaliation) - s.armor * RETALIATION_ARMOR_REDUCTION - bonusEquipement(s.equipe).reductionRiposte));
 export const victoryGold = (s, boss) => Math.floor(reward(s) * (boss ? BOSS_GOLD_MULT : kindOf(s).gold));
 
 // Évaluation du danger, sans compter la compétence : coups pour vaincre l'ennemi vs coups que le héros encaisse.
