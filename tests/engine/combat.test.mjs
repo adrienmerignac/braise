@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fresh } from '../../dist/engine/state.js';
-import { newFight, strike, gainXP, buyUpgrade } from '../../dist/engine/combat.js';
+import { fresh, attack, cost } from '../../dist/engine/state.js';
+import { newFight, strike, gainXP, buyUpgrade, startBoss } from '../../dist/engine/combat.js';
 
 test('victoire d’un ennemi : or, expérience, kill, nouvel ennemi', () => {
   const s = fresh(0);
@@ -49,4 +49,69 @@ test('achat : or insuffisant sans effet, armure soigne', () => {
   assert.equal(r.s.gold, 0);
   assert.equal(r.s.armor, 1);
   assert.equal(r.f.hp, 135);
+});
+
+test('défaite : repli au camp, butin conservé', () => {
+  const s = { ...fresh(0), gold: 50, xp: 12, kills: 3 };
+  const r = strike(s, { hp: 3, boss: false, enemyHP: 40, enemyMax: 46 });
+  assert.deepEqual(r.events.map(e => e.type), ['combat', 'spawn', 'retreat']);
+  assert.equal(r.f.hp, 100, 'vitalité restaurée');
+  assert.equal(r.f.enemyHP, r.f.enemyMax, 'nouvel ennemi');
+  assert.deepEqual(r.s, s, 'or, expérience et victoires conservés');
+});
+
+test('gardien : verrouillé avant 5 victoires, ouvert à 5, victoire ouvre l’étage suivant', () => {
+  const f = { hp: 100, boss: false, enemyHP: 46, enemyMax: 46 };
+  const s4 = { ...fresh(0), kills: 4 };
+  const verrou = startBoss(s4, f);
+  assert.deepEqual(verrou.events, []);
+  assert.equal(verrou.f.boss, false);
+  const s5 = { ...fresh(0), kills: 5 };
+  const boss = startBoss(s5, f);
+  assert.deepEqual(boss.events.map(e => e.type), ['spawn', 'bossStart']);
+  assert.equal(boss.f.boss, true);
+  assert.equal(boss.f.enemyMax, 230);
+  assert.deepEqual(startBoss(s5, boss.f).events, [], 'déjà en combat contre le gardien');
+  const victoire = strike(s5, { ...boss.f, enemyHP: 8 });
+  assert.equal(victoire.s.stage, 2);
+  assert.equal(victoire.s.kills, 0);
+  assert.equal(victoire.f.boss, false);
+  assert.equal(victoire.f.enemyMax, 60, 'ennemi de l’étage 2');
+  assert.deepEqual(victoire.events.map(e => e.type), ['combat', 'levelup', 'bossVictory', 'spawn']);
+});
+
+test('montée de niveau : plusieurs niveaux d’un coup', () => {
+  const f = { hp: 1, boss: false, enemyHP: 1, enemyMax: 1 };
+  const r = gainXP(fresh(0), f, 120);
+  assert.equal(r.s.level, 3);
+  assert.equal(r.s.xp, 15);
+  assert.equal(r.f.hp, 120);
+  assert.deepEqual(r.events, [{ type: 'levelup', level: 2 }, { type: 'levelup', level: 3 }]);
+});
+
+test('achat : coût déduit une seule fois, stat augmentée, coût suivant plus élevé', () => {
+  const f = { hp: 100, boss: false, enemyHP: 1, enemyMax: 1 };
+  const r = buyUpgrade({ ...fresh(0), gold: 100 }, f, 'weapon');
+  assert.equal(r.s.gold, 76);
+  assert.equal(r.s.weapon, 1);
+  assert.equal(attack(r.s), 12);
+  assert.equal(cost(r.s, 'weapon'), 38);
+  assert.deepEqual(r.events, [{ type: 'upgrade', kind: 'weapon', level: 1 }]);
+});
+
+test('fonds insuffisants : état et combat inchangés', () => {
+  const s = { ...fresh(0), gold: 23 };
+  const f = { hp: 100, boss: false, enemyHP: 1, enemyMax: 1 };
+  const r = buyUpgrade(s, f, 'weapon');
+  assert.equal(r.s, s);
+  assert.equal(r.f, f);
+  assert.deepEqual(r.events, []);
+});
+
+test('compétence : dégâts × 4', () => {
+  const f = { hp: 100, boss: false, enemyHP: 46, enemyMax: 46 };
+  const r = strike(fresh(0), f, 4);
+  assert.equal(r.f.enemyHP, 14);
+  assert.equal(r.events[0].damage, 32);
+  assert.equal(r.events[0].strong, true);
 });
