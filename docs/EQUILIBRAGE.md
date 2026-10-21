@@ -194,3 +194,30 @@ Paliers à surveiller :
 `tests/engine/simulation-jours.test.mjs` : simulation déterministe (même graine, même résultat) ; 10 min de `dist/game.js` jouées en
 un bloc, en pas de 1 s ou de 16 ms donnent la même sauvegarde ; cette sauvegarde est celle du moteur à raison d'un coup par
 `ATTACK_INTERVAL_MS`.
+
+## Essai piste 1 bis
+
+Issue #148. Reprise du point laissé ouvert par la piste 2 : les profils actif (10,3 min de jeu au gardien 15) et occasionnel (9,1 min) restent loin de
+la cible de 20 à 30 min, parce que l'or d'absence les renforce. L'essai **monte** `OFFLINE_FIGHT_FACTOR` (2,4 → 3,6 → 4,8 → 6) : moins de gains d'absence.
+Plafond 8 h, seuil 60 s, schéma v10 : inchangés, aucune migration. Relevés (graine 1) : `npm run simulate:jours -- 7` et `node tools/simulate.mjs 60 --farm`.
+Dernière colonne : or rapporté par 8 h d'absence au retour à l'étage 15 (héros niveau 10 au gardien 15, jeu patient), en prix de la plus
+petite amélioration (2 075 or).
+
+| facteur | actif · min de jeu gardien 15 | occasionnel · min de jeu gardien 15 | actif · or hors ligne | occasionnel · or hors ligne | meilleur étage j7 (actif · occ.) | 8 h à l'étage 15 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2,4 (avant) | 10,3 | 9,1 | 9,78 M | 8,95 M | 130 · 107 | 71 131 or (34,3 prix) |
+| 3,6 | 10,8 | 9,7 | 6,70 M | 5,54 M | 121 · 101 | 47 393 or (22,8 prix) |
+| 4,8 (retenu) | 11,4 | 10,0 | 4,74 M | 3,15 M | 117 · 90 | 35 524 or (17,1 prix) |
+| 6 | 11,6 | 10,0 | 3,79 M | 2,68 M | 112 · 88 | 28 386 or (13,7 prix) |
+
+`node tools/simulate.mjs 60 --farm` ne bouge pas (gardien 15 à 1 399,2 s, étage 20, 39 achats à chaque palier) : il ne joue pas d'absence.
+
+**Règle de décision** : on retient la plus petite valeur qui amène les profils actif **et** occasionnel à au moins 20 min de jeu au gardien 15, à
+condition que, à 8 h d'absence, le retour au niveau de l'étage 15 rapporte encore au moins le prix d'une amélioration. Si aucun palier jusqu'à 6
+n'y parvient, on retient 4,8.
+
+**Verdict : cible non tenue pour les profils à sessions.** Aucun palier n'atteint 20 min (11,6 min au mieux en actif, 10,0 en occasionnel à 6) : le
+gardien 15 tombe dans les dix premières minutes de jeu, et l'absence ne pèse presque pas sur cette étape. L'occasionnel y arrive après la première
+absence de 5 h seulement, avec un héros déjà au niveau 10 ; l'or hors ligne ne fait que prolonger les étages suivants (étage 90 au jour 7 contre 107). Le
+levier restant est donc dans le rythme de jeu en session (PV des ennemis, coût des améliorations), pas dans l'absence. **Retenu : 4,8.** La
+condition de 8 h tient (17,1 prix d'amélioration au retour à l'étage 15).
