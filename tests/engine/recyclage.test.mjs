@@ -5,7 +5,7 @@ import { creerObjet } from '../../dist/engine/equipement.js';
 import { recycler, ameliorer, orRecyclage, coutAmelioration, confirmationRequise } from '../../dist/engine/inventaire.js';
 import { fresh, attack } from '../../dist/engine/state.js';
 import { parseSave } from '../../dist/engine/save.js';
-import { RECYCLE_GOLD_BASE, EQUIPMENT_UPGRADE_MAX, COST_GROWTH, EQUIPMENT_UPGRADE_BASE_COST } from '../../dist/engine/balance.js';
+import { RECYCLE_GOLD_BASE, EQUIPMENT_UPGRADE_MAX, COST_GROWTH, EQUIPMENT_UPGRADE_BASE_COST, EQUIPMENT_UPGRADE_STAT, LOOT_CONVERSION_GOLD } from '../../dist/engine/balance.js';
 
 const etat = (inventaire, equipe = {}, gold = 0) => ({ ...fresh(0), inventaire, equipe, gold });
 
@@ -29,6 +29,19 @@ test('rare et épique : refus sans confirmation, état inchangé ; accepté avec
   }
 });
 
+test('le recyclage ne rapporte jamais moins que la conversion automatique', () => {
+  for (const rarete of Object.keys(LOOT_CONVERSION_GOLD)) for (let niveau = 1; niveau <= 10; niveau++)
+    assert.ok(orRecyclage(creerObjet('arme', rarete, niveau)) >= LOOT_CONVERSION_GOLD[rarete], `${rarete} niveau ${niveau}`);
+});
+
+test('un commun amélioré demande confirmation, puis part', () => {
+  const o = creerObjet('arme', 'commun', 1, 1), s = etat([o]);
+  assert.equal(confirmationRequise(o), true);
+  const refus = recycler(s, o);
+  assert.deepEqual([refus.ok, refus.motif, refus.s], [false, 'confirmation', s]);
+  assert.equal(recycler(s, o, { confirme: true }).ok, true);
+});
+
 test('un objet équipé ne se recycle pas, même confirmé', () => {
   const o = creerObjet('arme', 'commun', 1), s = etat([], { arme: o });
   const r = recycler(s, o, { confirme: true });
@@ -48,7 +61,7 @@ test('améliorer : coût croissant, bonus par niveau, plafond +5', () => {
     assert.equal(r.cout, cout);
     assert.equal(r.s.gold, s.gold - cout);
     assert.equal(r.objet.amelioration, n);
-    assert.ok(r.objet.bonus.attaque > base + (n - 1) * 0, 'bonus en hausse');
+    assert.equal(r.objet.bonus.attaque, base + n * EQUIPMENT_UPGRADE_STAT.attaque);
     s = r.s; o = r.objet;
     assert.equal(s.inventaire[0], o);
   }
@@ -106,6 +119,17 @@ test('panneau : recycler un rare demande confirmation ; Annuler / Échap ne chan
     jeu.clic('recycleok');
     assert.equal(jeu.stockage().inventaire.length, 0);
     assert.equal(jeu.stockage().gold, orRecyclage(rare));
+  });
+});
+
+test('panneau : un commun amélioré ouvre la boîte, avec son niveau', () => {
+  const o = creerObjet('arme', 'commun', 1, 1);
+  return avecJeu({ ...BASE, inventaire: [o], equipe: {} }, jeu => {
+    choisir(jeu, 3);
+    jeu.clic('recycler');
+    assert.equal(jeu.el('recycleconfirm').open, true);
+    assert.match(jeu.texte('recycletexte'), /amélioré \+1/);
+    assert.equal(jeu.stockage().inventaire.length, 1);
   });
 });
 

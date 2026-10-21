@@ -47,9 +47,9 @@ export function comparer(s, objet) {
 
 // Recyclage : or selon la rareté et le niveau d'objet. Un objet équipé ne se recycle pas (motif 'equipe') : il faut le retirer d'abord.
 export const orRecyclage = objet => Math.floor(RECYCLE_GOLD_BASE[objet.rarete] * (1 + RECYCLE_LEVEL_GROWTH * (objet.niveau - 1)));
-export const confirmationRequise = objet => RECYCLE_CONFIRM_RARITIES.includes(objet.rarete);
+export const confirmationRequise = objet => RECYCLE_CONFIRM_RARITIES.includes(objet.rarete) || (objet.amelioration ?? 0) > 0;
 
-// `confirme` doit être vrai pour un objet rare ou épique, sinon refus 'confirmation' (aucun changement).
+// `confirme` doit être vrai pour un objet rare, épique ou amélioré, sinon refus 'confirmation' (aucun changement).
 export function recycler(s, objet, { confirme = false } = {}) {
   const i = (s.inventaire ?? []).indexOf(objet);
   if (i < 0) return { s, ok: false, motif: Object.values(s.equipe ?? {}).includes(objet) ? 'equipe' : 'absent' };
