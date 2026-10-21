@@ -9,6 +9,7 @@ export const MESSAGE_GARDIEN_AUTO = 'Gardien lancé automatiquement';
 export const NOMS_ACHAT = { weapon: 'Arme', armor: 'Armure', luck: 'Charme' };
 export const messageAchatAuto = (kind, niveau) => `Achat automatique : ${NOMS_ACHAT[kind]} niveau ${niveau}`;
 export const MESSAGE_GARDIEN_DEBLOQUE = 'Gardien automatique disponible';
+export const MESSAGE_ACHAT_DEBLOQUE = 'Achat automatique disponible';
 
 // Débloqué quand le gardien de l'étage `AUTO_GARDIEN_DEBLOCAGE` a été vaincu.
 const DEBLOCAGES = { gardien: s => s.meilleurEtage > AUTO_GARDIEN_DEBLOCAGE, achat: s => s.meilleurEtage > AUTO_ACHAT_DEBLOCAGE };
@@ -60,4 +61,9 @@ export function texteGardienAuto(s) {
   if (!estDebloque(s, 'gardien')) return `Gardien automatique : vaincre le gardien de l’étage ${AUTO_GARDIEN_DEBLOCAGE}`;
   if (estActif(s, 'gardien') && s.kills >= KILLS_PER_STAGE && assessGuardian(s).danger === 'Mortel') return 'Gardien automatique en attente : danger Mortel';
   return '';
+}
+
+// Ligne écrite sous la case « Achat automatique » : la condition avant déblocage ; ensuite rien (la limite est écrite à côté de la case).
+export function texteAchatAuto(s) {
+  return estDebloque(s, 'achat') ? '' : `Achat automatique : vaincre le gardien de l’étage ${AUTO_ACHAT_DEBLOCAGE}`;
 }

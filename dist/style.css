@@ -159,3 +159,5 @@ body .inventaire button.primary:enabled{background:var(--orange);color:#30261d}
 .perf{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:6px 10px;background:#000c;color:#d2dfc9;font:0.6875rem monospace;display:flex;flex-wrap:wrap;gap:8px;align-items:center}.perf[hidden]{display:none}.perfligne{flex-basis:100%;user-select:text;-webkit-user-select:text;overflow-wrap:anywhere;white-space:normal}.perfligne[hidden]{display:none}.perf button{min-height:44px;min-width:44px;padding:8px 14px;background:#252f29;color:#d2dfc9;border:1px solid var(--control);border-radius:4px}
 .auto-gardien{padding:0 22px}.auto-case{display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 0;cursor:pointer}.auto-case input{flex:none;width:24px;min-height:24px;height:24px;margin:0;accent-color:var(--orange)}.auto-case small{display:block;color:var(--muted);overflow-wrap:anywhere}.auto-texte{margin:0 0 6px;font-size:0.8125rem;line-height:1.35;overflow-wrap:anywhere}.auto-texte[hidden]{display:none}
 .auto-case:focus-within{outline:2px solid var(--orange);outline-offset:2px}
+
+.auto-achat{margin:8px 0 6px}
