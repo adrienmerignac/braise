@@ -11,10 +11,10 @@ async function avecJeu(options, scenario) {
 }
 
 test('compétence : dégâts ×4 puis recharge de 15 s', () => avecJeu({ sauvegarde: SAUVEGARDE }, jeu => {
-  assert.equal(jeu.texte('enemyhp'), '68 / 68');
+  assert.equal(jeu.texte('enemyhp'), '46 / 46');
   assert.equal(jeu.texte('cooldown'), 'Dégâts × 4 · prêt');
   jeu.clic('power');
-  assert.equal(jeu.texte('enemyhp'), '36 / 68', '8 × 4 = 32 dégâts');
+  assert.equal(jeu.texte('enemyhp'), '14 / 46', '8 × 4 = 32 dégâts');
   assert.equal(jeu.texte('cooldown'), 'Recharge · 15 s');
   assert.equal(jeu.el('power').disabled, true);
   jeu.avancer(14_000);
@@ -40,9 +40,9 @@ test('pause : ni combat, ni recharge, ni compétence', () => avecJeu({ sauvegard
 
 test('combat automatique : un coup toutes les 1,2 s, sans dépendre du framerate', () => avecJeu({ sauvegarde: SAUVEGARDE }, jeu => {
   jeu.avancer(1_199);
-  assert.equal(jeu.texte('enemyhp'), '68 / 68');
+  assert.equal(jeu.texte('enemyhp'), '46 / 46');
   jeu.avancer(1);
-  assert.equal(jeu.texte('enemyhp'), '60 / 68');
+  assert.equal(jeu.texte('enemyhp'), '38 / 46');
 }));
 
 test('achat via l’interface : coût déduit une fois, sauvegarde horodatée par l’horloge simulée', () =>
@@ -94,7 +94,7 @@ test('premier parcours : bandeau, achat guidé, puis plus rien après rechargeme
   await avecJeu({}, jeu => {
     assert.equal(jeu.el('guidepanel').hidden, false, 'bandeau visible, combat non bloqué');
     jeu.avancer(1_200);
-    assert.notEqual(jeu.texte('enemyhp'), '68 / 68', 'le combat continue derrière');
+    assert.notEqual(jeu.texte('enemyhp'), '46 / 46', 'le combat continue derrière');
     assert.equal(jeu.el('buy-weapon').classList.contains('guided'), false);
     jeu.avancer(60_000);
     assert.equal(jeu.el('buy-weapon').classList.contains('guided'), true, 'amélioration la moins chère mise en évidence');

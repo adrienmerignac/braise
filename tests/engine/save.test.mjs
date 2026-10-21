@@ -260,9 +260,9 @@ test('sauvegardes valides ou absentes : aucune clé de secours', () => {
   }
 });
 
-test('reprise : une sauvegarde v7 en plein combat avec les anciens PV d’ennemi (14 par étage) se recharge sans réparation', () => {
+test('reprise : une sauvegarde v7 en plein combat avec les anciens PV d’ennemi (base 32, 14 par étage) se recharge sans réparation', () => {
   const base = { version: 7, ...valid, stage: 4, meilleurEtage: 5, kills: 1, last: NOW };
-  // Ancien maximum à l’étage 4 : 32 + 14 × 4 = 88 (Pillard : 123 aujourd’hui).
+  // Ancien maximum à l’étage 4 : 32 + 14 × 4 = 88 (Pillard : 112 aujourd’hui).
   const normal = parseSave(JSON.stringify({ ...base, boss: false, enemyHP: 88 }), NOW);
   assert.equal(normal.status, 'ok', 'ennemi ordinaire aux anciens PV : accepté');
   assert.equal(restoreFight(normal.s, normal.fight).enemyHP, 88);
@@ -272,6 +272,14 @@ test('reprise : une sauvegarde v7 en plein combat avec les anciens PV d’ennemi
   const f = restoreFight(gardien.s, gardien.fight);
   assert.equal(f.boss, true);
   assert.equal(f.enemyHP, 510);
-  assert.equal(f.enemyMax, 1060);
+  assert.equal(f.enemyMax, 990);
   assert.equal(gardien.s.stage, 5);
+  // PV d'ennemi ordinaire au-dessus du maximum du type mais sous le maximum de base (160) : accepté, borné à 112.
+  const borne = parseSave(JSON.stringify({ ...base, boss: false, enemyHP: 150 }), NOW);
+  assert.equal(borne.status, 'ok');
+  assert.equal(restoreFight(borne.s, borne.fight).enemyHP, 112);
+  // Gardien au-dessus du nouveau maximum (990) : réparé, partie conservée.
+  const trop = parseSave(JSON.stringify({ ...base, stage: 5, kills: 5, boss: true, enemyHP: 991 }), NOW);
+  assert.equal(trop.status, 'repaired');
+  assert.equal(trop.s.stage, 5);
 });

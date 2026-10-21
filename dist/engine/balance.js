@@ -12,7 +12,7 @@ export const BASE_REWARD = 8, REWARD_PER_STAGE = 3, REWARD_PER_LUCK = 3;
 // Améliorations
 export const BASE_COSTS = { weapon: 24, armor: 30, luck: 40 };
 export const COST_GROWTH = 1.5;
-// Niveau maximal de chaque amélioration (M5.5) : au-delà, 24 × 1,6^niveau dépasse 1e308 (Infinity vers le niveau 1500) ; le coût reste fini et l'achat est refusé.
+// Niveau maximal de chaque amélioration (M5.5) : au-delà, 24 × 1,5^niveau dépasse 1e308 (Infinity vers le niveau 1740) ; le coût reste fini et l'achat est refusé.
 export const UPGRADE_MAX_LEVEL = 200;
 
 // Expérience, gardien, soins, ennemis
@@ -20,7 +20,7 @@ export const XP_PER_LEVEL = 35;
 export const XP_ENEMY = 10, XP_BOSS = 40;
 export const BOSS_GOLD_MULT = 8, BOSS_HP_MULT = 5;
 export const HEAL_ON_VICTORY = 8, HEAL_ON_ARMOR = 35;
-export const ENEMY_BASE_HP = 32, ENEMY_HP_PER_STAGE = 36;
+export const ENEMY_BASE_HP = 8, ENEMY_HP_PER_STAGE = 38;
 
 // Bestiaire (M4.3a) : multiplicateurs de PV, de riposte et d'or par type ; `coups` et `braise` (1 par défaut) multiplient les dégâts du héros
 // (attaque auto, resp. frappe de braise). Le type courant est une fonction pure de l'état persisté (voir `enemyKind` dans combat.js) ;

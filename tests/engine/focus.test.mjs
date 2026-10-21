@@ -13,7 +13,7 @@ async function avecJeu(options, scenario) {
 const attendu = jeu => ['boss', 'power', 'pause'].map(id => jeu.el(id)).find(b => !b.disabled);
 
 // Partie à un coup du gardien : arme très forte, intro du gardien déjà vue.
-const GARDIEN = { stockageV2: { version: 2, ...BASE, kills: 5, weapon: 40, level: 20, gold: 0, guide: 'done', vus: ['gardien', 'absence'] } };
+const GARDIEN = { stockageV2: { version: 2, ...BASE, kills: 5, weapon: 20, level: 20, gold: 0, guide: 'done', vus: ['gardien', 'absence'] } };
 
 function gardienVaincu(jeu) {
   jeu.clic('boss');

@@ -79,7 +79,7 @@ test('interface : voyage en pause, le jeu reste en pause', () => avecJeu(V5(), j
   assert.equal(jeu.texte('floor'), 'Ruines englouties · Étage 6');
 }));
 
-test('interface : « nouveau » après l’ouverture d’une zone, effacé à l’ouverture du panneau', () => avecJeu(V5({ meilleurEtage: 5, kills: 5, weapon: 40, level: 20 }), jeu => {
+test('interface : « nouveau » après l’ouverture d’une zone, effacé à l’ouverture du panneau', () => avecJeu(V5({ meilleurEtage: 5, kills: 5, weapon: 20, level: 20 }), jeu => {
   assert.equal(jeu.texte('cartenouveau'), '');
   jeu.clic('boss');
   for (let i = 0; i < 10 && jeu.el('bosspanel').hidden; i++) jeu.avancer(1_000);
