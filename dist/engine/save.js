@@ -56,6 +56,8 @@ export function migrate(raw) {
   if (data.version === 8) data = { ...data, succes: succesRemplis(data), version: 9 };
   // v9 → v10 : tous les automatismes éteints, même sur une partie déjà débloquée.
   if (data.version === 9) data = { ...data, automatismes: { gardien: false }, version: 10 };
+  // v10 → v11 : l'achat automatique arrive éteint ; `gardien` est conservé tel quel.
+  if (data.version === 10) data = { ...data, automatismes: { ...(isRecord(data.automatismes) ? data.automatismes : {}), achat: false }, version: 11 };
   return data;
 }
 

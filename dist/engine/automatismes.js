@@ -1,15 +1,17 @@
 // Automatisations (M5.4a) : fonctions pures, sans DOM ni horloge. `s.automatismes` = interrupteurs du joueur, tous éteints au départ.
 // Première action automatisée : lancer le gardien. La frappe de braise reste manuelle ; l'absence n'affronte aucun gardien.
-import { AUTO_GARDIEN_DEBLOCAGE, KILLS_PER_STAGE } from './balance.js';
+import { AUTO_GARDIEN_DEBLOCAGE, AUTO_ACHAT_DEBLOCAGE, KILLS_PER_STAGE } from './balance.js';
 import { assessGuardian } from './combat.js';
-import { automatismesNeufs } from './state.js';
+import { automatismesNeufs, cost, upgradeAtMax } from './state.js';
 
-export const AUTOMATISMES_IDS = ['gardien'];
+export const AUTOMATISMES_IDS = ['gardien', 'achat'];
 export const MESSAGE_GARDIEN_AUTO = 'Gardien lancé automatiquement';
+export const NOMS_ACHAT = { weapon: 'Arme', armor: 'Armure', luck: 'Charme' };
+export const messageAchatAuto = (kind, niveau) => `Achat automatique : ${NOMS_ACHAT[kind]} niveau ${niveau}`;
 export const MESSAGE_GARDIEN_DEBLOQUE = 'Gardien automatique disponible';
 
 // Débloqué quand le gardien de l'étage `AUTO_GARDIEN_DEBLOCAGE` a été vaincu.
-const DEBLOCAGES = { gardien: s => s.meilleurEtage > AUTO_GARDIEN_DEBLOCAGE };
+const DEBLOCAGES = { gardien: s => s.meilleurEtage > AUTO_GARDIEN_DEBLOCAGE, achat: s => s.meilleurEtage > AUTO_ACHAT_DEBLOCAGE };
 export const estDebloque = (s, id) => !!DEBLOCAGES[id]?.(s);
 export const estActif = (s, id) => estDebloque(s, id) && s.automatismes?.[id] === true;
 
@@ -25,6 +27,18 @@ export function doitLancerGardien(s, f, { pause = false, guideFini = true } = {}
   if (pause || !guideFini || !estActif(s, 'gardien')) return false;
   if (f.boss || s.kills < KILLS_PER_STAGE || f.enemyHP < f.enemyMax) return false;
   return assessGuardian(s).danger !== 'Mortel';
+}
+
+// Achat automatique : l'amélioration la moins chère (arme, armure, charme à prix égal) que l'or paie et qui n'est pas au maximum ; sinon null.
+// Jamais en pause ni avant la fin du guide ; un seul achat par pas, c'est l'appelant qui le garantit.
+export function choisirAchatAuto(s, { pause = false, guideFini = true } = {}) {
+  if (pause || !guideFini || !estActif(s, 'achat')) return null;
+  let choix = null;
+  for (const k of ['weapon', 'armor', 'luck']) {
+    if (upgradeAtMax(s, k) || s.gold < cost(s, k)) continue;
+    if (choix === null || cost(s, k) < cost(s, choix)) choix = k;
+  }
+  return choix;
 }
 
 // Lecture d'une sauvegarde : clés inconnues ignorées, non-booléen → false, interrupteur d'une partie non débloquée → false.

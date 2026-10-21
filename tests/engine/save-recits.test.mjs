@@ -10,7 +10,7 @@ const lire = data => parseSave(JSON.stringify(data), NOW);
 
 test('reprise v6 à l’étage 12 : braise, ruines, cryptes lus, cendres non débloqué', () => {
   const r = lire(sans(v6({ stage: 12, zone: 'cryptes', meilleurEtage: 12 })));
-  assert.equal(SAVE_VERSION, 10);
+  assert.equal(SAVE_VERSION, 11);
   assert.deepEqual(r.s.recitsLus, ['braise', 'ruines', 'cryptes']);
 });
 
@@ -27,11 +27,11 @@ test('partie v7 neuve : recitsLus vide', () => {
 
 test('valeurs invalides réparées, inconnus et doublons retirés', () => {
   for (const v of ['x', 3, null, {}]) {
-    const r = lire({ ...fresh(0), version: 10, last: 500, recitsLus: v });
+    const r = lire({ ...fresh(0), version: 11, last: 500, recitsLus: v });
     assert.equal(r.status, 'repaired');
     assert.ok(Array.isArray(r.s.recitsLus));
   }
-  const r = lire({ ...fresh(0), version: 10, last: 500, recitsLus: ['ruines', 'ruines', 'lune', 'braise'] });
+  const r = lire({ ...fresh(0), version: 11, last: 500, recitsLus: ['ruines', 'ruines', 'lune', 'braise'] });
   assert.deepEqual(r.s.recitsLus, ['braise', 'ruines']);
 });
 

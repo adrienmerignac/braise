@@ -106,6 +106,8 @@ export const TALENT_BRAISE_COOLDOWN = 2;
 // Zones (M4.1a) : plages d'étages consécutives ; `fin: Infinity` = pas de plafond. Une zone est ouverte quand le meilleur étage atteint ≥ son `debut`.
 // Automatisations : le gardien de cet étage doit avoir été vaincu (`meilleurEtage` > valeur). Valeur de départ, réversible.
 export const AUTO_GARDIEN_DEBLOCAGE = 10;
+// Achat automatique (M5.4c) : même règle, un cran plus loin.
+export const AUTO_ACHAT_DEBLOCAGE = 15;
 export const ZONE_IDS = ['foret', 'ruines', 'cryptes'];
 export const ZONES = {
   foret: { nom: 'Forêt des Murmures', debut: 1, fin: 5 },
