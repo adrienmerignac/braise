@@ -72,3 +72,18 @@ test('déséquiper puis rechargement : l’équipement persiste', async () => {
     assert.equal(jeu.el('inventairelist').children.length, 4);
   });
 });
+
+test('inventaire plein : déséquiper est refusé avec un message visible, sauvegarde inchangée', () => {
+  const plein = Array.from({ length: 24 }, () => creerObjet('arme', 'commun', 1));
+  return avecJeu({ ...BASE, inventaire: plein, equipe: { arme: epee } }, jeu => {
+    ouvrir(jeu);
+    ligne(jeu, 0).onclick();
+    jeu.clic('equiper');
+    assert.match(jeu.texte('inventairemsg'), /Inventaire plein/);
+    assert.match(jeu.texte('message'), /Inventaire plein/);
+    jeu.avancer(6_000);
+    const sauve = jeu.stockage();
+    assert.equal(sauve.inventaire.length, 24);
+    assert.equal(sauve.equipe.arme.rarete, 'commun');
+  });
+});

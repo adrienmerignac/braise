@@ -104,6 +104,7 @@ button:disabled,.upgrade button:disabled,.guide-panel button:disabled,.audio-bar
 .rarete-commun{color:#e9eee6}.rarete-rare{color:#8fc1e8}.rarete-epique{color:#d3a8ee}
 #inventairelist .bonus{color:var(--muted)}
 .inventaire-detail{padding:14px 22px 18px;border-top:1px solid var(--line)}
+.inventaire-msg{margin:8px 0 0;font-weight:700}.inventaire-msg:empty{display:none}
 .inventaire-nom{margin:0 0 4px;font-weight:700}
 #inventairecomp{list-style:none;margin:10px 0;padding:0;display:grid;gap:6px;font-size:0.75rem}
 #inventairecomp li{display:flex;justify-content:space-between;gap:12px}

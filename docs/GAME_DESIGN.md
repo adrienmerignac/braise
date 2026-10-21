@@ -34,7 +34,7 @@ Ces chiffres décrivent le code actuel ; ils ne sont pas un objectif d’équili
 
 ## Équipement (butin et inventaire)
 
-Les objets tombent en combat et pendant l'absence, et sont sauvegardés dans l'inventaire. Aucun écran d'inventaire pour l'instant : ils ne s'équipent pas tout seuls.
+Les objets tombent en combat et pendant l'absence, et sont sauvegardés dans l'inventaire. Le panneau Inventaire permet de les équiper : équiper échange avec l'objet en place (qui retourne dans l'inventaire), déséquiper est refusé quand l'inventaire est plein (message visible), et la comparaison avant/après porte sur l'attaque, la vie max et l'or par victoire.
 
 - **Emplacements** : arme (attaque), armure (vitalité max et réduction de riposte), charme (or par victoire). Les bonus s'ajoutent aux améliorations achetées.
 - **Bonus d'un objet** : `floor(base × multiplicateur de rareté × (1 + 0,15 × (niveau − 1)))`, au moins 1 ; le niveau d'objet est l'étage. Bases : arme +3 attaque, armure +20 vitalité et −1 riposte, charme +2 or.

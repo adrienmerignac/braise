@@ -47,7 +47,7 @@ function run(r){s=r.s;f=r.f;const m=annoncesPour(r.events);if(m)annonce(m);r.eve
 let invSel=null,invIdx=0;
 const lignesInv=()=>[...EQUIPMENT_SLOTS.map(slot=>({slot,objet:s.equipe?.[slot]||null})),...s.inventaire.map(objet=>({slot:null,objet}))];
 const spanInv=(cls,txt)=>{const e=document.createElement('span');e.className=cls;e.textContent=txt;return e};
-function renderInventaire(){const lignes=lignesInv();if(invSel&&!lignes.some(l=>l.objet===invSel))invSel=null;invIdx=Math.max(0,Math.min(invIdx,lignes.length-1));const dedans=$('inventairelist').contains(document.activeElement);
+function renderInventaire(){$('inventairemsg').textContent='';const lignes=lignesInv();if(invSel&&!lignes.some(l=>l.objet===invSel))invSel=null;invIdx=Math.max(0,Math.min(invIdx,lignes.length-1));const dedans=$('inventairelist').contains(document.activeElement);
 const items=lignes.map((l,i)=>{const li=document.createElement('li');li.setAttribute('role','option');li.setAttribute('aria-selected',String(!!l.objet&&l.objet===invSel));li.tabIndex=i===invIdx?0:-1;
 if(l.objet){li.className='';li.append(spanInv('rang rarete-'+l.objet.rarete,`${l.slot?'Équipé · ':''}${nomEmplacement(l.objet.emplacement)} niveau ${l.objet.niveau} · ${nomRarete(l.objet.rarete)}`),spanInv('bonus',texteBonus(l.objet)))}
 else{li.className='vide';li.append(spanInv('rang',`${nomEmplacement(l.slot)} · emplacement vide`))}
@@ -58,7 +58,7 @@ const o=invSel;$('equiper').hidden=!o;$('inventairenom').textContent=o?`${nomEmp
 const rows=o?comparer(s,o):[];$('inventairecomp').replaceChildren(...rows.map(r=>{const li=document.createElement('li');li.append(spanInv('',r.nom),spanInv(r.delta>0?'gain':r.delta<0?'perte':'',`${r.avant} → ${r.apres} (${signe(r.delta)})`));return li}));
 const equipe=o&&s.equipe?.[o.emplacement]===o;if(o)$('equiper').textContent=equipe?'Déséquiper':'Équiper'}
 function focusInv(){const li=$('inventairelist').children[invIdx];if(li)li.focus()}
-function changerEquipement(r,msg){if(!r.ok){if(r.motif==='plein')annonce('Inventaire plein : fais de la place avant de déséquiper.');return}s=r.s;f={...f,hp:Math.min(f.hp,maxHP())};annonce(msg);log(msg);save();render();renderInventaire()}
+function changerEquipement(r,msg){if(!r.ok){if(r.motif==='plein'){const m='Inventaire plein : fais de la place avant de déséquiper.';$('inventairemsg').textContent=m;annonce(m);log(m)}return}s=r.s;f={...f,hp:Math.min(f.hp,maxHP())};annonce(msg);log(msg);save();render();renderInventaire()}
 $('inventaire').onclick=()=>{if($('inventairepanel').hidden){$('inventairepanel').hidden=false;$('inventaire').setAttribute('aria-expanded','true');invIdx=0;renderInventaire();focusInv()}else fermer('inventairepanel')};
 $('inventaireclose').onclick=()=>fermer('inventairepanel');
 $('equiper').onclick=()=>{const o=invSel;if(!o)return;if(s.equipe?.[o.emplacement]===o){const r=desequiper(s,o.emplacement);changerEquipement(r,`${libelleObjet(o)} déséquipé.`);return}const r=equiper(s,o);const rep=r.remplace?` ${libelleObjet(r.remplace)} retourne dans l’inventaire.`:'';changerEquipement(r,`${libelleObjet(o)} équipé.${rep}`)};
