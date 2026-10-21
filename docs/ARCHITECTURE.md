@@ -12,7 +12,8 @@
 | `dist/scene.js` | Chargement des sprites, décor précalculé, horloge visuelle et rendu Canvas. |
 | `dist/credits.html` | Crédits accessibles aux joueurs. |
 | `dist/assets/lpc/` | Couches, sprites composés, décors, sources et licences LPC. |
-| `dist/assets/Tiles/` | Pack Kenney du prototype, dont les icônes d’amélioration encore utilisées. |
+| `dist/assets/Tiles/` | Trois icônes Kenney (CC0) des améliorations ; le reste du pack a été retiré. |
+| `tools/assets-manifest.json` | Manifeste des PNG de `dist/assets/` : `chemin`, `source` (LPC + commit amont figé, dérivé `compose-hero.py` ou Kenney), `licence`, `sha256`. Régénéré par `python3 tools/build-assets-manifest.py` ; `tools/check.mjs` le contrôle hors ligne. |
 | `tools/` | Contrôles locaux et scripts de récupération/composition des sprites. |
 | `.openai/hosting.json` | Identité du Site existant et répertoire statique `dist`. Aucun secret. |
 
