@@ -7,7 +7,8 @@
 | `dist/index.html` | Structure, contrôles, HUD, fenêtre de retour et chargement des modules. |
 | `dist/style.css` | Palette, panneaux, responsive et préférences de mouvement. |
 | `dist/game.js` | État, sauvegarde, combat, gains, améliorations, événements et mise à jour du DOM. |
-| `dist/engine/audio.js` | Réglages audio purs (muet, volume borné, `peutJouer`) et registre `jouer(nom)` ; aucun son enregistré. Web Audio est branché dans `dist/game.js`, après la première interaction. |
+| `dist/engine/audio.js` | Réglages audio purs (muet, volume borné, `peutJouer`) et registre `jouer(nom)`. Web Audio est branché dans `dist/game.js`, après la première interaction. |
+| `dist/engine/sons.js` | Recettes pures des sons synthétisés (`coup`, `coup-gardien`, `feu`, `pas`) et `sonsPourEvenement` ; la scène planifie les sons sur son horloge et émet `braise:son`, `game.js` les lit en Web Audio (oscillateurs, bruit blanc). Aucun fichier audio. |
 | `dist/scene.js` | Chargement des sprites, décor précalculé, horloge visuelle et rendu Canvas. |
 | `dist/credits.html` | Crédits accessibles aux joueurs. |
 | `dist/assets/lpc/` | Couches, sprites composés, décors, sources et licences LPC. |

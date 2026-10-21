@@ -1,5 +1,6 @@
 import {KILLS_PER_STAGE,cheapestUpgrade,fresh as freshState,attack as attackOf,maxHP as maxHPOf,reward as rewardOf,cost as costOf} from './engine/state.js';
 import {normaliserReglages,peutJouer,creerAudio} from './engine/audio.js';
+import {RECETTES} from './engine/sons.js';
 import {loadSave,writeSave,serializeSave,importSave} from './engine/save.js';
 import {offlineGains} from './engine/offline.js';
 import {ATTACK_INTERVAL_MS,SKILL_MULT,SKILL_COOLDOWN_SECONDS,ATTACK_PER_WEAPON,HEALTH_PER_ARMOR,REWARD_PER_LUCK,OFFLINE_CAP_SECONDS,BOSS_HP_MULT,BOSS_GOLD_MULT,RETALIATION_BASE,RETALIATION_BOSS_BASE} from './engine/balance.js';
@@ -40,8 +41,11 @@ function collectAway(){const r=offlineGains(s,Date.now(),f,{paused});s=r.s;f=r.f
 collectAway();
 $('guidepanel').hidden=loadStatus!=='new';hideIntros();
 apply({type:'spawn',boss:f.boss});render();if(loadStatus==='reset'||loadStatus==='unavailable')log('Sauvegarde illisible ou indisponible : une nouvelle partie commence.');else if(loadStatus==='repaired')log('Sauvegarde endommagée : les valeurs invalides ont été remplacées.');if(loadStatus==='unavailable'){saveOk=false;$('saved').textContent='Sauvegarde indisponible'}setInterval(()=>{if(!document.hidden)strike()},ATTACK_INTERVAL_MS);setInterval(()=>{if(cool>0&&!paused)cool--;if(bossPanelLeft>0&&!paused&&!document.hidden&&--bossPanelLeft===0)hideBossPanel();render()},1000);setInterval(()=>{if(!document.hidden)save()},5000);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();else{collectAway();render()}});window.addEventListener('pagehide',save);
-// Audio : Web Audio natif, contexte créé ou repris seulement après une interaction. Aucun son n'est encore enregistré.
-let audioCtx=null,interacted=false;const audio=creerAudio({lire:()=>{}});
+// Audio : Web Audio natif, contexte créé ou repris seulement après une interaction. Les sons sont synthétisés (recettes dans engine/sons.js), déclenchés par la scène via `braise:son`.
+let audioCtx=null,interacted=false;let bruitBuf=null;
+function lireSon(r,gain){if(!audioCtx||audioCtx.state!=='running')return;try{const t0=audioCtx.currentTime,fin=t0+r.duree,g=audioCtx.createGain();g.gain.setValueAtTime(0.0001,t0);g.gain.linearRampToValueAtTime(Math.max(0.0001,r.pic*gain),t0+r.attaque);g.gain.exponentialRampToValueAtTime(0.0001,fin);let src;if(r.source==='bruit'){if(!bruitBuf){bruitBuf=audioCtx.createBuffer(1,Math.ceil(audioCtx.sampleRate*0.5),audioCtx.sampleRate);const d=bruitBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}src=audioCtx.createBufferSource();src.buffer=bruitBuf;const fl=audioCtx.createBiquadFilter();fl.type=r.filtre.type;fl.frequency.value=r.filtre.freq;fl.Q.value=r.filtre.q||1;src.connect(fl);fl.connect(g)}else{src=audioCtx.createOscillator();src.type=r.type;src.frequency.setValueAtTime(r.freq[0],t0);src.frequency.exponentialRampToValueAtTime(r.freq[1],fin);src.connect(g)}g.connect(audioCtx.destination);src.start(t0);src.stop(fin+0.02)}catch{}}
+const audio=creerAudio({lire:lireSon});for(const [nom,r] of Object.entries(RECETTES))audio.enregistrer(nom,r);
+window.addEventListener('braise:son',({detail})=>{jouer(detail.nom)});
 function renderAudio(){const pct=Math.round(audioSet.volume*100);$('sound').setAttribute('aria-pressed',String(!audioSet.muet));$('sound').textContent=audioSet.muet?'♪ Son : coupé':'♪ Son : actif';$('volume').value=pct;$('volume').setAttribute('aria-valuetext',`${pct} %`);$('volumeout').textContent=`${pct} %`}
 function syncAudio(){if(!interacted)return;const Ctx=window.AudioContext||window.webkitAudioContext;if(!audioCtx&&Ctx){try{audioCtx=new Ctx}catch{}}if(!audioCtx)return;if(peutJouer(audioSet,true,paused,document.hidden)){if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{})}else if(audioCtx.state==='running')audioCtx.suspend().catch(()=>{})}
 function jouer(nom){return audio.jouer(nom,{reglages:audioSet,interactionFaite:interacted,pause:paused,masque:document.hidden})}
