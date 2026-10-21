@@ -42,6 +42,7 @@ npm run check
 | [Architecture](docs/ARCHITECTURE.md) | Fichiers, simulation, événements et sauvegarde. |
 | [Direction du jeu](docs/GAME_DESIGN.md) | Boucle de jeu et principes d’équilibrage. |
 | [Vérifications](docs/TESTING.md) | Commande de contrôle et recette manuelle. |
+| [Équilibrage](docs/EQUILIBRAGE.md) | Durée d’une expédition et progression sur 1, 3 et 7 jours (M5.1). |
 | [Décisions](docs/DECISIONS.md) | Choix établis et sujets encore ouverts. |
 | [Publication](docs/DEPLOYMENT.md) | GitHub et hébergement Sites. |
 | [Donner un retour](docs/BETA.md) | Guide du testeur bêta et formulaire de retour de partie. |
