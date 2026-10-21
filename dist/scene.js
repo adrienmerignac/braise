@@ -1,3 +1,4 @@
+import { createSceneQueue } from './engine/scene-queue.js';
 // Direction rows belong to each sheet, not to the LPC family as a whole.
 const HERO_ROWS = Object.freeze({ east: 3 });
 // Redshrike’s goblinsword.png faces right on row 1 and left on row 3.
@@ -11,6 +12,26 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const assets = {};
 const files = ['hero-walk','hero-swing','hero-hurt','goblin-sword','grass','dirt','treetop','trunk','rock','chests'];
 let failed = false;
+let time = 0, previous = 0, paused = false, attackAt = -5000, spawnAt = 0;
+let dying = false, strong = false, isBoss = false, damage = 0, heroRatio = 1;
+const sparks = [];
+// Les événements du jeu sont tamponnés jusqu'à la fin du chargement des images (et de la chute en cours).
+const queue = createSceneQueue((type, detail) => {
+  if (type === 'combat') {
+    attackAt = time; dying = detail.defeated; strong = detail.strong;
+    damage = detail.damage; isBoss = detail.boss; heroRatio = detail.health;
+    for (let i = 0; i < (strong ? 30 : 10); i++) sparks.push({start:time + 330,x:556,y:270,vx:Math.cos(i*2.4)*(25+i*3),vy:-30-i*5});
+  } else if (type === 'spawn') { dying = false; isBoss = detail.boss; spawnAt = time; }
+});
+function receive(type, detail) {
+  if (type === 'braise:pause') paused = detail;
+  else queue.push(type.slice(7), detail, time);
+}
+// game.js s'exécute avant cette scène : on rejoue d'abord ce qu'il a déjà émis, puis on écoute en direct.
+const backlog = window.braiseBacklog || [];
+window.braiseBacklog = null;
+for (const [type, detail] of backlog) receive(type, detail);
+for (const type of ['braise:combat', 'braise:pause', 'braise:spawn']) window.addEventListener(type, ({detail}) => receive(type, detail));
 await Promise.all(files.map(name => new Promise(resolve => {
   const image = new Image();
   image.onload = () => { assets[name] = image; resolve(); };
@@ -18,16 +39,7 @@ await Promise.all(files.map(name => new Promise(resolve => {
   image.src = `assets/lpc/${name}.png`;
 })));
 if (failed) document.getElementById('message').textContent = 'Certains décors n’ont pas chargé. Recharge la page pour réessayer.';
-let time = 0, previous = 0, paused = false, attackAt = -5000, spawnAt = 0;
-let dying = false, strong = false, isBoss = false, damage = 0, heroRatio = 1;
-const sparks = [];
-window.addEventListener('braise:combat', ({detail}) => {
-  attackAt = time; dying = detail.defeated; strong = detail.strong;
-  damage = detail.damage; isBoss = detail.boss; heroRatio = detail.health;
-  for (let i = 0; i < (strong ? 30 : 10); i++) sparks.push({start:time + 330,x:556,y:270,vx:Math.cos(i*2.4)*(25+i*3),vy:-30-i*5});
-});
-window.addEventListener('braise:pause', ({detail}) => { paused = detail; });
-window.addEventListener('braise:spawn', ({detail}) => { isBoss = detail.boss; spawnAt = time; });
+queue.ready(time);
 function image(name, sx, sy, sw, sh, x, y, w, h) {
   if (assets[name]) ctx.drawImage(assets[name], sx, sy, sw, sh, Math.round(x), Math.round(y), w, h);
 }
@@ -66,6 +78,7 @@ function fire(t) {
 }
 function draw(now) {
   const dt=previous?Math.min(50,now-previous):0;previous=now;if(!paused)time+=dt;
+  queue.flush(time);
   const t=reduced.matches?0:time, age=time-attackAt;
   ctx.save();
   if(strong&&age>280&&age<520&&!reduced.matches)ctx.translate(Math.sin(age)*3,Math.cos(age)*2);
@@ -84,7 +97,7 @@ function draw(now) {
   else if(lunging)actor('hero-swing',Math.min(5,Math.floor((age-190)/76)),HERO_ROWS.east,heroX,heroY);
   else actor('hero-walk',0,HERO_ROWS.east,heroX,heroY);
   const deathAge=age-360;
-  if(dying&&deathAge>0&&deathAge<650){actor('goblin-sword',Math.min(4,Math.floor(deathAge/100)),GOBLIN_ROWS.death,enemyX,210,2,Math.max(0,1-deathAge/650));}
+  if(dying&&deathAge>0&&deathAge<650){actor('goblin-sword',Math.min(4,Math.floor(deathAge/100)),GOBLIN_ROWS.death,enemyX,isBoss?194:210,isBoss?2.25:2,Math.max(0,1-deathAge/650));}
   else {
     const entering=dying&&deathAge>=650?(Math.max(0,1350-age)):Math.max(0,650-(time-spawnAt));
     const frame=reduced.matches?0:Math.floor(t/150)%9;
