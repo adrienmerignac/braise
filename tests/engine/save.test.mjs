@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseSave, loadSave, writeSave, migrate, serializeSave, importSave } from '../../dist/engine/save.js';
-import { fresh, SAVE_KEY, LEGACY_SAVE_KEY } from '../../dist/engine/state.js';
+import { fresh, SAVE_KEY, BACKUP_KEY, LEGACY_SAVE_KEY } from '../../dist/engine/state.js';
 
 const NOW = 1_700_000_000_000;
 const valid = { gold: 120, xp: 5, level: 3, stage: 4, kills: 2, weapon: 1, armor: 2, luck: 0, last: NOW - 1000 };
@@ -190,5 +190,63 @@ test('audio corrompu : défaut, partie conservée, jamais reset', () => {
     assert.deepEqual(r.audio, DEFAUT_AUDIO);
     assert.equal(r.s.gold, valid.gold);
     assert.equal(importSave(JSON.stringify({ version: 2, ...valid, audio }), NOW).ok, false);
+  }
+});
+
+// --- Copie de secours d'une partie illisible ---
+const faux = (init = {}, { echecSecours = false } = {}) => {
+  const m = new Map(Object.entries(init));
+  return {
+    m,
+    getItem: k => (m.has(k) ? m.get(k) : null),
+    setItem: (k, v) => { if (echecSecours && k === BACKUP_KEY) throw new Error('quota'); m.set(k, v); },
+  };
+};
+
+test('texte illisible : copié tel quel, puis partie neuve écrite sans perte du texte', () => {
+  const st = faux({ [SAVE_KEY]: '{pas du json' });
+  const l = loadSave(st, NOW);
+  assert.equal(l.status, 'reset');
+  assert.equal(l.secours, 'copiee');
+  assert.equal(writeSave(st, l.s, undefined, l.guide, l.vus, l.audio, l.affichage), true);
+  assert.equal(st.m.get(BACKUP_KEY), '{pas du json');
+  assert.equal(JSON.parse(st.m.get(SAVE_KEY)).version, 2);
+  assert.equal(parseSave(st.m.get(SAVE_KEY), NOW).status, 'ok');
+});
+
+test('seconde partie illisible : la première copie est conservée', () => {
+  const st = faux({ [SAVE_KEY]: '{pas du json' });
+  loadSave(st, NOW);
+  st.m.set(SAVE_KEY, '[autre texte');
+  const l = loadSave(st, NOW);
+  assert.equal(l.secours, 'existante');
+  assert.equal(st.m.get(BACKUP_KEY), '{pas du json');
+});
+
+test('setItem qui lève sur la clé de secours : aucune exception, statut signalé, partie jouable', () => {
+  const st = faux({ [SAVE_KEY]: '{pas du json' }, { echecSecours: true });
+  const l = loadSave(st, NOW);
+  assert.equal(l.secours, 'echec');
+  assert.equal(l.brut, '{pas du json');
+  assert.equal(writeSave(st, l.s), true);
+  assert.equal(st.m.has(BACKUP_KEY), false);
+});
+
+test('v1 reprise alors que v2 est illisible : le texte v2 est gardé, v1 inchangée', () => {
+  const v1 = JSON.stringify({ ...fresh(NOW), gold: 7 });
+  const st = faux({ [SAVE_KEY]: 'xx', [LEGACY_SAVE_KEY]: v1 });
+  const l = loadSave(st, NOW);
+  assert.equal(l.s.gold, 7);
+  assert.equal(st.m.get(BACKUP_KEY), 'xx');
+  assert.equal(st.m.get(LEGACY_SAVE_KEY), v1);
+});
+
+test('sauvegardes valides ou absentes : aucune clé de secours', () => {
+  const valide = serializeSave(fresh(NOW));
+  for (const init of [{}, { [SAVE_KEY]: valide }, { [LEGACY_SAVE_KEY]: JSON.stringify(fresh(NOW)) }, { [SAVE_KEY]: JSON.stringify({ version: 3 }) }]) {
+    const st = faux(init);
+    const l = loadSave(st, NOW);
+    assert.equal(l.secours, undefined);
+    assert.equal(st.m.has(BACKUP_KEY), false);
   }
 });

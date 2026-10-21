@@ -2,7 +2,7 @@
 // Le stockage est injecté (localStorage dans le jeu, un faux dans les tests).
 import { AUDIO_DEFAUT, reglagesValides } from './audio.js';
 import { AFFICHAGE_DEFAUT, MOUVEMENTS, EFFETS, affichageValide, normaliserAffichage } from './affichage.js';
-import { SAVE_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP } from './state.js';
+import { SAVE_KEY, BACKUP_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP } from './state.js';
 import { enemyMaxHP } from './combat.js';
 
 export const COOLDOWN_SECONDS = 15;
@@ -122,6 +122,17 @@ export function parseSave(text, now) {
   return result;
 }
 
+// Copie le texte illisible sous BACKUP_KEY, une seule fois : une copie existante n'est jamais remplacée.
+// Ne lève jamais. `secours` : 'copiee' | 'existante' | 'echec' ; `brut` reste en mémoire pour le téléchargement.
+export function backupUnreadable(storage, brut) {
+  try {
+    const existing = storage.getItem(BACKUP_KEY);
+    if (existing !== null && existing !== undefined) return { brut, secours: 'existante' };
+    storage.setItem(BACKUP_KEY, brut);
+    return { brut, secours: 'copiee' };
+  } catch { return { brut, secours: 'echec' }; }
+}
+
 // Ne lève jamais : un stockage indisponible donne une partie neuve et `status: 'unavailable'`.
 // Sans `braise-v2` (ou si elle est illisible), reprend `braise-v1` et l'écrit en v2 ; l'ancienne clé n'est jamais modifiée.
 export function loadSave(storage, now) {
@@ -130,9 +141,12 @@ export function loadSave(storage, now) {
   const current = parseSave(text, now);
   if (current.status === 'future') return current;
   if (current.status !== 'new' && current.status !== 'reset') return current;
+  // Avant toute écriture (y compris la reprise de v1 ci-dessous), le texte illisible est mis de côté.
+  if (current.status === 'reset') Object.assign(current, backupUnreadable(storage, text));
   if (legacy === null || legacy === undefined) return current;
   const migrated = parseSave(legacy, now);
-  if (migrated.status === 'reset') return { s: current.s, status: 'reset' };
+  if (migrated.status === 'reset') return { s: current.s, status: 'reset', brut: current.brut, secours: current.secours };
+  if (current.status === 'reset') Object.assign(migrated, { brut: current.brut, secours: current.secours });
   writeSave(storage, migrated.s, undefined, migrated.guide, migrated.vus, migrated.audio, migrated.affichage);
   return migrated;
 }

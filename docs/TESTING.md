@@ -66,6 +66,8 @@ Largeur : relever `scrollWidth` du document et vérifier qu’aucun descendant d
 
 Dans tous les formats : zones tactiles ≥ 44 × 44 px (boutons, listes, curseur, Exporter/Importer, fermeture des panneaux), vérifié par `tests/engine/cibles-tactiles.test.mjs` pour la règle CSS, au navigateur pour la taille rendue.
 
+Copie de secours : mettre `{pas du json` dans `braise-v2` (console), recharger → message « copie gardée » et bouton « Télécharger la copie » (clavier, ≥ 44 px) ; `braise-v2-secours` contient le texte exact, `braise-v2` une partie neuve. Un second texte corrompu ne remplace pas la copie.
+
 ## Résultats
 
 Consigner dans `HANDOFF.md` le scénario joué, le viewport, les commandes passées et les vérifications non réalisées. Ne pas réutiliser une validation de la session précédente comme preuve d’une modification actuelle.
