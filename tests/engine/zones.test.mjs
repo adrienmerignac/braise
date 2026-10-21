@@ -25,6 +25,7 @@ test('gardien de l’étage 5 : l’étage reste 5, les ruines s’ouvrent', () 
   assert.equal(r.s.meilleurEtage, 6);
   assert.ok(zoneOuverte(r.s, 'ruines'));
   assert.equal(r.events.find(e => e.type === 'bossVictory').zoneOuverte, 'ruines');
+  assert.equal(r.events.find(e => e.type === 'bossVictory').plafond, true);
   assert.ok(r.s.gold > 0);
 });
 
