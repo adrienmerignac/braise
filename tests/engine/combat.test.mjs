@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fresh, attack, cost } from '../../dist/engine/state.js';
-import { newFight, strike, gainXP, buyUpgrade, startBoss } from '../../dist/engine/combat.js';
+import { fresh, attack, cost, reward } from '../../dist/engine/state.js';
+import { newFight, strike, gainXP, buyUpgrade, startBoss, XP_BOSS, BOSS_GOLD_MULT } from '../../dist/engine/combat.js';
 
 test('victoire d’un ennemi : or, expérience, kill, nouvel ennemi', () => {
   const s = fresh(0);
@@ -78,6 +78,9 @@ test('gardien : verrouillé avant 5 victoires, ouvert à 5, victoire ouvre l’�
   assert.equal(victoire.f.boss, false);
   assert.equal(victoire.f.enemyMax, 60, 'ennemi de l’étage 2');
   assert.deepEqual(victoire.events.map(e => e.type), ['combat', 'levelup', 'bossVictory', 'spawn']);
+  const bv = victoire.events.find(e => e.type === 'bossVictory');
+  assert.deepEqual(bv, { type: 'bossVictory', stage: 2, gold: reward(s5) * BOSS_GOLD_MULT, xp: XP_BOSS });
+  assert.equal(victoire.events.at(-1).boss, false, 'le spawn suivant n’est pas un gardien');
 });
 
 test('montée de niveau : plusieurs niveaux d’un coup', () => {

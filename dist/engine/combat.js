@@ -71,7 +71,7 @@ export function strike(s, f, mult = 1) {
     if (wonBoss) {
       s = { ...s, stage: s.stage + 1, kills: 0 };
       f = { ...f, boss: false, hp: maxHP(s) };
-      events.push({ type: 'bossVictory', stage: s.stage, gold });
+      events.push({ type: 'bossVictory', stage: s.stage, gold, xp: XP_BOSS });
     } else {
       s = { ...s, kills: Math.min(KILLS_PER_STAGE, s.kills + 1) };
       f = { ...f, hp: Math.min(maxHP(s), f.hp + HEAL_ON_VICTORY) };
