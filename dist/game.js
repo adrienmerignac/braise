@@ -1,12 +1,13 @@
-import {SAVE_KEY as KEY,KILLS_PER_STAGE,fresh as freshState,attack as attackOf,maxHP as maxHPOf,reward as rewardOf,cost as costOf} from './engine/state.js';
+import {KILLS_PER_STAGE,fresh as freshState,attack as attackOf,maxHP as maxHPOf,reward as rewardOf,cost as costOf} from './engine/state.js';
+import {loadSave,writeSave} from './engine/save.js';
 import {xpNeeded,gainXP as gainXPOf,newFight,startBoss,buyUpgrade,strike as strikeOf} from './engine/combat.js';
 const $=id=>document.getElementById(id);
 const fresh=()=>freshState(Date.now());
-let s;try{s={...fresh(),...JSON.parse(localStorage.getItem(KEY)||'null')};if(!Number.isFinite(s.stage)||s.stage<1)throw Error();}catch{s=fresh()}
+let s,loadStatus;{const l=loadSave((()=>{try{return localStorage}catch{return {getItem(){throw Error()}}}})(),Date.now());s=l.s;loadStatus=l.status}
 let paused=false,cool=0,f={hp:100,boss:false,enemyHP:0,enemyMax:0},saveOk=true;
 const attack=()=>attackOf(s),maxHP=()=>maxHPOf(s),reward=()=>rewardOf(s),cost=k=>costOf(s,k);
 const names=['Éclaireur gobelin','Pillard des Murmures','Traqueur des sous-bois'];
-function log(t){$('message').textContent=t}function save(){s.last=Date.now();try{localStorage.setItem(KEY,JSON.stringify(s))}catch{saveOk=false;$('saved').textContent='Sauvegarde indisponible'}}
+function log(t){$('message').textContent=t}function save(){s.last=Date.now();let ok=false;try{ok=writeSave(localStorage,s)}catch{}if(!ok){saveOk=false;$('saved').textContent='Sauvegarde indisponible'}else if(!saveOk){saveOk=true;$('saved').textContent='● Sauvegarde automatique'}}
 const titles={weapon:'Affûter la lame',armor:'Renforcer l’armure',luck:'Charme de fortune'};
 const emit=(type,detail)=>window.dispatchEvent(new CustomEvent(type,{detail}));
 function apply(e){switch(e.type){
@@ -24,4 +25,4 @@ for(const [k,title,img] of [['weapon','Affûter la lame',104],['armor','Renforce
 function strike(mult=1){if(paused)return;run(strikeOf(s,f,mult));render()}
 $('boss').onclick=()=>{run(startBoss(s,f));render()};$('power').onclick=()=>{if(cool||paused)return;cool=15;strike(4)};$('pause').onclick=()=>{paused=!paused;window.dispatchEvent(new CustomEvent('braise:pause',{detail:paused}));$('pause').textContent=paused?'▶ Reprendre':'Ⅱ Pause';render()};$('reset').onclick=()=>{if(!confirm('Recommencer ? Toute la progression locale sera effacée.'))return;s=fresh();cool=0;run(newFight(s));save();render();log('Une nouvelle braise s’éveille.')};$('claim').onclick=()=>$('welcome').close();
 const away=Math.max(0,Math.min(28800,(Date.now()-s.last)/1000));if(away>60){const wins=Math.floor(away/(Math.ceil((32+s.stage*14)/attack())*1.2));const gold=wins*reward();s={...s,gold:s.gold+gold};run(gainXPOf(s,f,wins*10));$('offline').textContent=`Pendant ton absence : ${wins} ennemis vaincus et ${gold.toLocaleString('fr-FR')} pièces d’or récoltées (8 h maximum).`;$('welcome').showModal()}
-run(newFight(s));render();setInterval(()=>strike(),1200);setInterval(()=>{if(cool>0&&!paused)cool--;render()},1000);setInterval(save,5000);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});window.addEventListener('pagehide',save);
+run(newFight(s));render();if(loadStatus==='reset'||loadStatus==='unavailable')log('Sauvegarde illisible ou indisponible : une nouvelle partie commence.');else if(loadStatus==='repaired')log('Sauvegarde endommagée : les valeurs invalides ont été remplacées.');if(loadStatus==='unavailable'){saveOk=false;$('saved').textContent='Sauvegarde indisponible'}setInterval(()=>strike(),1200);setInterval(()=>{if(cool>0&&!paused)cool--;render()},1000);setInterval(save,5000);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});window.addEventListener('pagehide',save);
