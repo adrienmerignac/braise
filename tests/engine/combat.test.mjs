@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fresh, attack, cost } from '../../dist/engine/state.js';
-import { newFight, strike, gainXP, buyUpgrade, startBoss } from '../../dist/engine/combat.js';
+import { newFight, strike, gainXP, buyUpgrade, startBoss, assess, assessGuardian } from '../../dist/engine/combat.js';
 
 test('victoire d’un ennemi : or, expérience, kill, nouvel ennemi', () => {
   const s = fresh(0);
@@ -114,4 +114,34 @@ test('compétence : dégâts × 4', () => {
   assert.equal(r.f.enemyHP, 14);
   assert.equal(r.events[0].damage, 32);
   assert.equal(r.events[0].strong, true);
+});
+
+test('assess : Sûr, Serré, Mortel selon coups pour vaincre et encaissables', () => {
+  const s = fresh(0); // attaque 8, riposte 4, ennemi de 46 PV → 6 coups pour vaincre
+  const base = { boss: false, enemyHP: 46, enemyMax: 46 };
+  assert.deepEqual(assess(s, { ...base, hp: 100 }), { attack: 8, hitsToWin: 6, hitsToSurvive: 25, danger: 'Sûr' });
+  assert.deepEqual(assess(s, { ...base, hp: 40 }), { attack: 8, hitsToWin: 6, hitsToSurvive: 10, danger: 'Serré' });
+  assert.deepEqual(assess(s, { ...base, hp: 20 }), { attack: 8, hitsToWin: 6, hitsToSurvive: 5, danger: 'Mortel' });
+});
+
+test('assess : bornes exactes des seuils', () => {
+  const s = fresh(0);
+  const base = { boss: false, enemyHP: 46, enemyMax: 46 };
+  assert.equal(assess(s, { ...base, hp: 24 }).danger, 'Serré'); // 6 encaissables = 6 coups : pas Mortel
+  assert.equal(assess(s, { ...base, hp: 20 }).danger, 'Mortel');
+  assert.equal(assess(s, { ...base, hp: 48 }).danger, 'Sûr'); // 12 = 2 × 6 : Sûr
+  assert.equal(assess(s, { ...base, hp: 44 }).danger, 'Serré');
+});
+
+test('assess : ennemi à 1 PV et riposte minimale de 1', () => {
+  const s = { ...fresh(0), armor: 100 }; // riposte plafonnée à 1
+  const r = assess(s, { boss: false, hp: 50, enemyHP: 1, enemyMax: 46 });
+  assert.equal(r.hitsToWin, 1);
+  assert.equal(r.hitsToSurvive, 50);
+  assert.equal(r.danger, 'Sûr');
+});
+
+test('assessGuardian : gardien à PV pleins contre héros à vitalité pleine', () => {
+  const r = assessGuardian(fresh(0)); // 230 PV, attaque 8, riposte 11, vitalité 100
+  assert.deepEqual(r, { attack: 8, hitsToWin: 29, hitsToSurvive: 10, danger: 'Mortel' });
 });

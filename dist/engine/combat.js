@@ -13,6 +13,18 @@ export const xpNeeded = s => s.level * XP_PER_LEVEL;
 export const enemyMaxHP = (s, boss) => Math.floor((ENEMY_BASE_HP + s.stage * ENEMY_HP_PER_STAGE) * (boss ? BOSS_HP_MULT : 1));
 export const retaliation = (s, boss) => Math.max(1, Math.floor((boss ? 10 : 3) + s.stage * 1.4 - s.armor * 1.5));
 
+// Évaluation du danger, sans compter la compétence : coups pour vaincre l'ennemi vs coups que le héros encaisse.
+export function assess(s, f) {
+  const attackPerHit = attack(s);
+  const hitsToWin = Math.max(1, Math.ceil(f.enemyHP / attackPerHit));
+  const hitsToSurvive = Math.max(0, Math.ceil(f.hp / retaliation(s, f.boss)));
+  const danger = hitsToSurvive < hitsToWin ? 'Mortel' : hitsToSurvive < 2 * hitsToWin ? 'Serré' : 'Sûr';
+  return { attack: attackPerHit, hitsToWin, hitsToSurvive, danger };
+}
+
+// Danger du gardien à venir : il apparaît à vitalité pleine du héros et à PV pleins.
+export const assessGuardian = s => assess(s, { boss: true, hp: maxHP(s), enemyHP: enemyMaxHP(s, true) });
+
 export function gainXP(s, f, n) {
   s = { ...s, xp: s.xp + n };
   const events = [];
