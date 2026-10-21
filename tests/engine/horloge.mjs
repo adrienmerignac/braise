@@ -2,13 +2,24 @@
 // Aucun timer réel : `avancer(ms)` déclenche les setInterval dans l'ordre chronologique.
 let compteur = 0;
 
-function element() {
+// Le focus est suivi : focus() fixe document.activeElement. `contains` reconnaît le bouton enfant de son panneau.
+const ENFANTS = { guidepanel: ['guideclose'], bosspanel: ['bossclose'], bossintro: ['bossintroclose'], absenceintro: ['absenceintroclose'] };
+
+function element(id, doc) {
   const classes = new Set();
-  return {
-    textContent: '', innerHTML: '', disabled: false, onclick: null, style: {}, offsetWidth: 0,
+  const ecouteurs = {};
+  const el = {
+    id, textContent: '', innerHTML: '', disabled: false, onclick: null, style: {}, offsetWidth: 0, open: false,
     classList: { add: c => classes.add(c), remove: c => classes.delete(c), contains: c => classes.has(c) },
-    append() {}, setAttribute() {}, showModal() {}, close() {},
+    append() {}, setAttribute() {},
+    showModal() { el.open = true; },
+    close() { if (!el.open) return; el.open = false; (ecouteurs.close || []).forEach(fn => fn({ type: 'close' })); },
+    addEventListener(type, fn) { (ecouteurs[type] ||= []).push(fn); },
+    contains: x => x === el || (ENFANTS[id] || []).some(c => doc.elements.get(c) === x),
+    focus() { doc.activeElement = el; },
+    hidden: id in ENFANTS, offsetParent: {}, isConnected: true, firstElementChild: { textContent: '' },
   };
+  return el;
 }
 
 export async function lancerJeu({ debut = 1_000_000, sauvegarde = null, stockageV2 = null } = {}) {
@@ -22,25 +33,31 @@ export async function lancerJeu({ debut = 1_000_000, sauvegarde = null, stockage
     localStorage: globalThis.localStorage, setInterval: globalThis.setInterval, confirm: globalThis.confirm };
 
   Date.now = () => maintenant;
+  const touches = [];
   const racine = { dataset: {} };
-  globalThis.document = {
-    getElementById: id => { if (!elements.has(id)) elements.set(id, element()); return elements.get(id); },
-    createElement: () => element(),
-    addEventListener() {},
+  const doc = { elements, activeElement: null };
+  globalThis.document = Object.assign(doc, {
+    getElementById: id => { if (!elements.has(id)) elements.set(id, element(id, doc)); return elements.get(id); },
+    createElement: () => element(null, doc),
+    addEventListener(type, fn) { if (type === 'keydown') touches.push(fn); },
     documentElement: racine,
-  };
+  });
   globalThis.window = { dispatchEvent: e => evenements.push(e), addEventListener() {} };
   globalThis.localStorage = { getItem: k => stockage.get(k) ?? null, setItem: (k, v) => stockage.set(k, String(v)) };
   globalThis.setInterval = (fn, ms) => { minuteurs.push({ fn, ms, prochain: maintenant + ms }); return minuteurs.length; };
   globalThis.confirm = () => true;
+  globalThis.requestAnimationFrame = fn => { fn(); return 0; };
 
   await import(`../../dist/game.js?run=${++compteur}`);
 
   const jeu = {
-    el: id => elements.get(id),
+    el: id => document.getElementById(id),
     texte: id => elements.get(id).textContent,
     stockage: () => JSON.parse(stockage.get('braise-v2')),
     evenements,
+    actif: () => doc.activeElement,
+    focus: id => elements.get(id).focus(),
+    echap: () => touches.forEach(fn => fn({ key: 'Escape' })),
     racine,
     clic: id => elements.get(id).onclick(),
     avancer(ms) {
