@@ -2,16 +2,18 @@
 // `s` est l'état persisté (schéma braise-v1) ; `f` l'état de combat, non persisté : { hp, boss, enemyHP, enemyMax }.
 // Chaque fonction renvoie { s, f, events } sans modifier ses arguments ; game.js applique les événements.
 import { KILLS_PER_STAGE, attack, maxHP, reward, cost } from './state.js';
+import {
+  XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE,
+  RETALIATION_BASE, RETALIATION_BOSS_BASE, RETALIATION_PER_STAGE, RETALIATION_ARMOR_REDUCTION,
+} from './balance.js';
 
-export const XP_PER_LEVEL = 35;
-export const XP_ENEMY = 10, XP_BOSS = 40;
-export const BOSS_GOLD_MULT = 8, BOSS_HP_MULT = 5;
-export const HEAL_ON_VICTORY = 8, HEAL_ON_ARMOR = 35;
-export const ENEMY_BASE_HP = 32, ENEMY_HP_PER_STAGE = 14;
+export {
+  XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE,
+};
 
 export const xpNeeded = s => s.level * XP_PER_LEVEL;
 export const enemyMaxHP = (s, boss) => Math.floor((ENEMY_BASE_HP + s.stage * ENEMY_HP_PER_STAGE) * (boss ? BOSS_HP_MULT : 1));
-export const retaliation = (s, boss) => Math.max(1, Math.floor((boss ? 10 : 3) + s.stage * 1.4 - s.armor * 1.5));
+export const retaliation = (s, boss) => Math.max(1, Math.floor((boss ? RETALIATION_BOSS_BASE : RETALIATION_BASE) + s.stage * RETALIATION_PER_STAGE - s.armor * RETALIATION_ARMOR_REDUCTION));
 
 export function gainXP(s, f, n) {
   s = { ...s, xp: s.xp + n };
