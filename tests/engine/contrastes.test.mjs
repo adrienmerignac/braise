@@ -133,6 +133,7 @@ const paires = [
   ['talents : delta positif / panneau', lire(css, '#talentscomp .gain', 'color'), panel, TEXTE],
   ['talents : delta négatif / panneau', lire(css, '#talentscomp .perte', 'color'), panel, TEXTE],
   ['carte : repère « nouveau » / bouton secondaire', lire(css, '#cartenouveau:not(:empty)', 'color'), secondaire.fond, TEXTE],
+  ['bestiaire : entrée inconnue / panneau', lire(css, '.bestiaire .inconnu', 'color'), panel, TEXTE],
   ['carte : plage d’étages (--muted) / panneau', muted, panel, TEXTE],
   ['carte : bouton Voyager de confirmation', lire(css, '#voyageconfirm .primary', 'color'), lire(css, '#voyageconfirm .primary', 'background'), TEXTE],
   // Contours et indicateurs : 3:1.

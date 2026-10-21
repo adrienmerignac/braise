@@ -31,8 +31,9 @@ export function heroDamage(s, boss, mult = 1) {
   return m === 1 ? base : Math.max(1, Math.floor(base * m));
 }
 // Modificateur en clair pour l'affichage ; vide si l'ennemi n'en a pas.
-export function modificateurTexte(s) {
-  const k = kindOf(s), parts = [];
+export const modificateurTexte = s => modificateurDe(enemyKind(s));
+export function modificateurDe(type) {
+  const k = ENEMY_CATALOG[type], parts = [];
   if (k.coups !== undefined) parts.push(k.coups < 1 ? 'résiste aux coups' : 'fragile aux coups');
   if (k.braise !== undefined) parts.push(k.braise < 1 ? 'résiste à la braise' : 'vulnérable à la braise');
   const texte = parts.join(' · ');
