@@ -16,7 +16,7 @@ Combat automatique → or et expérience → amélioration → cinq victoires �
 | Attaque du héros | `8 + 4 × arme + 2 × (niveau − 1)` |
 | Vitalité maximale | `100 + 35 × armure + 10 × (niveau − 1)` |
 | Or par victoire | `(8 + 3 × étage + 3 × charme) × multiplicateur du type` (arrondi bas) |
-| Vie d’un ennemi | `(32 + 14 × étage) × multiplicateur du type` (arrondi bas) |
+| Vie d’un ennemi | `(8 + 38 × étage) × multiplicateur du type` (arrondi bas) |
 | Type d’ennemi | `types de la zone courante[(étage − 1 + victoires) % 3]`, déduit de la sauvegarde (zone inconnue : forêt) |
 | Éclaireur gobelin | PV ×1 · riposte ×1 · or ×1 |
 | Pillard des Murmures | PV ×0,7 · riposte ×1,4 · or ×1,2 |
@@ -30,12 +30,12 @@ Combat automatique → or et expérience → amélioration → cinq victoires �
 | Modificateurs de dégâts | « coups normaux » (attaque auto) et « braise » (frappe de braise) multiplient les dégâts du héros, arrondi bas, au moins 1 ; le gardien n’en a pas |
 | Nom du gardien | Forêt : Gardien de braise · Ruines : Sentinelle engloutie · Cryptes : Gardien des cendres (PV ×5 et or ×8 inchangés) |
 | Riposte d’un ennemi | `(3 + 1,4 × étage) × multiplicateur − 1,5 × armure`, au moins 1 |
-| Vie d’un gardien | `(32 + 14 × étage) × 5` ; ignore le type |
+| Vie d’un gardien | `(8 + 38 × étage) × 5` ; ignore le type |
 | Or de gardien | Récompense de base × 8 ; ignore le type |
 | Expérience | 10 par ennemi, 40 par gardien |
 | Niveau suivant | `35 × niveau` points d’expérience |
 | Compétence | Attaque × 4 ; recharge de 15 s |
-| Prix d’amélioration | `floor(prix initial × 1,6^niveau)` ; bases 24/30/40 |
+| Prix d’amélioration | `floor(prix initial × 1,5^niveau)` ; bases 24/30/40 |
 | Absence | Estimation des victoires sur 8 h maximum, sans défaites ni gardiens |
 
 Ces chiffres décrivent le code actuel ; ils ne sont pas un objectif d’équilibrage définitif.

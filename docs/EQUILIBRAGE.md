@@ -119,6 +119,62 @@ Lecture : l'absence avance moins le héros (niveau 216 → 161 en actif au jour 
 actif, 36,5 → 40,5 en occasionnel). Le gardien 15 reste à 6 à 6,5 min de jeu, loin de la cible de 20 à 30 min : la piste 2
 (`ENEMY_HP_PER_STAGE`) reste nécessaire. L'occasionnel tire encore 95 % de son or de l'absence : cette piste seule n'y change presque rien.
 
+## Essai piste 2
+
+Issue #131. Relevés : `node tools/simulate.mjs 60 --farm` (jeu continu, politique patiente, graine 1) et `npm run simulate:jours -- 7`.
+« Mur » = gardien « Mortel » plus de 5 min d'affilée en politique patiente avant le gardien 15. Valeur de départ `ENEMY_HP_PER_STAGE` 14 → 20,
+puis pas de 4, la piste 3 (`COST_GROWTH` 1,6 → 1,5) n'étant appliquée qu'à partir du premier mur.
+
+**Premier passage** (`ENEMY_BASE_HP` 32, inchangé) :
+
+| `ENEMY_HP_PER_STAGE` · `COST_GROWTH` | gardien 15, jeu continu patient | plus long « Mortel » | 1er gardien |
+| --- | --- | --- | --- |
+| 14 · 1,6 (avant) | 9,2 min | aucun | 35 s |
+| 20 · 1,6 | 12,2 min | 14 s | 52 s |
+| 24 · 1,6 | 16,1 min | 114 s | 60 s |
+| 28 · 1,6 | 23,2 min | **373 s : mur** | 61 s |
+| 32 · 1,6 | 28,6 min | 341 s : mur | 73 s |
+| 28 · 1,5 | 14,1 min | 14 s | 54 s |
+| 32 · 1,5 | 18,0 min | 127 s | 73 s |
+| 36 · 1,5 | 23,8 min | 265 s | **79 s** (et politique fixe : jamais battu) |
+
+Écart relevé en revue : le premier gardien dépassait 60 s, car la base fixe pèse seule sur l'étage 1. Seconde variable essayée :
+`ENEMY_BASE_HP` (PV du début) abaissée pour que l'étage 1 retrouve ses anciens PV, à `COST_GROWTH` 1,5.
+
+**Second passage** (`COST_GROWTH` 1,5) :
+
+| `ENEMY_BASE_HP` · `ENEMY_HP_PER_STAGE` | gardien 15 patient | plus long « Mortel » | 1er gardien patient · fixe |
+| --- | --- | --- | --- |
+| 10 · 36 | 19,3 min | 118 s | 35 s · 35 s |
+| 10 · 38 | 23,1 min | 247 s | 43 s · 36 s |
+| 10 · 40 | 25,4 min | 294 s | 48 s · 42 s |
+| 10 · 42 | 32,5 min | 428 s : mur | 48 s · 43 s |
+| 8 · 38 | 23,3 min | 247 s | 35 s · 35 s |
+| 8 · 40 | 25,1 min | 294 s | 43 s · 36 s |
+
+**Valeurs retenues : `ENEMY_BASE_HP` 8, `ENEMY_HP_PER_STAGE` 38, `COST_GROWTH` 1,5.** Étage 1 : (8 + 38) = 46 PV, gardien 230 : exactement les
+anciens PV, donc premier achat (7,2 s) et premier gardien (34,8 s, politique fixe comme patiente) inchangés. Étage 15 : 578 PV contre 572
+(+1 %). Le pas de 36 reste sous 20 min ; 40 laisse un « Mortel » de 294 s, au ras du seuil de 300 s. `ENEMY_BASE_HP` sort du libellé de
+l'issue #131 (qui ne citait que le pas par étage) : il est ajusté ici sur demande de la revue, pour tenir le premier gardien à 60 s au plus.
+Plafond 8 h, seuil d'absence, schéma v7 : inchangés ; aucune migration (une partie enregistrée avec les anciens PV d'ennemi reste acceptée :
+`save.js` borne `enemyHP` par le maximum de base ou du gardien, tous deux plus hauts, puis par le maximum du type).
+
+Avant / après (graine 1) :
+
+| mesure | avant | après |
+| --- | --- | --- |
+| gardien 15 · jeu continu patient | 9,2 min | **23,3 min** |
+| gardien 15 · jeu continu, politique fixe | 9,2 min | 18,0 min |
+| gardien 15 · profil actif (temps de jeu) | 6,5 min | 10,3 min |
+| gardien 15 · profil occasionnel (temps de jeu) | 6,2 min | 9,1 min |
+| 1er achat · 1er gardien (patient et fixe) | 7,2 s · 34,8 s | 7,2 s · 34,8 s |
+| plus long « Mortel » avant le gardien 15 | aucun | 247 s |
+| meilleur étage au jour 7 · actif / occasionnel | 237 / 192 | 130 / 107 |
+
+**Verdict : cible tenue en jeu continu patient (23,3 min), non tenue pour les deux profils à sessions** (10,3 et 9,1 min de jeu) : leurs
+sessions courtes profitent de l'or d'absence, qui rend le héros plus fort. Monter encore le pas ferait dépasser 30 min au jeu continu
+patient et buter sur un mur ; il faudrait plutôt réduire de nouveau l'absence (piste 1) : à décider dans une issue dédiée.
+
 ## Conclusion
 
 **Sans prestige, l'équilibrage tient techniquement sur 7 jours** (pas de mur, pas de valeur infinie, progression quotidienne), **mais

@@ -31,5 +31,5 @@ test('améliorations niveau 2', () => {
   const s = { ...fresh(0), weapon: 2, armor: 2, luck: 2 };
   assert.equal(attack(s), 16);
   assert.equal(maxHP(s), 170);
-  assert.deepEqual(['weapon', 'armor', 'luck'].map(k => cost(s, k)), [61, 76, 102]);
+  assert.deepEqual(['weapon', 'armor', 'luck'].map(k => cost(s, k)), [54, 67, 90]);
 });
