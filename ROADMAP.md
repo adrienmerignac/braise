@@ -15,7 +15,7 @@ Cette roadmap sert de backlog commun à Adrien, Codex et Claude. Les cases coch�
 - [x] Documentation commune Codex/Claude, relance et roadmap.
 - [x] Créer le dépôt privé GitHub et pousser les sources avec leur historique.
 - [x] Configurer les contrôles GitHub Actions et examiner la première exécution.
-- [ ] Obtenir une CI verte : le premier job est bloqué avant exécution par la facturation/plafond de dépenses du compte GitHub (2026-10-21). Les contrôles passent localement.
+- [x] Obtenir une CI verte : dépôt passé en public le 2026-10-21 (Actions et Pages gratuites), contrôles verts sur `main`, jeu publié sur https://adrienmerignac.github.io/braise/.
 
 **Sortie :** projet clonable, lancement documenté, contrôles reproductibles, gobelin tourné vers le héros en marche et en attaque.
 
