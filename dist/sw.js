@@ -28,6 +28,7 @@ const PRECACHE = [
   'engine/bestiaire.js',
   'engine/succes.js',
   'engine/automatismes.js',
+  'engine/rallumage-libelles.js',
   'engine/rallumage.js',
   'engine/recits.js',
   'engine/save.js',
