@@ -82,3 +82,11 @@ export const TALENT_ASSAULT_ATTACK = 0.1;
 export const TALENT_RAMPART_HEALTH = 0.08, TALENT_RAMPART_HEAL = 3;
 export const TALENT_FORTUNE_GOLD = 0.1;
 export const TALENT_BRAISE_COOLDOWN = 2;
+
+// Zones (M4.1a) : plages d'étages consécutives ; `fin: Infinity` = pas de plafond. Une zone est ouverte quand le meilleur étage atteint ≥ son `debut`.
+export const ZONE_IDS = ['foret', 'ruines', 'cryptes'];
+export const ZONES = {
+  foret: { nom: 'Forêt des Murmures', debut: 1, fin: 5 },
+  ruines: { nom: 'Ruines englouties', debut: 6, fin: 10 },
+  cryptes: { nom: 'Cryptes de cendre', debut: 11, fin: Infinity },
+};

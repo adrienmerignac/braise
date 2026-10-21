@@ -1,7 +1,15 @@
 import { libelleObjet } from './equipement.js';
+import { ZONES } from './balance.js';
 
 export const SAUVEGARDE_FUTURE = 'Cette sauvegarde vient d’une version plus récente de Braise. Recharge la page pour retrouver ta partie ; rien n’a été modifié.';
 export const IMPORT_FUTURE = 'Import refusé : ce fichier vient d’une version plus récente de Braise. La partie en cours est inchangée.';
+
+// Texte d'un gardien vaincu : zone ouverte, étage atteint, ou héros retenu au dernier étage de sa zone. Pur.
+export function texteGardienVaincu(e) {
+  if (e.zoneOuverte) return `Gardien vaincu ! Les ${ZONES[e.zoneOuverte].nom} s’ouvrent : ouvrez la carte pour y voyager.`;
+  if (e.plafond) return 'Gardien vaincu ! Fin de la zone : la suite se rejoint par la carte.';
+  return `Gardien vaincu ! L’étage ${e.stage} s’ouvre.`;
+}
 
 // Décide ce qui est annoncé aux lecteurs d'écran (région #alert) : seulement les événements rares. Pur, sans DOM.
 // Un coup ordinaire, une victoire ordinaire, une recharge ou une mise à jour de barre ne sont jamais annoncés.
@@ -10,7 +18,7 @@ export function annoncePour(e) {
     case 'retreat':
       return `Repli : ${e.boss ? 'le gardien' : 'l’ennemi'} frappait pour ${e.taken}, il lui restait ${Math.max(0, Math.ceil(e.enemyHP))} PV. Butin conservé.`;
     case 'bossVictory':
-      return `Gardien vaincu ! L’étage ${e.stage} s’ouvre.`;
+      return texteGardienVaincu(e);
     case 'levelup':
       return `Niveau ${e.level} atteint.`;
     case 'butin':

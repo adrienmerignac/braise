@@ -5,7 +5,7 @@ import { parseSave, serializeSave, importSave, writeSave, loadSave } from '../..
 import { fresh } from '../../dist/engine/state.js';
 
 const NOW = 1_700_000_000_000;
-const partie = { ...fresh(NOW), gold: 4321, stage: 7, level: 5 };
+const partie = { ...fresh(NOW), gold: 4321, stage: 7, zone: 'ruines', meilleurEtage: 7, level: 5 };
 const mem = () => { const data = {}; return { data, getItem: k => (k in data ? data[k] : null), setItem: (k, v) => { data[k] = v; } }; };
 
 test('défaut : système et effets actifs', () => {

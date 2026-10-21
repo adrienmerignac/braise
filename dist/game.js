@@ -1,13 +1,13 @@
 import {SAVE_KEY,BACKUP_KEY,KILLS_PER_STAGE,cheapestUpgrade,fresh as freshState,attack as attackOf,maxHP as maxHPOf,reward as rewardOf,cost as costOf} from './engine/state.js';
 import {normaliserReglages,peutJouer,creerAudio} from './engine/audio.js';
-import {annoncePour,annoncesPour,SAUVEGARDE_FUTURE,IMPORT_FUTURE} from './engine/annonces.js';
+import {annoncePour,annoncesPour,texteGardienVaincu,SAUVEGARDE_FUTURE,IMPORT_FUTURE} from './engine/annonces.js';
 import {normaliserAffichage} from './engine/affichage.js';
 
 import {RECETTES} from './engine/sons.js';
 import {loadSave,writeSave,serializeSave,importSave} from './engine/save.js';
 import {libelleObjet,EQUIPMENT_SLOTS} from './engine/equipement.js';
 import {equiper,desequiper,comparer,signe,texteBonus,nomEmplacement,nomRarete,recycler,ameliorer,orRecyclage,coutAmelioration,confirmationRequise} from './engine/inventaire.js';
-import {EQUIPMENT_UPGRADE_MAX} from './engine/balance.js';
+import {EQUIPMENT_UPGRADE_MAX,ZONES} from './engine/balance.js';
 import {resumeEquipement} from './engine/apparence-heros.js';
 import {offlineGains} from './engine/offline.js';
 import {rechargeCompetence,investir,reinitialiserTalents,pointsLibres,pointsDepenses,TALENT_IDS} from './engine/talents.js';
@@ -30,7 +30,7 @@ case'combat':emit('braise:combat',{damage:e.damage,strong:e.strong,defeated:e.de
 case'spawn':emit('braise:spawn',{boss:e.boss,kind:e.kind});break;
 case'levelup':log(`Niveau ${e.level} ! La braise grandit. Vitalité restaurée${e.healed>0?` (+${e.healed})`:''}.`);if(e.healed>0)setVit(`+${e.healed} soins`);if(!$('talentspanel').hidden)renderTalents();break;
 case'victory':log(`Ennemi vaincu · +${e.gold} or · +${e.xp} expérience${gain(e.healed)}`);if(e.healed>0)setVit(`+${e.healed} soins`);break;
-case'bossVictory':log(`Gardien vaincu ! L’étage ${e.stage} s’ouvre. Vitalité restaurée${e.healed>0?` (+${e.healed})`:''}.`);if(e.healed>0)setVit(`+${e.healed} soins`);showBossPanel(e);break;
+case'bossVictory':log(`${texteGardienVaincu(e)} Vitalité restaurée${e.healed>0?` (+${e.healed})`:''}.`);if(e.healed>0)setVit(`+${e.healed} soins`);showBossPanel(e);break;
 case'retreat':{const m=`Repli : ${e.boss?'le gardien':'l’ennemi'} frappait pour ${e.taken}, il lui restait ${Math.max(0,Math.ceil(e.enemyHP))} PV. Butin conservé.`;log(m);break}
 case'butin':log(annoncePour(e));if(!$('inventairepanel').hidden)renderInventaire();break
 case'bossStart':log('Le gardien approche. Fais parler la braise !');break;

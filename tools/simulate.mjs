@@ -7,14 +7,16 @@
 //     0. dépense les points de talent libres selon `build` ;
 //     1. achète l'amélioration la moins chère tant que l'or le permet (égalité : arme, armure, fortune) ;
 //     2. lance le gardien dès KILLS_PER_STAGE victoires ;
-//     3. utilise la compétence (× SKILL_MULT, recharge SKILL_COOLDOWN_SECONDS) dès qu'elle est prête,
+//     3. voyage vers la zone suivante dès qu'elle est ouverte (le héros est alors retenu au dernier étage de sa zone) ;
+//     4. utilise la compétence (× SKILL_MULT, recharge SKILL_COOLDOWN_SECONDS) dès qu'elle est prête,
 //        en plus du coup automatique du même tick ; la recharge baisse d'un intervalle d'attaque par tick.
 // Temps moyen par victoire à l'étage 1 : instant de la dernière victoire normale de l'étage 1 / nombre de ces victoires.
 // Les temps sont en secondes de jeu, mesurés à la fin du tick qui produit l'événement (achat : au début du tick).
 import { fresh, cost } from '../dist/engine/state.js';
 import { newFight, startBoss, buyUpgrade, strike } from '../dist/engine/combat.js';
+import { voyager, zoneOuverte } from '../dist/engine/zones.js';
 import { rechargeCompetence, investir } from '../dist/engine/talents.js';
-import { ATTACK_INTERVAL_MS, SKILL_MULT, KILLS_PER_STAGE } from '../dist/engine/balance.js';
+import { ATTACK_INTERVAL_MS, SKILL_MULT, KILLS_PER_STAGE, ZONE_IDS } from '../dist/engine/balance.js';
 
 const UPGRADES = ['weapon', 'armor', 'luck'];
 const round = n => n === null ? null : Math.round(n * 100) / 100;
@@ -44,6 +46,8 @@ export function simulate({ minutes = 30, build = [] } = {}) {
       if (firstPurchase === null) firstPurchase = start;
     }
     if (s.kills >= KILLS_PER_STAGE && !f.boss) apply(startBoss(s, f), start);
+    const suivante = ZONE_IDS[ZONE_IDS.indexOf(s.zone) + 1];
+    if (suivante && zoneOuverte(s, suivante)) apply(voyager(s, f, suivante), start);
     if (cool <= 0) { cool = rechargeCompetence(s); apply(strike(s, f, SKILL_MULT), end); }
     apply(strike(s, f), end);
     cool -= dt;

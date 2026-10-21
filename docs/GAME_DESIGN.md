@@ -50,6 +50,20 @@ Soit, par ennemi ordinaire : 9 % commun, 2,64 % rare, 0,36 % épique. L'emplacem
 - **Inventaire plein** (24 objets) : l'objet de moindre rareté est converti en or (commun 5, rare 15, épique 40) et le journal le dit.
 - **Absence** : espérance du tirage (12 % des victoires, arrondi bas, 6 objets maximum, jamais d'épique), listée dans le panneau de retour.
 
+## Zones
+
+| Zone | Étages | Accès |
+| --- | --- | --- |
+| Forêt des Murmures | 1 à 5 | Toujours ouverte |
+| Ruines englouties | 6 à 10 | Vaincre le gardien de l’étage 5 |
+| Cryptes de cendre | 11 et plus (sans plafond) | Vaincre le gardien de l’étage 10 |
+
+- Une zone est ouverte quand le meilleur étage atteint (`meilleurEtage`, au moins l’étage courant, +1 à chaque gardien vaincu) est au moins son premier étage.
+- Vaincre le gardien du dernier étage d’une zone donne la récompense normale, ouvre la suivante et remet les victoires à 0, mais l’étage reste à la fin de la zone jusqu’au voyage.
+- Voyager mène au plus haut étage atteint dans la plage de la zone (au moins son premier étage), remet les victoires à 0, remplace le combat en cours (gardien abandonné sans pénalité) et conserve la vie. Revenir en arrière est permis.
+- Sauvegarde v5 : `zone` et `meilleurEtage` ; une partie v4 reprend dans la zone de son étage. Absence : calculée sur l’étage courant, aucune zone ne s’ouvre.
+- Le panneau Carte pour voyager n’existe pas encore (tâche suivante) ; ces règles ne sont pas encore jouables depuis l’interface.
+
 ## Objectifs à valider
 
 - Premier achat accessible rapidement et effet immédiatement lisible.
