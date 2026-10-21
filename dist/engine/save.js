@@ -4,8 +4,9 @@ import { AUDIO_DEFAUT, reglagesValides } from './audio.js';
 import { AFFICHAGE_DEFAUT, MOUVEMENTS, EFFETS, affichageValide, normaliserAffichage } from './affichage.js';
 import { SAVE_KEY, BACKUP_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP, zoneDeEtage } from './state.js';
 import { enemyMaxHP } from './combat.js';
+import { objectifsNeufs, gardienDepasse } from './objectifs.js';
 import { pointsTalents, rechargeCompetence } from './talents.js';
-import { ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, EQUIPMENT_BASE, EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, INVENTORY_CAP, EQUIPMENT_UPGRADE_MAX, TALENT_IDS, TALENT_MAX_RANK } from './balance.js';
+import { ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, EQUIPMENT_BASE, EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, INVENTORY_CAP, EQUIPMENT_UPGRADE_MAX, TALENT_IDS, TALENT_MAX_RANK, ZONE_IDS, OBJECTIFS, OBJECTIF_IDS } from './balance.js';
 
 export const COOLDOWN_SECONDS = 15;
 
@@ -20,8 +21,19 @@ const isRecord = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const validInt = (v, min, max) => typeof v === 'number' && Number.isSafeInteger(v) && v >= min && v <= max;
 
 // Migre un enregistrement jusqu'à la version courante, sans perte : v1 (sans `version`) → v2 (version ajoutée),
-// v2 → v3 (`inventaire` vide et `equipe` vide ajoutés s'ils manquent), v3 → v4 (`talents` vide ajouté s'il manque), v4 → v5 (`meilleurEtage` = étage, `zone` = zone qui contient l'étage). Une version inconnue ou un non-objet est rendu
+// v2 → v3 (`inventaire` vide et `equipe` vide ajoutés s'ils manquent), v3 → v4 (`talents` vide ajouté s'il manque), v4 → v5 (`meilleurEtage` = étage, `zone` = zone qui contient l'étage), v5 → v6 (`objectifs` : chasse à 0, gardien accompli et son or versé une fois pour chaque zone dont la cible est dépassée). Une version inconnue ou un non-objet est rendu
 // tel quel ; `parseSave` le refusera.
+function migrerObjectifs(data) {
+  const objectifs = objectifsNeufs();
+  let or = 0;
+  if (Number.isInteger(data.meilleurEtage)) {
+    for (const z of ZONE_IDS) if (gardienDepasse(z, data.meilleurEtage)) { objectifs[z].faits.push('gardien'); or += OBJECTIFS[z].gardien.or; }
+  }
+  // Sans or valide, rien n'est versé : `parseSave` répare le champ.
+  const gold = typeof data.gold === 'number' && Number.isFinite(data.gold) ? data.gold + or : data.gold;
+  return { ...data, gold, objectifs, version: SAVE_VERSION };
+}
+
 export function migrate(raw) {
   if (!isRecord(raw)) return raw;
   let data = raw;
@@ -29,7 +41,8 @@ export function migrate(raw) {
   if (data.version === 2) data = { inventaire: [], equipe: {}, ...data, version: 3 };
   if (data.version === 3) data = { talents: {}, ...data, version: 4 };
   // Sans étage entier valide, rien n'est déduit : `parseSave` répare le champ manquant.
-  if (data.version === 4) data = { ...(Number.isInteger(data.stage) ? { meilleurEtage: data.stage, zone: zoneDeEtage(data.stage) } : {}), ...data, version: SAVE_VERSION };
+  if (data.version === 4) data = { ...(Number.isInteger(data.stage) ? { meilleurEtage: data.stage, zone: zoneDeEtage(data.stage) } : {}), ...data, version: 5 };
+  if (data.version === 5) data = migrerObjectifs(data);
   return data;
 }
 
@@ -94,6 +107,20 @@ function parseTalents(data, s) {
     }
   }
   return ok && total <= pointsTalents(s) ? { talents, repaired: false } : { talents: {}, repaired: true };
+}
+
+// `objectifs` : par zone, `chasse` entier 0..cible et `faits` sans doublon parmi les ids connus. Le moindre défaut remet les valeurs neuves (le reste de la partie est conservé) ;
+// absent, c'est le défaut sans réparation.
+function parseObjectifs(data) {
+  if (data.objectifs === undefined) return { objectifs: objectifsNeufs(), repaired: false };
+  const o = data.objectifs, objectifs = objectifsNeufs();
+  let ok = isRecord(o) && Object.keys(o).every(z => ZONE_IDS.includes(z));
+  for (const z of ok ? ZONE_IDS : []) {
+    const e = o[z];
+    if (!isRecord(e) || !validInt(e.chasse, 0, OBJECTIFS[z].chasse.cible) || !Array.isArray(e.faits) || new Set(e.faits).size !== e.faits.length || !e.faits.every(id => OBJECTIF_IDS.includes(id))) { ok = false; break; }
+    objectifs[z] = { chasse: e.chasse, faits: OBJECTIF_IDS.filter(id => e.faits.includes(id)) };
+  }
+  return ok ? { objectifs, repaired: false } : { objectifs: objectifsNeufs(), repaired: true };
 }
 
 // Texte écrit en stockage et dans les fichiers d'export. `fight` (facultatif) : { hp, boss, enemyHP, cool }.
@@ -178,6 +205,9 @@ export function parseSave(text, now) {
   const tal = parseTalents(data, s);
   s.talents = tal.talents;
   if (tal.repaired) repaired = true;
+  const obj = parseObjectifs(data);
+  s.objectifs = obj.objectifs;
+  if (obj.repaired) repaired = true;
   const f = parseFight(data, s, now);
   if (f.repaired) repaired = true;
   let guide = defaultGuide(s);

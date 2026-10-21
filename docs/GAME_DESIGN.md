@@ -72,6 +72,20 @@ Soit, par ennemi ordinaire : 9 % commun, 2,64 % rare, 0,36 % épique. L'emplacem
 - Sauvegarde v5 : `zone` et `meilleurEtage` ; une partie v4 reprend dans la zone de son étage. Absence : calculée sur l’étage courant, aucune zone ne s’ouvre.
 - Le panneau Carte pour voyager n’existe pas encore (tâche suivante) ; ces règles ne sont pas encore jouables depuis l’interface.
 
+### Objectifs de zone
+
+Deux objectifs par zone, chacun accompli une seule fois, avec de l’or versé à l’accomplissement (valeurs de départ dans `OBJECTIFS`, `dist/engine/balance.js`).
+
+| Zone | Chasse : 25 ennemis ordinaires | Gardien de l’étage |
+| --- | --- | --- |
+| Forêt | 100 or | 5 : 200 or |
+| Ruines | 300 or | 10 : 600 or |
+| Cryptes | 700 or | 15 : 1400 or |
+
+- Seules les victoires en ligne dans la zone courante font avancer la chasse ; l’absence ne fait progresser aucun objectif. Le compteur se borne à la cible.
+- Sauvegarde v6 : `objectifs`. Une partie v5 reprend avec les compteurs à 0 et le gardien accompli (or versé une fois) pour chaque zone dont la cible est déjà dépassée par `meilleurEtage`.
+- L’affichage des objectifs n’existe pas encore (tâche suivante) ; seul le journal signale un accomplissement.
+
 ## Objectifs à valider
 
 - Premier achat accessible rapidement et effet immédiatement lisible.

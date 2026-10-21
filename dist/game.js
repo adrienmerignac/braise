@@ -35,6 +35,7 @@ case'victory':log(`Ennemi vaincu · +${e.gold} or · +${e.xp} expérience${gain(
 case'bossVictory':if(e.zoneOuverte){carteNouveau=true;renderCarteNouveau()}log(`${texteGardienVaincu(e)} Vitalité restaurée${e.healed>0?` (+${e.healed})`:''}.`);if(e.healed>0)setVit(`+${e.healed} soins`);showBossPanel(e);break;
 case'retreat':{const m=`Repli : ${e.boss?'le gardien':'l’ennemi'} frappait pour ${e.taken}, il lui restait ${Math.max(0,Math.ceil(e.enemyHP))} PV. Butin conservé.`;log(m);break}
 case'butin':log(annoncePour(e));if(!$('inventairepanel').hidden)renderInventaire();break
+case'objectif':log(`Objectif de zone accompli · ${ZONES[e.zone].nom} · +${e.or} or`);break;
 case'voyage':log(messageVoyage(e.zone,ZONES[e.zone].nom,e.stage));break;
 case'bossStart':log('Le gardien approche. Fais parler la braise !');break;
 case'upgrade':log(`${titles[e.kind]} : niveau ${e.level}${e.healed>0?` · +${e.healed} vitalité`:''}.`);if(e.healed>0)setVit(`+${e.healed} soins`);break}}
