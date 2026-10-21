@@ -1,11 +1,10 @@
 import { createSceneQueue } from './engine/scene-queue.js';
 import { sonsPourEvenement } from './engine/sons.js';
 import { ajouterEtincelles, doitRedessiner } from './engine/etincelles.js';
+import { enemyLook, BASE_SCALE } from './engine/ennemis-visuels.js';
 import { AFFICHAGE_DEFAUT, normaliserAffichage, mouvementReduit, effetsDiscrets, echelleTexte } from './engine/affichage.js';
 // Direction rows belong to each sheet, not to the LPC family as a whole.
 const HERO_ROWS = Object.freeze({ east: 3 });
-// Redshrike’s goblinsword.png faces right on row 1 and left on row 3.
-const GOBLIN_ROWS = Object.freeze({ west: 3, death: 4 });
 const canvas = document.getElementById('world');
 const ctx = canvas.getContext('2d');
 canvas.width = 960;
@@ -18,10 +17,10 @@ const reduit = () => mouvementReduit(affichage.mouvement, systemeReduit.matches)
 const police = px => `bold ${Math.round(px * echelleTexte(affichage.texte))}px monospace`;
 const discret = () => effetsDiscrets(affichage.effets);
 const assets = {};
-const files = ['hero-walk','hero-swing','hero-hurt','goblin-sword','grass','dirt','treetop','trunk','rock','chests'];
+const files = ['hero-walk','hero-swing','hero-hurt','goblin-sword','goblin','grass','dirt','treetop','trunk','rock','chests'];
 let failed = false;
 let time = 0, previous = 0, paused = false, attackAt = -5000, spawnAt = 0;
-let dying = false, strong = false, isBoss = false, damage = 0, taken = 0, heroRatio = 1;
+let kind = null, dying = false, strong = false, isBoss = false, damage = 0, taken = 0, heroRatio = 1;
 const sparks = [];
 // Sons planifiés sur l'horloge de la scène (figée en pause) : un son par impact ou pas affiché, jamais rattrapé s'il est en retard.
 const SON_RETARD_MAX_MS = 150;
@@ -29,10 +28,10 @@ const sons = [];
 // Les événements du jeu sont tamponnés jusqu'à la fin du chargement des images (et de la chute en cours).
 const queue = createSceneQueue((type, detail) => {
   if (type === 'combat') {
-    attackAt = time; dying = detail.defeated; strong = detail.strong;
+    attackAt = time; kind = detail.kind; dying = detail.defeated; strong = detail.strong;
     damage = detail.damage; taken = detail.taken || 0; isBoss = detail.boss; heroRatio = detail.health;
     if (!discret()) ajouterEtincelles(sparks, Array.from({ length: strong ? 30 : 10 }, (_, i) => ({start:time + 330,x:556,y:270,vx:Math.cos(i*2.4)*(25+i*3),vy:-30-i*5})));
-  } else if (type === 'spawn') { dying = false; isBoss = detail.boss; spawnAt = time; }
+  } else if (type === 'spawn') { dying = false; kind = detail.kind; isBoss = detail.boss; spawnAt = time; }
   for (const { nom, delaiMs } of sonsPourEvenement(type, detail, { mouvementReduit: reduit() })) sons.push({ nom, at: time + delaiMs });
 });
 // En pause, la boucle d'images s'arrête après une dernière image ; un événement ou la reprise la relance.
@@ -130,13 +129,17 @@ function draw(now) {
   if(lunging&&age<190)actor('hero-walk',reduit()?0:1+Math.floor(age/25)%8,HERO_ROWS.east,heroX,heroY);
   else if(lunging)actor('hero-swing',Math.min(5,Math.floor((age-190)/76)),HERO_ROWS.east,heroX,heroY);
   else actor('hero-walk',0,HERO_ROWS.east,heroX,heroY);
+  // Le gardien garde la planche de l'Éclaireur ; les autres types lisent leur entrée du catalogue visuel.
+  const look=enemyLook(isBoss?null:kind), sc=isBoss?2.25:look.scale, rows=look.rows;
+  // Pieds et centre restent à la même place quelle que soit l'échelle.
+  const shrink=isBoss?0:64*(BASE_SCALE-sc), ex=(dx=0)=>enemyX+dx+shrink/2, ey=isBoss?194:210+shrink;
   const deathAge=age-360;
-  if(dying&&deathAge>0&&deathAge<650){actor('goblin-sword',Math.min(4,Math.floor(deathAge/100)),GOBLIN_ROWS.death,enemyX,isBoss?194:210,isBoss?2.25:2,Math.max(0,1-deathAge/650));}
+  if(dying&&deathAge>0&&deathAge<650){actor(look.sheet,Math.min(4,Math.floor(deathAge/100)),rows.death,ex(),ey,sc,Math.max(0,1-deathAge/650));}
   else {
     const entering=dying&&deathAge>=650?(Math.max(0,1350-age)):Math.max(0,650-(time-spawnAt));
     const frame=reduit()?0:Math.floor(t/150)%9;
     const attack=age>650&&age<1000&&!dying;
-    actor('goblin-sword',attack?9+Math.floor((age-650)/175)%2:frame,GOBLIN_ROWS.west,enemyX+(reduit()?0:entering*.13),isBoss?194:210,isBoss?2.25:2,Math.max(.15,1-entering/1000));
+    actor(look.sheet,attack?9+Math.floor((age-650)/175)%2:frame,rows.west,ex(reduit()?0:entering*.13),ey,sc,Math.max(.15,1-entering/1000));
   }
   if(lunging&&age>230&&age<530){
     ctx.save();ctx.globalAlpha=Math.sin((age-230)/300*Math.PI);ctx.strokeStyle=strong?'#fff1a4':'#d4e9ec';ctx.lineWidth=strong?8:4;
