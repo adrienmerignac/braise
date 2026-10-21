@@ -14,3 +14,9 @@ export function annoncePour(e) {
       return null;
   }
 }
+
+// Rassemble les annonces d'un même run() en une seule phrase : une seule mise à jour de #alert par frame,
+// sinon la dernière écraserait les précédentes (gardien vaincu puis niveau gagné).
+export function annoncesPour(events) {
+  return (events || []).map(annoncePour).filter(Boolean).join(' ') || null;
+}
