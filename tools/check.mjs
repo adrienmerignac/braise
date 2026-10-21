@@ -25,6 +25,10 @@ for (const path of files.filter(path => path.endsWith('.html'))) {
     if (!existsSync(local)) errors.push(`${relative(root, path)}: référence manquante ${reference}`);
   }
 }
+const testsDir = resolve(root, 'tests');
+const testFiles = existsSync(testsDir) ? walk(testsDir).filter(path => path.endsWith('.test.mjs')) : [];
+const tests = spawnSync(process.execPath, ['--test', ...testFiles], { cwd: root, encoding: 'utf8' });
+if (tests.status !== 0) errors.push(`Tests Node en échec :\n${tests.stdout}${tests.stderr}`);
 const documents = ['README.md', 'AGENTS.md', 'CLAUDE.md', 'ROADMAP.md']
   .map(path => resolve(root, path)).concat(walk(resolve(root, 'docs')));
 for (const path of documents.filter(path => path.endsWith('.md'))) {
@@ -57,4 +61,4 @@ if (!hosting.project_id || hosting.static?.directory !== 'dist') errors.push('Ma
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exitCode = 1;
-} else console.log('OK — syntaxe JS, liens HTML/docs locaux, sprites et manifest statique.');
+} else console.log('OK — syntaxe JS, liens HTML/docs locaux, tests Node, sprites et manifest statique.');
