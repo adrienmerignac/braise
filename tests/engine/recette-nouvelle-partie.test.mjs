@@ -26,7 +26,7 @@ function relire(jeu) {
 // Sauvegarde relue : valide et cohérente avec l'affichage (or, niveau, étage, zone).
 function verifierSauvegarde(jeu, etape) {
   const sv = relire(jeu);
-  assert.equal(sv.version, 8, `${etape} : version`);
+  assert.equal(sv.version, 9, `${etape} : version`);
   assert.equal(jeu.texte('gold'), Math.floor(sv.gold).toLocaleString('fr-FR'), `${etape} : or affiché = or sauvegardé`);
   assert.equal(String(jeu.texte('level')), String(sv.level), `${etape} : niveau`);
   assert.equal(jeu.texte('stage'), String(sv.stage).padStart(2, '0'), `${etape} : étage`);
