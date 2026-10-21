@@ -2,16 +2,18 @@
 // `s` est l'état persisté (schéma braise-v1) ; `f` l'état de combat, non persisté : { hp, boss, enemyHP, enemyMax }.
 // Chaque fonction renvoie { s, f, events } sans modifier ses arguments ; game.js applique les événements.
 import { KILLS_PER_STAGE, attack, maxHP, reward, cost } from './state.js';
+import {
+  XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE,
+  RETALIATION_BASE, RETALIATION_BOSS_BASE, RETALIATION_PER_STAGE, RETALIATION_ARMOR_REDUCTION,
+} from './balance.js';
 
-export const XP_PER_LEVEL = 35;
-export const XP_ENEMY = 10, XP_BOSS = 40;
-export const BOSS_GOLD_MULT = 8, BOSS_HP_MULT = 5;
-export const HEAL_ON_VICTORY = 8, HEAL_ON_ARMOR = 35;
-export const ENEMY_BASE_HP = 32, ENEMY_HP_PER_STAGE = 14;
+export {
+  XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE,
+};
 
 export const xpNeeded = s => s.level * XP_PER_LEVEL;
 export const enemyMaxHP = (s, boss) => Math.floor((ENEMY_BASE_HP + s.stage * ENEMY_HP_PER_STAGE) * (boss ? BOSS_HP_MULT : 1));
-export const retaliation = (s, boss) => Math.max(1, Math.floor((boss ? 10 : 3) + s.stage * 1.4 - s.armor * 1.5));
+export const retaliation = (s, boss) => Math.max(1, Math.floor((boss ? RETALIATION_BOSS_BASE : RETALIATION_BASE) + s.stage * RETALIATION_PER_STAGE - s.armor * RETALIATION_ARMOR_REDUCTION));
 
 export function gainXP(s, f, n) {
   s = { ...s, xp: s.xp + n };
@@ -19,8 +21,9 @@ export function gainXP(s, f, n) {
   while (s.xp >= xpNeeded(s)) {
     s.xp -= xpNeeded(s);
     s.level++;
+    const healed = Math.max(0, maxHP(s) - f.hp);
     f = { ...f, hp: maxHP(s) };
-    events.push({ type: 'levelup', level: s.level });
+    events.push({ type: 'levelup', level: s.level, healed });
   }
   return { s, f, events };
 }
@@ -52,14 +55,15 @@ export function buyUpgrade(s, f, kind) {
   if (s.gold < cost(s, kind)) return { s, f, events: [] };
   s = { ...s, gold: s.gold - cost(s, kind), [kind]: s[kind] + 1 };
   if (kind === 'armor') f = { ...f, hp: f.hp + HEAL_ON_ARMOR };
-  return { s, f, events: [{ type: 'upgrade', kind, level: s[kind] }] };
+  return { s, f, events: [{ type: 'upgrade', kind, level: s[kind], ...(kind === 'armor' && { healed: HEAL_ON_ARMOR }) }] };
 }
 
 export function strike(s, f, mult = 1) {
   const damage = attack(s) * mult;
   const enemyHP = f.enemyHP - damage;
   const defeated = enemyHP <= 0;
-  const events = [{ type: 'combat', damage, strong: mult > 1, defeated, boss: f.boss, health: f.hp / maxHP(s) }];
+  const taken = defeated ? 0 : retaliation(s, f.boss);
+  const events = [{ type: 'combat', damage, strong: mult > 1, defeated, boss: f.boss, health: f.hp / maxHP(s), taken }];
   f = { ...f, enemyHP };
   if (defeated) {
     const wonBoss = f.boss;
@@ -70,20 +74,23 @@ export function strike(s, f, mult = 1) {
     events.push(...xp.events);
     if (wonBoss) {
       s = { ...s, stage: s.stage + 1, kills: 0 };
+      const healed = Math.max(0, maxHP(s) - f.hp);
       f = { ...f, boss: false, hp: maxHP(s) };
-      events.push({ type: 'bossVictory', stage: s.stage, gold, xp: XP_BOSS });
+      events.push({ type: 'bossVictory', stage: s.stage, gold, xp: XP_BOSS, healed });
     } else {
       s = { ...s, kills: Math.min(KILLS_PER_STAGE, s.kills + 1) };
-      f = { ...f, hp: Math.min(maxHP(s), f.hp + HEAL_ON_VICTORY) };
-      events.push({ type: 'victory', gold, xp: XP_ENEMY });
+      const healed = Math.min(maxHP(s), f.hp + HEAL_ON_VICTORY) - f.hp;
+      f = { ...f, hp: f.hp + healed };
+      events.push({ type: 'victory', gold, xp: XP_ENEMY, healed });
     }
     const next = spawn(s, f);
     return { s, f: next.f, events: [...events, ...next.events] };
   }
-  f = { ...f, hp: f.hp - retaliation(s, f.boss) };
+  f = { ...f, hp: f.hp - taken };
   if (f.hp <= 0) {
+    const retreat = { type: 'retreat', boss: f.boss, taken, enemyHP: f.enemyHP };
     const next = spawn(s, { ...f, boss: false, hp: maxHP(s) });
-    return { s, f: next.f, events: [...events, ...next.events, { type: 'retreat' }] };
+    return { s, f: next.f, events: [...events, ...next.events, retreat] };
   }
   return { s, f, events };
 }
