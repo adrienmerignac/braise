@@ -39,7 +39,7 @@ Le dépôt source Sites n’est pas le remote `origin` GitHub. Les credentials n
 - **Déclencheurs** : chaque `push` sur `main` (fusion de PR) et `workflow_dispatch` manuel. `.github/workflows/pages.yml` lance `npm run check` (Node 22) puis publie `dist/` tel quel, sans build ; un seul déploiement à la fois (`concurrency`).
 - **Rôle** : version de test continu de la dernière fusion. Sites reste la version stable ; Pages ne la remplace pas et n'y touche pas.
 - **Sauvegarde** : le stockage local dépend de l'origine. La partie sur Pages est distincte de celle de Sites : pas de synchronisation, pas de migration entre les deux. Clé et schéma inchangés.
-- **Prérequis propriétaire** : dépôt public (cas actuel), facturation Actions disponible, et *Settings > Pages > Source = GitHub Actions*.
+- **Prérequis propriétaire** : dépôt public (cas actuel), facturation Actions disponible, et *Settings > Pages > Source = GitHub Actions*. Pour l'alternative de retour arrière par tag ou branche : motif (`v*` ou `retour/*`) ajouté dans *Settings > Environments > github-pages > Deployment branches and tags*.
 - **Vérification** : après `deploy-pages`, le workflow lance `node tools/verify-deploy.mjs <page_url>` ; il devient rouge si `index.html` ne répond pas 200, n'affiche pas la version de `package.json` ou si un fichier référencé (`game.js`, `scene.js`, une planche `assets/lpc/`, `credits.html`…) ne répond pas 200. Cinq essais espacés de 10 s absorbent la propagation de Pages.
 ## Publier une version
 
@@ -59,8 +59,8 @@ Code de sortie 0 : version et fichiers servis conformes ; 1 : le rapport en fran
 
 1. **Exporter la sauvegarde** : dans le jeu, bouton *Exporter* (fichier JSON). Une sauvegarde locale est conservée au retour arrière (même origine), mais une sauvegarde d'un schéma plus récent n'est jamais écrasée par une version plus ancienne (#49) : le jeu plus ancien ne la chargera pas. L'export permet de la récupérer.
 2. **Trouver le dernier commit sain de `main`** : lire `CHANGELOG.md` (dernière version saine) puis `git log --oneline main` pour repérer le commit de fusion correspondant, et copier son SHA.
-3. **Redéployer ce commit** : *Actions > Publication GitHub Pages > Run workflow*, en choisissant ce commit (sélectionner la référence/tag ou une branche créée sur ce SHA). Le workflow relance `npm run check`, publie `dist/` puis vérifie le site.
-   - Alternative, pour que `main` redevienne sain : ouvrir une PR de `git revert -m 1 <sha-de-la-fusion-fautive>` ; sa fusion redéploie automatiquement.
+3. **Redéployer un état sain** : ouvrir une PR de `git revert -m 1 <sha-de-la-fusion-fautive>` et la fusionner sur `main` ; la fusion redéploie automatiquement (`npm run check`, publication de `dist/`, puis vérification du site).
+   - Alternative sans toucher à `main` : *Actions > Publication GitHub Pages > Run workflow* sur un tag ou une branche créée sur le SHA sain (par ex. `retour/0.9.0`). Prérequis : cette référence doit être autorisée dans *Settings > Environments > github-pages > Deployment branches and tags* (motif `v*` ou `retour/*`) ; sinon le job `deploy` est refusé (« not allowed to deploy to github-pages due to environment protection rules »), seule `main` étant autorisée par défaut.
 4. **Vérifier** : `node tools/verify-deploy.mjs https://adrienmerignac.github.io/braise/ --version <version-du-commit-sain>` doit sortir à 0 (l'étape finale du workflow le fait avec la version du commit déployé).
 5. Réimporter l'export JSON si la sauvegarde n'est plus reconnue, puis corriger le défaut dans une PR avant de republier.
 
