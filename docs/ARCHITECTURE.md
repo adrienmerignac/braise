@@ -36,7 +36,7 @@ La simulation avance par timers, le rendu par `requestAnimationFrame`. La scène
 | `braise:spawn` | `boss` | Signale le nouvel adversaire. |
 | `braise:pause` | booléen | Fige/reprend l’horloge visuelle. |
 
-Limite : le moteur applique le résultat immédiatement, puis l’animation montre le coup. Un `spawn` peut donc suivre le coup fatal avant la fin de la chute. Les listeners de scène sont installés après chargement des images, et les premiers événements peuvent être manqués. M1 prévoit une initialisation et un contrat d’état explicites.
+Le moteur applique le résultat immédiatement ; la scène rejoue `combat` et `spawn` via une file (`dist/engine/scene-queue.js`) tamponnée jusqu'à la fin du chargement des images, puis séquencée coup → chute → entrée suivante. `game.js` garde les événements émis avant l'installation des listeners dans `window.braiseBacklog`, que la scène rejoue. `braise:pause` s'applique immédiatement. Limite : la barre de vie DOM de l'ennemi reste mise à jour sans attendre la chute.
 
 ## Sprites et directions
 
