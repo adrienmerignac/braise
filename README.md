@@ -44,6 +44,7 @@ npm run check
 | [Vérifications](docs/TESTING.md) | Commande de contrôle et recette manuelle. |
 | [Décisions](docs/DECISIONS.md) | Choix établis et sujets encore ouverts. |
 | [Publication](docs/DEPLOYMENT.md) | GitHub et hébergement Sites. |
+| [Donner un retour](docs/BETA.md) | Guide du testeur bêta et formulaire de retour de partie. |
 
 ## Assets et licences
 

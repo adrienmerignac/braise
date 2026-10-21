@@ -1,0 +1,70 @@
+name: Retour de partie
+description: Raconte ta partie de Braise : ce que tu n'as pas compris, un bug, un ralentissement.
+labels: ["recette"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci d'avoir testé Braise. Le jeu n'envoie aucune donnée : ce formulaire est la seule façon dont tes retours nous parviennent.
+        Cette issue est publique. N'y mets rien de personnel.
+  - type: input
+    id: appareil
+    attributes:
+      label: Appareil et navigateur
+      description: Par exemple « iPhone 13, Safari 18 » ou « PC portable, Firefox 130 ».
+    validations:
+      required: true
+  - type: input
+    id: temps-joue
+    attributes:
+      label: Temps joué
+      description: Environ combien de temps, en une ou plusieurs fois (« 10 minutes puis retour le lendemain »).
+    validations:
+      required: true
+  - type: textarea
+    id: incomprehension
+    attributes:
+      label: Ce que tu n'as pas compris
+      description: Un texte flou, un bouton dont tu ignorais l'effet, un moment où tu ne savais pas quoi faire. Écris librement.
+    validations:
+      required: false
+  - type: textarea
+    id: bug-etapes
+    attributes:
+      label: Un bug ? Étapes pour le reproduire
+      description: Ce que tu as fait, dans l'ordre. Laisse vide s'il n'y a pas de bug.
+      placeholder: |
+        1. J'ouvre la carte
+        2. ...
+    validations:
+      required: false
+  - type: textarea
+    id: bug-attendu
+    attributes:
+      label: Résultat attendu
+    validations:
+      required: false
+  - type: textarea
+    id: bug-obtenu
+    attributes:
+      label: Résultat obtenu
+    validations:
+      required: false
+  - type: textarea
+    id: perf
+    attributes:
+      label: Relevé ?perf (facultatif)
+      description: Si ton jeu ralentit et que le relevé `?perf` est disponible dans ta version, colle-le ici.
+      render: text
+    validations:
+      required: false
+  - type: textarea
+    id: sauvegarde
+    attributes:
+      label: Sauvegarde exportée (facultatif)
+      description: |
+        Bouton « Exporter » en bas de la page du jeu, puis colle le contenu du fichier JSON ici (ou glisse le fichier).
+        Elle ne contient que ta progression dans le jeu : aucun nom, compte ni donnée de ton appareil.
+      render: json
+    validations:
+      required: false
