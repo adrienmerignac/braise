@@ -55,8 +55,11 @@ test('séquence du gardien : repos, recul vers l’arrière, élan vers le héro
 });
 
 test('la charge dure quelques dizaines de ms et finit au début du coup', () => {
-  assert.ok(S.coupDebut - S.reculDebut >= 30 && S.coupDebut - S.reculDebut <= 150);
-  assert.ok(S.reculDebut < S.elanDebut && S.elanDebut < S.coupDebut);
+  const ages = Array.from({ length: 1200 }, (_, i) => i);
+  const charge = ages.filter(a => ['recul', 'elan'].includes(sequenceGardien(a).phase));
+  assert.ok(charge.length >= 30 && charge.length <= 150, `durée ${charge.length} ms`);
+  assert.equal(charge[charge.length - 1] + 1, S.coupDebut);
+  assert.equal(sequenceGardien(S.coupDebut).phase, 'coup');
 });
 
 test('mouvement réduit : aucun décalage, la lueur reste ; effets discrets : lueur atténuée', () => {
