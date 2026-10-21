@@ -1,0 +1,88 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+
+const html = readFileSync(new URL('../../dist/index.html', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../../dist/style.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+
+const CIBLES = ['button', 'select', 'input', 'summary'];
+const MIN = 44;
+
+// Règles `min-height` en px/rem, y compris dans les @media (aplatis : la règle globale vaut sur tous les formats).
+function reglesMinHeight() {
+  const regles = [];
+  for (const [, sel, corps] of css.matchAll(/([^{}@]+)\{([^{}]*)\}/g)) {
+    const m = corps.match(/(?:^|;)\s*min-height:\s*([\d.]+)(px|rem)/);
+    if (!m) continue;
+    const px = Number(m[1]) * (m[2] === 'rem' ? 16 : 1);
+    if (px >= MIN) regles.push(...sel.split(',').map(s => s.trim()));
+  }
+  return regles;
+}
+
+function elements() {
+  const liste = [];
+  for (const [, balise, attrs] of html.matchAll(/<(button|select|input|summary)\b([^>]*)>/g)) {
+    const id = attrs.match(/\bid="([^"]+)"/)?.[1];
+    const classes = (attrs.match(/\bclass="([^"]+)"/)?.[1] ?? '').split(/\s+/).filter(Boolean);
+    const type = attrs.match(/\btype="([^"]+)"/)?.[1];
+    if (balise === 'input' && type === 'hidden') continue;
+    liste.push({ balise, id, classes, hidden: /\bhidden\b/.test(attrs) && balise === 'input' });
+  }
+  return liste;
+}
+
+// Seuls les sélecteurs simples (sans ancêtre) comptent : sans DOM, un `.parent button` ne prouve rien pour un autre bouton.
+// Balise, .classe, #id ; états et attributs ignorés.
+function couvre(selecteur, el) {
+  if (/[\s>+~]/.test(selecteur)) return false;
+  const compose = selecteur.replace(/:not\([^)]*\)|\[[^\]]*\]|::?[\w-]+(\([^)]*\))?/g, '');
+  const balise = compose.match(/^[a-z]+/)?.[0];
+  if (balise && balise !== el.balise) return false;
+  const classes = [...compose.matchAll(/\.([\w-]+)/g)].map(m => m[1]);
+  const id = compose.match(/#([\w-]+)/)?.[1];
+  return classes.every(c => el.classes.includes(c)) && (!id || id === el.id);
+}
+
+test('le HTML contient bien des éléments interactifs à contrôler', () => {
+  const trouves = new Set(elements().map(e => e.balise));
+  for (const b of ['button', 'select', 'input']) assert.ok(trouves.has(b), `aucun <${b}> trouvé : le test ne vérifierait rien`);
+});
+
+test('chaque button, select, input et summary est couvert par un min-height ≥ 44px', () => {
+  const regles = reglesMinHeight();
+  for (const el of elements().filter(e => !e.hidden)) {
+    const nom = `<${el.balise}${el.id ? ' #' + el.id : ''}>`;
+    assert.ok(regles.some(r => couvre(r, el)), `${nom} sans règle min-height ≥ ${MIN}px`);
+  }
+});
+
+<<<<<<< HEAD
+test('panneau Carte : « Voyager » et « Fermer » ont une règle min-height ≥ 44px', () => {
+  const brut = readFileSync(new URL('../../dist/style.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  for (const sel of ['.zone button', '.inventaire .panel-head button']) {
+    const ok = [...brut.matchAll(/([^{}@]+)\{([^{}]*)\}/g)].some(([, s, corps]) =>
+      s.split(',').map(x => x.trim()).includes(sel) && Number(corps.match(/min-height:\s*(\d+)px/)?.[1]) >= MIN);
+    assert.ok(ok, `${sel} sans min-height ≥ ${MIN}px`);
+  }
+||||||| 21965a7
+=======
+const IDS_PANNEAUX = ['inventaireclose', 'equiper', 'ameliorer', 'recycler', 'recyclenon', 'recycleok', 'talentsclose', 'talentsreset', ...['assaut', 'rempart', 'fortune', 'braise'].map(t => `talent-invest-${t}`)];
+
+test('Inventaire, Talents et confirmation de recyclage : chaque bouton est couvert par un min-height ≥ 44px', () => {
+  const regles = reglesMinHeight();
+  const tous = elements();
+  for (const id of IDS_PANNEAUX) {
+    const el = tous.find(e => e.id === id);
+    assert.ok(el, `#${id} absent du HTML`);
+    assert.ok(regles.some(r => couvre(r, el)), `#${id} sans règle min-height ≥ ${MIN}px`);
+  }
+});
+
+test('la liste de l’inventaire défile dans sa propre zone, sans allonger la page ni toucher à la carte', () => {
+  const regle = css.match(/#inventairelist\s*\{([^{}]*)\}/)?.[1] ?? '';
+  assert.match(regle, /max-height:/);
+  assert.match(regle, /overflow-y:\s*auto/);
+  assert.doesNotMatch(css.match(/#cartelist\s*\{([^{}]*)\}/)?.[1] ?? '', /max-height/);
+>>>>>>> origin/main
+});
