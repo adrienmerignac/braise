@@ -56,11 +56,11 @@ Un bouton désactivé se lit aussi par son bord pointillé (pas d’opacité ré
 
 | Format | Points vérifiés |
 | --- | --- |
-| 360 × 800 | Largeur du document = écran ; héros et ennemi face à face ; barre Pause/Son/Volume/réglages en tête ; commandes de combat collées en bas ; « Grand » sans chevauchement. |
+| 360 × 800 | Largeur du document = écran ; héros et ennemi face à face ; barre Pause/Son/Volume/réglages en tête ; commandes de combat collées en bas ; « Grand » sans chevauchement. **Inventaire** (sauvegarde importée, 24 objets) : liste défilable dans sa zone, sans débordement horizontal, comparaison avant/après lisible, Équiper / Améliorer / Recycler et confirmation de recyclage dans l’écran, boutons ≥ 44 px. **Talents** : nom, rang, effet et coût lisibles, Investir et Réinitialiser ≥ 44 px ; Échap ferme, focus visible. |
 | 390 × 844 | Idem ; dialogues (bienvenue, absence, gardien) dans l’écran, bouton ≥ 44 px, Échap et focus rendu. |
 | 844 × 390 (paysage) | Un seul défilement vertical ; au chargement la scène est sous le pli (barre Son/réglages sur une ligne), après défilement héros, ennemi et barre de combat collée en bas sont visibles ensemble, sans que la barre recouvre la scène ; panneau du gardien compact, contenu dans la scène. |
 | 768 × 1024 | Deux colonnes sans débordement ; héros et ennemi visibles. |
-| 1280 × 800 | Rendu bureau inchangé. |
+| 1280 × 800 | Rendu bureau inchangé ; Inventaire et Talents sans régression. |
 
 Largeur : relever `scrollWidth` du document et vérifier qu’aucun descendant de `main` ne dépasse `innerWidth` (le `overflow-x:hidden` de `html` ne doit pas masquer un débordement). Texte « Grand » : choisi dans la liste (`Texte : Grand` visible sur la capture), pas seulement annoncé.
 
