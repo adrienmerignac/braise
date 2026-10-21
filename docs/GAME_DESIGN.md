@@ -119,10 +119,11 @@ Neuf succès, obtenus une seule fois, **informatifs** : aucun or, aucun bonus, a
 Première automatisation (M5.4a) : **lancer le gardien**. La frappe de braise reste manuelle (« intervention ponctuelle ») ; l'achat automatique est une tranche ultérieure. Valeurs de départ, réversibles ; module `dist/engine/automatismes.js`, sauvegarde v10 (`automatismes: { gardien: false }`).
 
 - **Déblocage** : gardien de l'étage 10 vaincu (`meilleurEtage > AUTO_GARDIEN_DEBLOCAGE`). Avant, l'automatisme n'existe pas pour le joueur.
-- **Éteint par défaut**, même débloqué : c'est le joueur qui l'active (`basculerAutomatisme`, refusée si non débloqué). Le réglage visible est la tâche suivante (M5.4b).
+- **Éteint par défaut**, même débloqué : c'est le joueur qui l'active (`basculerAutomatisme`, refusée si non débloqué). Réglage visible : voir « Affichage ».
 - **Limite** : actif, le gardien est lancé dès qu'il est disponible (5 victoires de l'étage), seulement si `assessGuardian` ne le juge pas « Mortel » (sinon le bouton reste au joueur) et seulement quand l'ennemi ordinaire est intact (jamais au milieu d'un échange). Jamais en pause, avant la fin du guide, ni pendant l'absence (qui n'affronte aucun gardien). Journal : « Gardien lancé automatiquement ».
 - **Pas de simulation** : la décision (`doitLancerGardien`, pure) est prise dans le pas de combat de `dist/game.js`, jamais dans la boucle de rendu : même résultat en pas de 1 s ou de 16 ms.
 - **Sauvegarde** : v9 → v10 éteint toute partie ; une valeur `true` sur une partie non débloquée est ramenée à `false`.
+- **Affichage** (M5.4b) : zone `journey`, au-dessus du bouton « Affronter ». Avant déblocage, la case est masquée et une ligne écrit la condition (« Gardien automatique : vaincre le gardien de l’étage 10 »). Au déblocage en session : une ligne de journal et une annonce polie « Gardien automatique disponible », sans encart. Ensuite, case « Gardien automatique » (décochée par défaut, persistée dans `automatismes`) avec sa limite écrite (« Lance le gardien dès qu’il est prêt, sauf s’il est jugé Mortel »). Actif, gardien prêt et « Mortel » : le bouton « Affronter » reste utilisable et « Gardien automatique en attente : danger Mortel » l’explique.
 
 ## Objectifs à valider
 

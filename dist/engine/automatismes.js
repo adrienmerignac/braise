@@ -6,6 +6,7 @@ import { automatismesNeufs } from './state.js';
 
 export const AUTOMATISMES_IDS = ['gardien'];
 export const MESSAGE_GARDIEN_AUTO = 'Gardien lancé automatiquement';
+export const MESSAGE_GARDIEN_DEBLOQUE = 'Gardien automatique disponible';
 
 // Débloqué quand le gardien de l'étage `AUTO_GARDIEN_DEBLOCAGE` a été vaincu.
 const DEBLOCAGES = { gardien: s => s.meilleurEtage > AUTO_GARDIEN_DEBLOCAGE };
@@ -38,4 +39,11 @@ export function lireAutomatismes(brut, s) {
     if (brut[id] === true && !neuf[id]) repaired = true;
   }
   return { automatismes: neuf, repaired };
+}
+
+// Ligne écrite sous la case : condition avant déblocage, raison de l'attente quand le gardien prêt est jugé « Mortel » ; sinon rien.
+export function texteGardienAuto(s) {
+  if (!estDebloque(s, 'gardien')) return `Gardien automatique : vaincre le gardien de l’étage ${AUTO_GARDIEN_DEBLOCAGE}`;
+  if (estActif(s, 'gardien') && s.kills >= KILLS_PER_STAGE && assessGuardian(s).danger === 'Mortel') return 'Gardien automatique en attente : danger Mortel';
+  return '';
 }
