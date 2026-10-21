@@ -1,19 +1,19 @@
 // Équipement : modèle, raretés et tirage du butin. Pur, sans DOM ni horloge ; l'aléa est injecté (`rng` renvoie un réel dans [0, 1)).
-// Un objet : { emplacement, rarete, niveau, bonus }. `equipe` : { arme?, armure?, charme? } (objets ou absents).
+// Un objet : { emplacement, rarete, niveau, amelioration (0 à +5), bonus }. `equipe` : { arme?, armure?, charme? } (objets ou absents).
 import {
   EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, EQUIPMENT_RARITY_MULT, EQUIPMENT_LEVEL_GROWTH, EQUIPMENT_BASE,
-  LOOT_DROP_CHANCE, LOOT_RARITY_WEIGHTS, LOOT_BOSS_RARITY_WEIGHTS, INVENTORY_CAP, LOOT_CONVERSION_GOLD, OFFLINE_LOOT_CAP,
+  LOOT_DROP_CHANCE, LOOT_RARITY_WEIGHTS, LOOT_BOSS_RARITY_WEIGHTS, INVENTORY_CAP, LOOT_CONVERSION_GOLD, OFFLINE_LOOT_CAP, EQUIPMENT_UPGRADE_STAT,
 } from './balance.js';
 
 export { EQUIPMENT_SLOTS, EQUIPMENT_RARITIES };
 
 export const BONUS_NULS = Object.freeze({ attaque: 0, vieMax: 0, reductionRiposte: 0, or: 0 });
 
-export function creerObjet(emplacement, rarete, niveau) {
+export function creerObjet(emplacement, rarete, niveau, amelioration = 0) {
   const echelle = EQUIPMENT_RARITY_MULT[rarete] * (1 + EQUIPMENT_LEVEL_GROWTH * (niveau - 1));
   const bonus = {};
-  for (const [stat, base] of Object.entries(EQUIPMENT_BASE[emplacement])) bonus[stat] = Math.max(1, Math.floor(base * echelle));
-  return { emplacement, rarete, niveau, bonus };
+  for (const [stat, base] of Object.entries(EQUIPMENT_BASE[emplacement])) bonus[stat] = Math.max(1, Math.floor(base * echelle)) + amelioration * EQUIPMENT_UPGRADE_STAT[stat];
+  return { emplacement, rarete, niveau, amelioration, bonus };
 }
 
 // Somme des bonus des objets équipés ; sans équipement, tout vaut 0.
