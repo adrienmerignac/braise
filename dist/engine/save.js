@@ -1,10 +1,10 @@
-// Lecture et écriture de la sauvegarde `braise-v2` (migrée depuis `braise-v1`) : validation champ par champ, sans DOM.
+// Lecture et écriture de la sauvegarde `braise-v2` (version 3, migrée depuis `braise-v1`) : validation champ par champ, sans DOM.
 // Le stockage est injecté (localStorage dans le jeu, un faux dans les tests).
 import { AUDIO_DEFAUT, reglagesValides } from './audio.js';
 import { AFFICHAGE_DEFAUT, MOUVEMENTS, EFFETS, affichageValide, normaliserAffichage } from './affichage.js';
 import { SAVE_KEY, BACKUP_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP } from './state.js';
 import { enemyMaxHP } from './combat.js';
-import { ENEMY_BASE_HP, ENEMY_HP_PER_STAGE } from './balance.js';
+import { ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, EQUIPMENT_BASE, EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, INVENTORY_CAP } from './balance.js';
 
 export const COOLDOWN_SECONDS = 15;
 
@@ -18,11 +18,61 @@ const FIELDS = {
 const isRecord = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const validInt = (v, min, max) => typeof v === 'number' && Number.isSafeInteger(v) && v >= min && v <= max;
 
-// Convertit un enregistrement `braise-v1` (sans champ `version`) en v2 sans perte : mêmes champs, version ajoutée.
-// Une version inconnue ou un non-objet est rendu tel quel ; `parseSave` le refusera.
+// Migre un enregistrement jusqu'à la version courante, sans perte : v1 (sans `version`) → v2 (version ajoutée),
+// v2 → v3 (`inventaire` vide et `equipe` vide ajoutés s'ils manquent). Une version inconnue ou un non-objet est rendu
+// tel quel ; `parseSave` le refusera.
 export function migrate(raw) {
-  if (!isRecord(raw) || raw.version !== undefined) return raw;
-  return { ...raw, version: SAVE_VERSION };
+  if (!isRecord(raw)) return raw;
+  let data = raw;
+  if (data.version === undefined) data = { ...data, version: 2 };
+  if (data.version === 2) data = { inventaire: [], equipe: {}, ...data, version: SAVE_VERSION };
+  return data;
+}
+
+const MAX_BONUS = 1e9;
+const validId = v => (typeof v === 'string' && v.length > 0 && v.length <= 64) || (typeof v === 'number' && Number.isSafeInteger(v) && v >= 0);
+
+// Un objet valide est renvoyé normalisé (champs connus seulement) ; sinon null. Les bonus attendus sont ceux de l'emplacement.
+function objetValide(o) {
+  if (!isRecord(o) || !EQUIPMENT_SLOTS.includes(o.emplacement) || !EQUIPMENT_RARITIES.includes(o.rarete) || !validInt(o.niveau, 1, MAX_STAGE) || !isRecord(o.bonus)) return null;
+  const bonus = {};
+  for (const stat of Object.keys(EQUIPMENT_BASE[o.emplacement])) {
+    if (!validInt(o.bonus[stat], 1, MAX_BONUS)) return null;
+    bonus[stat] = o.bonus[stat];
+  }
+  const objet = { emplacement: o.emplacement, rarete: o.rarete, niveau: o.niveau, bonus };
+  if (o.id !== undefined) { if (!validId(o.id)) return null; objet.id = o.id; }
+  return objet;
+}
+
+// `inventaire` et `equipe` : chaque objet invalide ou en double (même `id`) est écarté, l'inventaire est borné à INVENTORY_CAP.
+// Un champ absent (parties v1/v2) prend sa valeur par défaut sans réparation ; présent mais du mauvais type, il est vidé.
+function parseEquipement(data) {
+  const res = { inventaire: [], equipe: {}, repaired: false };
+  const vus = new Set();
+  const nouveau = o => {
+    if (!o || (o.id !== undefined && vus.has(o.id))) return null;
+    if (o.id !== undefined) vus.add(o.id);
+    return o;
+  };
+  if (data.equipe !== undefined) {
+    if (isRecord(data.equipe)) {
+      for (const [slot, o] of Object.entries(data.equipe)) {
+        const objet = EQUIPMENT_SLOTS.includes(slot) && o !== null ? objetValide(o) : null;
+        const ok = objet && objet.emplacement === slot ? nouveau(objet) : null;
+        if (ok) res.equipe[slot] = ok; else res.repaired = true;
+      }
+    } else res.repaired = true;
+  }
+  if (data.inventaire !== undefined) {
+    if (Array.isArray(data.inventaire)) {
+      for (const o of data.inventaire) {
+        const ok = nouveau(objetValide(o));
+        if (ok && res.inventaire.length < INVENTORY_CAP) res.inventaire.push(ok); else res.repaired = true;
+      }
+    } else res.repaired = true;
+  }
+  return res;
 }
 
 // Texte écrit en stockage et dans les fichiers d'export. `fight` (facultatif) : { hp, boss, enemyHP, cool }.
@@ -95,6 +145,9 @@ export function parseSave(text, now) {
   }
   if (validInt(data.last, 0, now)) s.last = data.last;
   else repaired = true;
+  const eq = parseEquipement(data);
+  s.inventaire = eq.inventaire; s.equipe = eq.equipe;
+  if (eq.repaired) repaired = true;
   const f = parseFight(data, s, now);
   if (f.repaired) repaired = true;
   let guide = defaultGuide(s);
