@@ -3,6 +3,7 @@ import { sonsPourEvenement } from './engine/sons.js';
 import { ajouterEtincelles, doitRedessiner } from './engine/etincelles.js';
 import { enemyLook, gardienLook, sequenceGardien, ancrageEnnemi, placeEnnemi, colonneEnnemi, tailleCase } from './engine/ennemis-visuels.js';
 import { couchesHeros, ACTIONS_HEROS } from './engine/apparence-heros.js';
+import { decorDeZone, idDecor, tousFichiersDecor, animationDecor, dureeTransition, opaciteFondu } from './engine/decors.js';
 import { AFFICHAGE_DEFAUT, normaliserAffichage, mouvementReduit, effetsDiscrets, echelleTexte } from './engine/affichage.js';
 // Direction rows belong to each sheet, not to the LPC family as a whole.
 const HERO_ROWS = Object.freeze({ east: 3 });
@@ -22,8 +23,10 @@ const police = px => `bold ${Math.round(px * echelleTexte(affichage.texte))}px m
 const discret = () => effetsDiscrets(affichage.effets);
 const assets = {};
 const COUCHES_FICHIERS = ['body','pants','boots','mail','plate','hood'].flatMap(c => ACTIONS_HEROS.map(a => `${c}-${a}`)).concat('sword');
-const files = [...COUCHES_FICHIERS,'goblin-sword','goblin','bat','slime','snake','ghost','eyeball','spider','golem','imp','grass','dirt','treetop','trunk','rock','chests'];
+const files = [...new Set([...COUCHES_FICHIERS,'goblin-sword','goblin','bat','slime','snake','ghost','eyeball','spider','golem','imp','treetop','trunk','rock','chests',...tousFichiersDecor()])];
 let failed = false;
+// Décor de la zone courante : fond recomposé hors écran à chaque changement ; fondu au noir de TRANSITION_MS (horloge de la scène, donc figé en pause).
+let decorId = 'foret', decorCible = null, fondAt = -Infinity, fondAPoser = true, premiereImage = true;
 let time = 0, previous = 0, paused = false, attackAt = -5000, spawnAt = 0;
 let zone = 'foret', kind = null, dying = false, strong = false, isBoss = false, damage = 0, taken = 0, heroRatio = 1;
 const sparks = [];
@@ -47,8 +50,15 @@ function reveiller() {
   boucleActive = true; previous = 0;
   requestAnimationFrame(draw);
 }
+function demanderZone(id) {
+  id = idDecor(id);
+  if (id === (decorCible || decorId)) return;
+  if (premiereImage || reduit()) { decorId = id; decorCible = null; fondAPoser = true; return; }
+  decorCible = id; fondAt = time;
+}
 function receive(type, detail) {
   if (type === 'braise:pause') { paused = detail; if (!paused) imageFinalePosee = false; }
+  else if (type === 'braise:zone') demanderZone(detail && detail.zone);
   else if (type === 'braise:affichage') affichage = normaliserAffichage(detail);
   else if (type === 'braise:equipement') { equipement = detail; heroADessiner = true; }
   else queue.push(type.slice(7), detail, time);
@@ -58,7 +68,7 @@ function receive(type, detail) {
 const backlog = window.braiseBacklog || [];
 window.braiseBacklog = null;
 for (const [type, detail] of backlog) receive(type, detail);
-for (const type of ['braise:combat', 'braise:pause', 'braise:spawn', 'braise:affichage', 'braise:equipement']) window.addEventListener(type, ({detail}) => receive(type, detail));
+for (const type of ['braise:combat', 'braise:zone', 'braise:pause', 'braise:spawn', 'braise:affichage', 'braise:equipement']) window.addEventListener(type, ({detail}) => receive(type, detail));
 await Promise.all(files.map(name => new Promise(resolve => {
   const image = new Image();
   image.onload = () => { assets[name] = image; resolve(); };
@@ -80,13 +90,36 @@ function tree(x,y,size=1,fir=false) {
 const background = document.createElement('canvas');
 background.width=960;background.height=480;
 const b = background.getContext('2d');b.imageSmoothingEnabled=false;
-for(let y=0;y<480;y+=32)for(let x=0;x<960;x+=32){
-  if(assets.grass)b.drawImage(assets.grass,((x/32+y/32)%3)*32,160,32,32,x,y,32,32);
-  else {b.fillStyle='#3c6235';b.fillRect(x,y,32,32);}
+function tuile(nom,sx,sy,x,y){if(assets[nom])b.drawImage(assets[nom],sx,sy,32,32,x,y,32,32);}
+function composerFond(id) {
+  const d=decorDeZone(id);
+  b.clearRect(0,0,960,480);
+  for(let y=0;y<480;y+=32)for(let x=0;x<960;x+=32){
+    const [sx,sy]=d.sol.cases[(x/32+y/32)%d.sol.cases.length];
+    if(assets[d.sol.fichier])tuile(d.sol.fichier,sx,sy,x,y);else{b.fillStyle=d.sol.repli;b.fillRect(x,y,32,32);}
+  }
+  if(d.chemin){
+    b.save();b.beginPath();b.ellipse(485,307,410,106,0,0,Math.PI*2);b.clip();
+    for(let y=192;y<448;y+=32)for(let x=32;x<960;x+=32)tuile(d.chemin.fichier,d.chemin.sx,d.chemin.sy,x,y);
+    b.restore();
+  }
+  if(d.eau)for(const [x,y,rx,ry] of d.eau.bassins){
+    b.save();b.beginPath();b.ellipse(x,y,rx,ry,0,0,Math.PI*2);b.clip();
+    for(let py=y-ry-32;py<y+ry+32;py+=32)for(let px=x-rx-32;px<x+rx+32;px+=32)tuile(d.eau.fichier,d.eau.sx,d.eau.sy,Math.floor(px/32)*32,Math.floor(py/32)*32);
+    b.restore();
+  }
+  if(d.mur){
+    b.fillStyle=d.mur.repli;b.fillRect(0,0,960,d.mur.hauteur);
+    for(let y=0;y<d.mur.hauteur;y+=32)for(let x=0;x<960;x+=32){
+      if(d.mur.trous.some(([hx,hy])=>x>=hx&&x<hx+64&&y>=hy&&y<hy+64))continue;
+      const [sx,sy]=d.mur.cases[(x/32*3+y/32)%d.mur.cases.length];tuile(d.mur.fichier,sx,sy,x,y);
+    }
+    b.fillStyle='#0a0f1a66';b.fillRect(0,d.mur.hauteur-6,960,6);
+  }
+  for(const [f,sx,sy,sw,sh,x,y,w,h] of d.accessoires)if(assets[f])b.drawImage(assets[f],sx,sy,sw,sh,x,y,w,h);
+  b.fillStyle=d.eclairage.voile;b.fillRect(0,0,960,480);
+  fondAPoser=false;
 }
-b.save();b.beginPath();b.ellipse(485,307,410,106,0,0,Math.PI*2);b.clip();
-for(let y=192;y<448;y+=32)for(let x=32;x<960;x+=32)if(assets.dirt)b.drawImage(assets.dirt,32,160,32,32,x,y,32,32);
-b.restore();b.fillStyle='#15233255';b.fillRect(0,0,960,480);
 const HERO_TAILLES = { walk: [9, 4], swing: [6, 4], hurt: [6, 1] };
 // Les couches héros partagent la planche du héros (HERO_ROWS.east = 3) ; les planches de coup comptent 7 colonnes, on garde les 6 utilisées.
 function composerHero() {
@@ -117,11 +150,11 @@ function teinteBraise(look,x,y,sc,frame,row,lueur,alpha) {
   if(lueur>0){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=alpha*lueur*.35;ctx.drawImage(calque,0,0,64,64,Math.round(x),Math.round(y),64*sc,64*sc);}
   ctx.restore();
 }
-function fire(t) {
+function fire(t,feu=1) {
   const x=192,y=339;
-  const glow=ctx.createRadialGradient(x,y-10,0,x,y-10,140);
+  const glow=ctx.createRadialGradient(x,y-10,0,x,y-10,140*feu);
   glow.addColorStop(0,'#ffc17b50');glow.addColorStop(.3,'#ed8c3730');glow.addColorStop(1,'#ed8c3700');
-  ctx.fillStyle=glow;ctx.fillRect(x-140,y-150,280,280);
+  ctx.fillStyle=glow;ctx.fillRect(x-140*feu,y-150*feu,280*feu,280*feu);
   ellipse(x,y+12,32,10,'#10171a99');
   for(let i=0;i<8;i++){const a=i*Math.PI/4;ctx.fillStyle=i%2?'#777c75':'#505b5d';ctx.fillRect(x+Math.cos(a)*22-5,y+Math.sin(a)*8+6,10,7);}
   ctx.fillStyle='#6d432c';ctx.fillRect(x-18,y+4,36,7);ctx.fillStyle='#8c5936';ctx.fillRect(x-11,y-1,27,6);
@@ -141,20 +174,57 @@ function playDueSounds() {
     window.dispatchEvent(new CustomEvent('braise:son', { detail: { nom: son.nom } }));
   }
 }
+// Bascule du fond au milieu du fondu ; fin de transition après TRANSITION_MS.
+function avancerDecor() {
+  premiereImage = false;
+  if (decorCible && (reduit() || time - fondAt >= dureeTransition({ reduit: false }) / 2)) { decorId = decorCible; decorCible = null; fondAPoser = true; }
+  if (fondAPoser) composerFond(decorId);
+}
+function fondu() {
+  const age = time - fondAt, a = opaciteFondu(age);
+  if (a <= 0) return;
+  ctx.fillStyle = `rgba(0,0,0,${a})`; ctx.fillRect(0, 0, 960, 480);
+}
+// Animation d'ambiance propre à la zone : reflets sur l'eau (ruines), braises et cendres (cryptes).
+function ambiance(dec) {
+  const anim = animationDecor(decorId, { reduit: reduit(), discret: discret() });
+  if (!anim) return;
+  ctx.save();
+  if (anim.nom === 'reflets') {
+    for (const [x, y, rx, ry] of dec.eau.bassins) for (let i = 0; i < 9; i++) {
+      const u = Math.sin(i * 12.9 + x), w = Math.cos(i * 7.3 + y);
+      const px = x + u * rx * .8 + Math.sin(time / 900 + i) * 6, py = y + w * ry * .7;
+      ctx.globalAlpha = anim.force * (.25 + (Math.sin(time / 600 + i * 2) + 1) * .22);
+      ctx.fillStyle = '#d8f2ff'; ctx.fillRect(Math.round(px), Math.round(py), 14, 2);
+    }
+  } else if (anim.nom === 'braises') {
+    for (let i = 0; i < 22; i++) {
+      const f = (time / 5200 + i * .137) % 1, x = (i * 97 + Math.sin(time / 1300 + i) * 18) % 960, y = 470 - f * 420;
+      ctx.globalAlpha = anim.force * Math.sin(f * Math.PI) * .85;
+      ctx.fillStyle = i % 3 ? '#ff9b4a' : '#b8a99a'; ctx.fillRect(Math.round(x), Math.round(y), i % 4 ? 2 : 3, i % 4 ? 2 : 3);
+    }
+  }
+  ctx.restore();
+}
 function draw(now) {
   const dt=previous?Math.min(50,now-previous):0;previous=now;if(!paused)time+=dt;
   queue.flush(time);
+  avancerDecor();
   if(heroADessiner)composerHero();
   playDueSounds();
   const t=reduit()?0:time, age=time-attackAt;
   ctx.save();
   if(strong&&age>280&&age<520&&!reduit()&&!discret())ctx.translate(Math.sin(age)*3,Math.cos(age)*2);
   ctx.drawImage(background,0,0);
+  const dec=decorDeZone(decorId);
+  if(decorId==='foret'){
   for(const [x,y,z,f] of [[-35,-65,1.8,true],[95,-78,1.65,false],[245,-110,1.8,true],[410,-110,1.7,false],[560,-100,1.65,true],[710,-90,1.8,false],[860,-50,1.8,true]])tree(x,y,z,f);
   image('rock',0,0,32,32,732,246,48,48);image('rock',32,0,32,32,247,222,32,32);
   // Broken stone markers and small mushrooms along the path.
   for(let i=0;i<14;i++){let x=75+i*62,y=390+Math.sin(i*9)*23;ctx.fillStyle='#394e40';ctx.fillRect(x,y,6,12);ctx.fillStyle=i%3?'#8f8270':'#b97e5c';ctx.fillRect(x-4,y-2,14,5);}
-  fire(t);
+  }
+  ambiance(dec);
+  fire(t,dec.eclairage.feu);
   const lunging=age>=0&&age<650;
   const approach=lunging&&!reduit()?Math.sin(Math.min(1,age/650)*Math.PI)*70:0;
   const heroX=330+approach, heroY=210;
@@ -186,10 +256,11 @@ function draw(now) {
   // Dégâts reçus : signe − et suffixe PV (jamais la couleur seule) ; sans flottement en mouvement réduit.
   if(taken>0&&age>680&&age<1500){const a=(age-680)/820;ctx.globalAlpha=Math.min(1,2*(1-a));ctx.font=police(22);ctx.textAlign='center';const y=190-(reduit()?0:a*28);ctx.fillStyle='#19202c';ctx.fillText(`−${taken} PV`,397,y+2);ctx.fillStyle='#ff9d8a';ctx.fillText(`−${taken} PV`,395,y);ctx.globalAlpha=1;}
   ctx.fillStyle='#1a2b27';ctx.fillRect(365,207,62,4);ctx.fillStyle='#bfd4a0';ctx.fillRect(365,207,62*heroRatio,4);
-  tree(-50,255,1.65,true);tree(825,265,1.8,true);tree(710,390,1.5,false);
-  const shade=ctx.createLinearGradient(0,0,0,480);shade.addColorStop(0,'#101d3b88');shade.addColorStop(.5,'#17243c00');shade.addColorStop(1,'#07151d77');ctx.fillStyle=shade;ctx.fillRect(0,0,960,480);
-  if(!reduit()&&!discret())for(let i=0;i<15;i++){const x=(i*163+Math.sin(t/2500+i)*32)%960,y=120+(i*73)%280+Math.sin(t/1700+i)*14;ctx.globalAlpha=.2+(Math.sin(t/700+i)+1)*.25;ctx.fillStyle='#dfdf9f';ctx.fillRect(x,y,2,2);}ctx.globalAlpha=1;
+  if(decorId==='foret'){tree(-50,255,1.65,true);tree(825,265,1.8,true);tree(710,390,1.5,false);}
+  const shade=ctx.createLinearGradient(0,0,0,480);shade.addColorStop(0,dec.eclairage.haut);shade.addColorStop(.5,'#17243c00');shade.addColorStop(1,dec.eclairage.bas);ctx.fillStyle=shade;ctx.fillRect(0,0,960,480);
+  if(decorId==='foret'&&!reduit()&&!discret())for(let i=0;i<15;i++){const x=(i*163+Math.sin(t/2500+i)*32)%960,y=120+(i*73)%280+Math.sin(t/1700+i)*14;ctx.globalAlpha=.2+(Math.sin(t/700+i)+1)*.25;ctx.fillStyle='#dfdf9f';ctx.fillRect(x,y,2,2);}ctx.globalAlpha=1;
   ctx.restore();
+  fondu();
   imageFinalePosee = paused; evenementEnAttente = false;
   if (doitRedessiner({ pause: paused, imageFinalePosee, evenementEnAttente })) requestAnimationFrame(draw);
   else boucleActive = false;

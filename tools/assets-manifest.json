@@ -109,6 +109,28 @@
    "sha256": "712fca94b25cd0b90cfa077f224f6153e9d7d210194f93360fe8f2cd1a394b1e"
   },
   {
+   "chemin": "assets/lpc/castlefloors.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "tileset/original/HughSpectrum/castlefloors.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "5244b8ee8ff88d5ce553a0cf332b8bdcbfe8394e16cfff16b93fa44357644415"
+  },
+  {
+   "chemin": "assets/lpc/castlewalls.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "tileset/original/HughSpectrum/castlewalls.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "b832d6815ff9a860055196243195f6c12eaac54ec3545c7d6cb0c2593f8afb3d"
+  },
+  {
    "chemin": "assets/lpc/chests.png",
    "source": {
     "type": "lpc",
@@ -129,6 +151,17 @@
    },
    "licence": "CC-BY-SA-3.0",
    "sha256": "115ffc435f5ce95a5462c08708a158bac014ac4f6fd631af44e335b77a0a264b"
+  },
+  {
+   "chemin": "assets/lpc/dungeon.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "tileset/original/Sharm/sewer-dungeon/dungeon.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "58e59996e37244f5dff6a98fd9da4e00fa55b4e4858291c06b918af9853eb3fe"
   },
   {
    "chemin": "assets/lpc/eyeball.png",
