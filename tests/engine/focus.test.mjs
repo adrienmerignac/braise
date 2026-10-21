@@ -113,3 +113,24 @@ test('talents : « Fermer » rend aussi le focus au bouton d’ouverture', () =>
   jeu.clic('talentsclose');
   assert.equal(jeu.actif(), jeu.el('talents'));
 }));
+
+const ENTREE_CARTE = { stockageV2: { version: 5, ...BASE, stage: 5, zone: 'foret', meilleurEtage: 6, guide: 'done', vus: ['gardien', 'absence'], inventaire: [], equipe: {}, talents: {} } };
+
+test('carte : le focus entre dans le panneau, Échap le ferme et rend le focus au bouton Carte', () => avecJeu(ENTREE_CARTE, jeu => {
+  jeu.clic('carte');
+  assert.equal(jeu.el('cartepanel').hidden, false);
+  assert.equal(jeu.actif(), jeu.el('zone-voyage-ruines'));
+  jeu.echap();
+  assert.equal(jeu.el('cartepanel').hidden, true);
+  assert.equal(jeu.actif(), jeu.el('carte'));
+}));
+
+test('carte : Tab reste piégé dans le panneau, dans les deux sens', () => avecJeu(ENTREE_CARTE, jeu => {
+  jeu.clic('carte');
+  const tab = shift => jeu.el('cartepanel').onkeydown({ key: 'Tab', shiftKey: shift });
+  jeu.focus('carteclose');
+  tab(false);
+  assert.equal(jeu.actif(), jeu.el('zone-voyage-ruines'));
+  tab(true);
+  assert.equal(jeu.actif(), jeu.el('carteclose'));
+}));
