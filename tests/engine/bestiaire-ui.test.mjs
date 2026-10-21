@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { lancerJeu } from './horloge.mjs';
 import { decrireBestiaire, bestiaireNeuf, cleGardien } from '../../dist/engine/bestiaire.js';
 
-const BASE = { version: 10, gold: 0, xp: 0, level: 1, stage: 1, kills: 0, weapon: 0, armor: 0, luck: 0, last: 1_000_000, guide: 'done', vus: ['gardien', 'absence'], recitsLus: ['braise'] };
+const BASE = { version: 11, gold: 0, xp: 0, level: 1, stage: 1, kills: 0, weapon: 0, armor: 0, luck: 0, last: 1_000_000, guide: 'done', vus: ['gardien', 'absence'], recitsLus: ['braise'] };
 const avec = async (options, scenario) => { const jeu = await lancerJeu(options); try { await scenario(jeu); } finally { jeu.fermer(); } };
 const textes = li => li.children.map(c => c.textContent);
 

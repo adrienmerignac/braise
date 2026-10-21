@@ -7,7 +7,7 @@ import { texteGardienAuto, basculerAutomatisme } from '../../dist/engine/automat
 import { AUTO_GARDIEN_DEBLOCAGE, KILLS_PER_STAGE } from '../../dist/engine/balance.js';
 
 const T0 = 1_000_000;
-const sauve = (extra = {}) => ({ ...fresh(T0), guide: 'done', vus: ['gardien', 'absence'], version: 10, ...extra });
+const sauve = (extra = {}) => ({ ...fresh(T0), guide: 'done', vus: ['gardien', 'absence'], version: 11, ...extra });
 const debloque = (extra = {}) => sauve({ stage: 12, zone: 'cryptes', meilleurEtage: AUTO_GARDIEN_DEBLOCAGE + 1, level: 40, weapon: 30, armor: 30, ...extra });
 
 async function avecJeu(stockageV2, scenario) {

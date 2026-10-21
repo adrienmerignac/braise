@@ -4,7 +4,7 @@ import { lancerJeu } from './horloge.mjs';
 import { decrireSucces } from '../../dist/engine/carte.js';
 import { annoncePour } from '../../dist/engine/annonces.js';
 
-const BASE = { version: 10, gold: 0, xp: 0, level: 1, stage: 1, kills: 0, weapon: 0, armor: 0, luck: 0, last: 1_000_000, guide: 'done', vus: ['gardien', 'absence'], recitsLus: ['braise', 'ruines', 'cryptes', 'cendres'], succes: ['recits'] };
+const BASE = { version: 11, gold: 0, xp: 0, level: 1, stage: 1, kills: 0, weapon: 0, armor: 0, luck: 0, last: 1_000_000, guide: 'done', vus: ['gardien', 'absence'], recitsLus: ['braise', 'ruines', 'cryptes', 'cendres'], succes: ['recits'] };
 const avec = async (options, scenario) => { const jeu = await lancerJeu(options); try { await scenario(jeu); } finally { jeu.fermer(); } };
 const textes = li => li.children.map(c => c.textContent);
 

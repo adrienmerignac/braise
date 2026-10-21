@@ -116,7 +116,7 @@ Neuf succès, obtenus une seule fois, **informatifs** : aucun or, aucun bonus, a
 
 ### Automatisations
 
-Première automatisation (M5.4a) : **lancer le gardien**. La frappe de braise reste manuelle (« intervention ponctuelle ») ; l'achat automatique est une tranche ultérieure. Valeurs de départ, réversibles ; module `dist/engine/automatismes.js`, sauvegarde v10 (`automatismes: { gardien: false }`).
+Première automatisation (M5.4a) : **lancer le gardien**. La frappe de braise reste manuelle (« intervention ponctuelle ») . Deuxième automatisation (M5.4c) : **l'achat automatique** (moteur et sauvegarde ; l'interface vient ensuite). Valeurs de départ, réversibles ; module `dist/engine/automatismes.js`, sauvegarde v11 (`automatismes: { gardien: false, achat: false }`).
 
 - **Déblocage** : gardien de l'étage 10 vaincu (`meilleurEtage > AUTO_GARDIEN_DEBLOCAGE`). Avant, l'automatisme n'existe pas pour le joueur.
 - **Éteint par défaut**, même débloqué : c'est le joueur qui l'active (`basculerAutomatisme`, refusée si non débloqué). Réglage visible : voir « Affichage ».
@@ -124,6 +124,9 @@ Première automatisation (M5.4a) : **lancer le gardien**. La frappe de braise re
 - **Pas de simulation** : la décision (`doitLancerGardien`, pure) est prise dans le pas de combat de `dist/game.js`, jamais dans la boucle de rendu : même résultat en pas de 1 s ou de 16 ms.
 - **Sauvegarde** : v9 → v10 éteint toute partie ; une valeur `true` sur une partie non débloquée est ramenée à `false`.
 - **Affichage** (M5.4b) : zone `journey`, au-dessus du bouton « Affronter ». Avant déblocage, la case est masquée et une ligne écrit la condition (« Gardien automatique : vaincre le gardien de l’étage 10 »). Au déblocage en session : une ligne de journal et une annonce polie « Gardien automatique disponible », sans encart. Ensuite, case « Gardien automatique » (décochée par défaut, persistée dans `automatismes`) avec sa limite écrite (« Lance le gardien dès qu’il est prêt, sauf s’il est jugé Mortel »). Actif, gardien prêt et « Mortel » : le bouton « Affronter » reste utilisable et « Gardien automatique en attente : danger Mortel » l’explique.
+- **Achat automatique** (M5.4c, clé `achat`) : débloqué quand le gardien de l'étage 15 est vaincu (`meilleurEtage > AUTO_ACHAT_DEBLOCAGE`), éteint par défaut, bascule refusée avant. Actif, au plus **une** amélioration par pas de combat : la moins chère parmi arme, armure, charme (égalité : arme, armure, charme), si l'or suffit et si elle n'est pas au niveau max (`choisirAchatAuto`, pure ; l'achat passe par `buyUpgrade`, même événement et même soin d'armure). Jamais en pause, avant la fin du guide, ni pendant l'absence : l'or rapporté n'est dépensé qu'aux pas suivants. Journal : « Achat automatique : Arme niveau 12 », sans annonce aux lecteurs d'écran. Décision prise dans le pas de combat de `dist/game.js`, comme le gardien.
+- **Sauvegarde v10 → v11** : `achat: false` ajouté sans toucher à `gardien` ; `true` sur une partie non débloquée revient à `false`.
+
 
 ## Objectifs à valider
 

@@ -11,7 +11,7 @@ const neufs = () => fresh(0).objectifs;
 
 test('reprise v5 : gardien de la forêt accompli, +200 or, jamais deux fois', () => {
   const r = lire(v5());
-  assert.equal(SAVE_VERSION, 10);
+  assert.equal(SAVE_VERSION, 11);
   assert.equal(r.s.gold, 521);
   assert.deepEqual(r.s.objectifs, { foret: { chasse: 0, faits: ['gardien'] }, ruines: { chasse: 0, faits: [] }, cryptes: { chasse: 0, faits: [] } });
   const second = lire(JSON.parse(serializeSave(r.s, NOW)));
@@ -47,9 +47,9 @@ test('champ objectifs absent en v6 → défaut', () => {
   assert.deepEqual(lire({ ...sans, version: 6 }).s.objectifs, neufs());
 });
 
-test('export/import aller-retour identique ; v11 refusée comme future', () => {
+test('export/import aller-retour identique ; v12 refusée comme future', () => {
   const s = { ...fresh(0), objectifs: { ...neufs(), foret: { chasse: 25, faits: ['chasse', 'gardien'] }, ruines: { chasse: 9, faits: [] } } };
   const retour = importSave(serializeSave(s, NOW), NOW);
   assert.deepEqual(retour.s.objectifs, s.objectifs);
-  assert.equal(isFutureSave(JSON.stringify({ ...fresh(0), version: 11 })), true);
+  assert.equal(isFutureSave(JSON.stringify({ ...fresh(0), version: 12 })), true);
 });

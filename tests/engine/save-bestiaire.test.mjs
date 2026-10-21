@@ -9,7 +9,7 @@ const v7 = (extra = {}) => { const { bestiaire, ...r } = fresh(0); return { ...r
 const lire = data => parseSave(JSON.stringify(data), NOW);
 const mem = (init = {}) => ({ data: { ...init }, getItem(k) { return k in this.data ? this.data[k] : null; }, setItem(k, v) { this.data[k] = v; } });
 
-test('schéma : la version courante est la 10', () => assert.equal(SAVE_VERSION, 10));
+test('schéma : la version courante est la 11', () => assert.equal(SAVE_VERSION, 11));
 
 test('migration v7 à l’étage 12 : types des trois zones vus, gardiens forêt et ruines vus, celui des cendres non', () => {
   const r = lire(v7({ stage: 12, zone: 'cryptes', meilleurEtage: 12 }));
@@ -69,7 +69,7 @@ test('champ corrompu : collection par défaut, reste de la partie conservé', ()
   }
 });
 
-test('reprise d’une partie braise-v1 jusqu’en v10', () => {
+test('reprise d’une partie braise-v1 jusqu’en v11', () => {
   const v1 = { gold: 900, xp: 10, level: 9, stage: 8, kills: 1, weapon: 3, armor: 2, luck: 1, last: 500 };
   const storage = mem({ 'braise-v1': JSON.stringify(v1) });
   const r = loadSave(storage, NOW);
@@ -78,10 +78,10 @@ test('reprise d’une partie braise-v1 jusqu’en v10', () => {
   assert.equal(r.s.bestiaire['squelette-ruines'].vus, true);
   assert.equal(r.s.bestiaire['gardien:foret'].vus, true);
   assert.equal(r.s.bestiaire.goule.vus, false);
-  assert.equal(JSON.parse(storage.data[SAVE_KEY]).version, 10);
+  assert.equal(JSON.parse(storage.data[SAVE_KEY]).version, 11);
 });
 
-test('v11 future : refusée, jamais écrasée', () => {
-  const r = lire({ ...fresh(0), version: 11 });
+test('v12 future : refusée, jamais écrasée', () => {
+  const r = lire({ ...fresh(0), version: 12 });
   assert.equal(r.status, 'future');
 });

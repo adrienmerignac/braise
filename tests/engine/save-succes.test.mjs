@@ -8,7 +8,7 @@ const NOW = 1_000_000;
 const lire = data => parseSave(JSON.stringify(data), NOW);
 const v8 = (extra = {}) => { const { succes, ...r } = fresh(0); return { ...r, version: 8, last: 500, stage: 60, meilleurEtage: 60, zone: 'cryptes', ...extra }; };
 
-test('schéma : la version courante est la 10', () => assert.equal(SAVE_VERSION, 10));
+test('schéma : la version courante est la 11', () => assert.equal(SAVE_VERSION, 11));
 
 test('v8 à l’étage 60 avec un épique équipé : succès déjà remplis repris, sans événement', () => {
   const r = lire(v8({ equipe: { arme: creerObjet('arme', 'epique', 5) } }));
@@ -37,8 +37,8 @@ test('v9 sans champ : liste déduite, sans réparation', () => {
   assert.deepEqual(r.s.succes, ['etage25', 'etage50']);
 });
 
-test('v11 : future, jamais écrasée', () => {
-  const t = JSON.stringify({ ...fresh(0), version: 11 });
+test('v12 : future, jamais écrasée', () => {
+  const t = JSON.stringify({ ...fresh(0), version: 12 });
   assert.equal(isFutureSave(t), true);
   assert.equal(parseSave(t, NOW).status, 'future');
 });
