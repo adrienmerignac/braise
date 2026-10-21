@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { dirname, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -55,6 +56,23 @@ for (const [name, width, height] of [
   if (bytes.readUInt32BE(16) < width || bytes.readUInt32BE(20) < height) {
     errors.push(`Planche ${name} trop petite pour les frames du rendu (${width} × ${height} minimum)`);
   }
+}
+// Assets : chaque PNG servi est déclaré au manifeste (licence connue, empreinte identique).
+const manifest = JSON.parse(readFileSync(resolve(root, 'tools/assets-manifest.json'), 'utf8'));
+const declared = new Map(manifest.fichiers.map(entry => [entry.chemin, entry]));
+for (const path of files.filter(path => path.endsWith('.png') && relative(dist, path).startsWith('assets/'))) {
+  const rel = relative(dist, path).split('\\').join('/');
+  const entry = declared.get(rel);
+  if (!entry) { errors.push(`${rel}: PNG absent de tools/assets-manifest.json (source et licence à déclarer)`); continue; }
+  if (!manifest.licences.includes(entry.licence)) errors.push(`${rel}: licence inconnue « ${entry.licence} »`);
+  const sha = createHash('sha256').update(readFileSync(path)).digest('hex');
+  if (sha !== entry.sha256) errors.push(`${rel}: empreinte sha256 différente du manifeste (fichier modifié ?)`);
+}
+for (const rel of declared.keys()) {
+  if (!existsSync(resolve(dist, rel))) errors.push(`${rel}: déclaré au manifeste mais fichier manquant`);
+}
+for (const rel of ['assets/LICENSE-Kenney.txt', 'assets/lpc/LICENSE.txt', 'assets/lpc/LICENSE-CC-BY-SA-3.0.txt']) {
+  if (!existsSync(resolve(dist, rel))) errors.push(`${rel}: fichier de licence manquant`);
 }
 const hosting = JSON.parse(readFileSync(resolve(root, '.openai/hosting.json'), 'utf8'));
 if (!hosting.project_id || hosting.static?.directory !== 'dist') errors.push('Manifest Sites statique invalide');

@@ -1,0 +1,379 @@
+{
+ "licences": [
+  "CC-BY-SA-3.0",
+  "CC0"
+ ],
+ "fichiers": [
+  {
+   "chemin": "assets/Tiles/tile_0100.png",
+   "source": {
+    "type": "kenney",
+    "pack": "Tiny Dungeon"
+   },
+   "licence": "CC0",
+   "sha256": "e139ab1d56c599af1cea5a955b705ead18a92d41e8e635b550729383cad9de3c"
+  },
+  {
+   "chemin": "assets/Tiles/tile_0104.png",
+   "source": {
+    "type": "kenney",
+    "pack": "Tiny Dungeon"
+   },
+   "licence": "CC0",
+   "sha256": "3b38808f0c20a49a9923475022041c46e8a04b47d8621e5186fe153b4bbaed48"
+  },
+  {
+   "chemin": "assets/Tiles/tile_0110.png",
+   "source": {
+    "type": "kenney",
+    "pack": "Tiny Dungeon"
+   },
+   "licence": "CC0",
+   "sha256": "ca2d26579be3738be5abfb74cea388634e212fb991b84701deeda65da4780f1c"
+  },
+  {
+   "chemin": "assets/lpc/body-hurt.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Body/Base/Human_male/Ivory/hurt.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "8243891eae2d53d51be78eb4a0b614d3588007d90331174845aec18848631dde"
+  },
+  {
+   "chemin": "assets/lpc/body-swing.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Body/Base/Human_male/Ivory/swing.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "8814d11ad95d8b12372fd72d24ac6e4a9b5a0cd57ac57a4f50e1a56d2e132263"
+  },
+  {
+   "chemin": "assets/lpc/body-walk.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Body/Base/Human_male/Ivory/walk.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "5b7cdf0f3ba45dd4401bf50a7c42e43f326aa347286acd27fc8671dbbb245001"
+  },
+  {
+   "chemin": "assets/lpc/boots-hurt.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Feet/Human_male/Armored Boots/Silver/hurt.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "624ec8cf153c916c65f6b3ceb3fa62c0aec652392b08a4480071e4f19f4f9d54"
+  },
+  {
+   "chemin": "assets/lpc/boots-swing.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Feet/Human_male/Armored Boots/Silver/swing.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "22520410b4d433daa6ad08cf921f59d9995b74f3f63e86076e5840d11146b970"
+  },
+  {
+   "chemin": "assets/lpc/boots-walk.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Feet/Human_male/Armored Boots/Silver/walk.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "712fca94b25cd0b90cfa077f224f6153e9d7d210194f93360fe8f2cd1a394b1e"
+  },
+  {
+   "chemin": "assets/lpc/chests.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "tileset/original/Sharm/object/chests.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "805d6b28783c5776ea6d01c82ef7febeb32ae5781a143ea1821ef605da5d9f92"
+  },
+  {
+   "chemin": "assets/lpc/dirt.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "tileset/original/Sharm/outdoor/PNG/dirt.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "115ffc435f5ce95a5462c08708a158bac014ac4f6fd631af44e335b77a0a264b"
+  },
+  {
+   "chemin": "assets/lpc/goblin-sword.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/original/Redshrike/goblin/goblinsword.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "2c47c03adfc3b7f67b23cb94737d0d00ea7c45a9bb918f8f912ff32712309697"
+  },
+  {
+   "chemin": "assets/lpc/goblin.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/original/Redshrike/goblin/goblin.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "a317f9b9d90434552c848075baa872502064142f0eb863bc05e219d1454cb2df"
+  },
+  {
+   "chemin": "assets/lpc/grass.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "tileset/original/Sharm/outdoor/PNG/grass.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "9fad54558dcb0aa91859869c603e76fe362ae320e0c4b1e873266566cb0d73a0"
+  },
+  {
+   "chemin": "assets/lpc/hero-hurt.png",
+   "source": {
+    "type": "derive",
+    "script": "tools/compose-hero.py"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "fab9309d040b704eae7f461b2a141889d167408724c892bb6aa0477f71a7c4b2"
+  },
+  {
+   "chemin": "assets/lpc/hero-swing.png",
+   "source": {
+    "type": "derive",
+    "script": "tools/compose-hero.py"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "8b986116cdedc7ba7707654095479ea5de393e97331d8038d716c3f5c20c143b"
+  },
+  {
+   "chemin": "assets/lpc/hero-walk.png",
+   "source": {
+    "type": "derive",
+    "script": "tools/compose-hero.py"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "d894d4588150e6c2aebad10c167e57bc1c3431a46a91f7f657ab0d95d6aae5fe"
+  },
+  {
+   "chemin": "assets/lpc/hood-hurt.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Head/Human_male/Chain Hood/hurt.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "79de7cd443fd31628de4fcf3946fc38408ebedf1e9f0c4b1a0d02644b185e89f"
+  },
+  {
+   "chemin": "assets/lpc/hood-swing.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Head/Human_male/Chain Hood/swing.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "76e3a43d2e2eaeca121296952515d3d30df4bf6b51a50c6124d90063d278b0c2"
+  },
+  {
+   "chemin": "assets/lpc/hood-walk.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Head/Human_male/Chain Hood/walk.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "cdec2c796dfc83b1719c4546b2d24d577bc2a3d24894c3d3803fdc1d09e7b97f"
+  },
+  {
+   "chemin": "assets/lpc/mail-hurt.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Torso/Human_male/Chainmail Shirt/hurt.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "d4646f534d703816de448f499d01a8453b19dad7ad380d32c4db5255640841c2"
+  },
+  {
+   "chemin": "assets/lpc/mail-swing.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Torso/Human_male/Chainmail Shirt/swing.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "b340c91c44c7b3e91543e70358c067975c1841ecc0484fc45cf013b50d57eb60"
+  },
+  {
+   "chemin": "assets/lpc/mail-walk.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Torso/Human_male/Chainmail Shirt/walk.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "36e6bed0dcc3c263b2b2fcb1e50f47d85a2270c79ab9fe1a37aa398806ebcd33"
+  },
+  {
+   "chemin": "assets/lpc/pants-hurt.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Legs/Human_male/Tight Pants/Black/hurt.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "ad2d217f25176edcb60f7be4dbe14a3ce7a2888efc8de3188c85c9edfa26e0c0"
+  },
+  {
+   "chemin": "assets/lpc/pants-swing.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Legs/Human_male/Tight Pants/Black/swing.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "c43bce9b91e5c8a46f04e4146b5842042c6493c2d6ecc5561a2a6dd7ccad36b1"
+  },
+  {
+   "chemin": "assets/lpc/pants-walk.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Legs/Human_male/Tight Pants/Black/walk.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "5ee18e90faad22b68d757c27295bd4117dd80943e863220d04642fd5d5104c1a"
+  },
+  {
+   "chemin": "assets/lpc/plate-hurt.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Torso 2/Human_male/Breastplate/Silver/hurt.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "839037ec48190b203fa314a85d678df7f76f42eb76667479d1bbc46f9473ed15"
+  },
+  {
+   "chemin": "assets/lpc/plate-swing.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Torso 2/Human_male/Breastplate/Silver/swing.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "aa43d05b10cd0eee78f5a70385456c27b96fa3da4b6e140b69c0f120cf994954"
+  },
+  {
+   "chemin": "assets/lpc/plate-walk.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Clothes/Torso 2/Human_male/Breastplate/Silver/walk.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "8717f4687728be0bb53cd10b1a261b3557ad282d4996d3cb67edb272efc2636f"
+  },
+  {
+   "chemin": "assets/lpc/portrait.png",
+   "source": {
+    "type": "derive",
+    "script": "tools/compose-hero.py"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "909518f2b88009568ecfbb7780ad7ff3554b56cc909396a66424396f21f129b3"
+  },
+  {
+   "chemin": "assets/lpc/rock.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "tileset/original/Sharm/outdoor/PNG/rock.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "07e1db23fa156cb664d0ff4de8499bdd4527f035a828e4d7b050227743399576"
+  },
+  {
+   "chemin": "assets/lpc/sword.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/character/Weapons/Human_male/Swing/Short Sword/short sword.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "484ab7426f3c25865ac39fb50b686d793192cfdfa98e2acb56ff293877dfaeeb"
+  },
+  {
+   "chemin": "assets/lpc/treetop.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "tileset/original/Sharm/outdoor/PNG/treetop.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "37f3d9c4beb61b05fad39bd5efdecc03b5d67504307936397bb1645824bbf475"
+  },
+  {
+   "chemin": "assets/lpc/trunk.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "tileset/original/Sharm/outdoor/PNG/trunk.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "8b03c5efa6950b5be6c6db989e22bee024c0ee232bc665768db3c35e68a28651"
+  },
+  {
+   "chemin": "assets/lpc/water.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "tileset/original/Sharm/outdoor/PNG/water.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "6107522405d8c27b9bab7278f5dc14cd7cc0445592f5967d748cb81ede4b0d47"
+  }
+ ]
+}
