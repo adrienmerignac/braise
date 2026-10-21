@@ -9,19 +9,19 @@ let s,loadStatus,saved;{const l=loadSave((()=>{try{return localStorage}catch{ret
 let paused=false,cool=saved.cool||0,f=restoreFight(s,saved),saveOk=true;
 const attack=()=>attackOf(s),maxHP=()=>maxHPOf(s),reward=()=>rewardOf(s),cost=k=>costOf(s,k);
 const names=['Éclaireur gobelin','Pillard des Murmures','Traqueur des sous-bois'];
-function log(t){$('message').textContent=t}function save(){s.last=Date.now();let ok=false;try{ok=writeSave(localStorage,s,{hp:f.hp,boss:f.boss,enemyHP:f.enemyHP,cool})}catch{}if(!ok){saveOk=false;$('saved').textContent='Sauvegarde indisponible'}else if(!saveOk){saveOk=true;$('saved').textContent='● Sauvegarde automatique'}}
+function log(t){$('message').textContent=t}function setVit(t){$('vitdelta').textContent=t}const gain=n=>n>0?` · +${n} vitalité`:'';function save(){s.last=Date.now();let ok=false;try{ok=writeSave(localStorage,s,{hp:f.hp,boss:f.boss,enemyHP:f.enemyHP,cool})}catch{}if(!ok){saveOk=false;$('saved').textContent='Sauvegarde indisponible'}else if(!saveOk){saveOk=true;$('saved').textContent='● Sauvegarde automatique'}}
 const titles={weapon:'Affûter la lame',armor:'Renforcer l’armure',luck:'Charme de fortune'};
 window.braiseBacklog=[];
 const emit=(type,detail)=>{if(window.braiseBacklog){window.braiseBacklog.push([type,detail]);if(window.braiseBacklog.length>200)window.braiseBacklog.splice(0,100)}window.dispatchEvent(new CustomEvent(type,{detail}))};
 function apply(e){switch(e.type){
-case'combat':emit('braise:combat',{damage:e.damage,strong:e.strong,defeated:e.defeated,boss:e.boss,health:e.health});$('float').textContent=`−${e.damage}`;$('float').classList.remove('hit');void $('float').offsetWidth;$('float').classList.add('hit');break;
+case'combat':emit('braise:combat',{damage:e.damage,strong:e.strong,defeated:e.defeated,boss:e.boss,health:e.health,taken:e.taken});if(e.taken>0)setVit(`−${e.taken} reçus`);$('float').textContent=`−${e.damage}`;$('float').classList.remove('hit');void $('float').offsetWidth;$('float').classList.add('hit');break;
 case'spawn':emit('braise:spawn',{boss:e.boss});break;
-case'levelup':log(`Niveau ${e.level} ! La braise grandit. Vitalité restaurée.`);break;
-case'victory':log(`Ennemi vaincu · +${e.gold} or · +${e.xp} expérience`);break;
-case'bossVictory':log(`Gardien vaincu ! L’étage ${e.stage} s’ouvre. Vitalité restaurée.`);break;
-case'retreat':log('Repli au camp. Vitalité restaurée, ton butin est conservé.');break;
+case'levelup':log(`Niveau ${e.level} ! La braise grandit. Vitalité restaurée${e.healed>0?` (+${e.healed})`:''}.`);if(e.healed>0)setVit(`+${e.healed} soins`);break;
+case'victory':log(`Ennemi vaincu · +${e.gold} or · +${e.xp} expérience${gain(e.healed)}`);if(e.healed>0)setVit(`+${e.healed} soins`);break;
+case'bossVictory':log(`Gardien vaincu ! L’étage ${e.stage} s’ouvre. Vitalité restaurée${e.healed>0?` (+${e.healed})`:''}.`);if(e.healed>0)setVit(`+${e.healed} soins`);break;
+case'retreat':{const m=`Repli : ${e.boss?'le gardien':'l’ennemi'} frappait pour ${e.taken}, il lui restait ${Math.max(0,Math.ceil(e.enemyHP))} PV. Butin conservé.`;log(m);$('alert').textContent=m;break}
 case'bossStart':log('Le gardien approche. Fais parler la braise !');break;
-case'upgrade':log(`${titles[e.kind]} : niveau ${e.level}.`);break}}
+case'upgrade':log(`${titles[e.kind]} : niveau ${e.level}${e.healed>0?` · +${e.healed} vitalité`:''}.`);if(e.healed>0)setVit(`+${e.healed} soins`);break}}
 function run(r){s=r.s;f=r.f;r.events.forEach(apply)}
 function render(){for(const [id,val] of Object.entries({gold:Math.floor(s.gold).toLocaleString('fr-FR'),stage:String(s.stage).padStart(2,'0'),floor:`Étage ${s.stage}${f.boss?' · Gardien':''}`,level:s.level,attack:attack(),health:`${Math.max(0,Math.ceil(f.hp))} / ${maxHP()}`,reward:reward(),xptext:`${s.xp} / ${xpNeeded(s)}`,progress:`${s.kills} / ${KILLS_PER_STAGE} ennemis vaincus`,enemy:f.boss?'Le Gardien de braise':names[(s.stage-1)%3],enemyhp:`${Math.max(0,Math.ceil(f.enemyHP))} / ${f.enemyMax}`}))$(id).textContent=val;$('xpbar').style.width=`${s.xp/xpNeeded(s)*100}%`;$('enemybar').style.width=`${f.enemyHP/f.enemyMax*100}%`;$('dots').innerHTML=Array.from({length:KILLS_PER_STAGE},(_,i)=>`<i class="${i<s.kills?'done':''}"></i>`).join('');$('boss').disabled=s.kills<KILLS_PER_STAGE||f.boss;$('boss').innerHTML=f.boss?'⚔ Gardien en cours…':`⚔ Affronter le gardien<small>${s.kills>=KILLS_PER_STAGE?'Prêt · ouvre le prochain étage':`${KILLS_PER_STAGE} victoires requises`}</small>`;$('power').disabled=cool>0||paused;$('cooldown').textContent=cool>0?`Recharge · ${cool} s`:`Dégâts × ${SKILL_MULT} · prêt`;for(const k of ['weapon','armor','luck']){const b=$('buy-'+k);b.disabled=s.gold<cost(k);b.textContent=`◈ ${cost(k)}`;$('desc-'+k).textContent=`Niv. ${s[k]} · ${k==='weapon'?`+${ATTACK_PER_WEAPON} attaque`:k==='armor'?`+${HEALTH_PER_ARMOR} vitalité`:`+${REWARD_PER_LUCK} or / victoire`}`}}
 for(const [k,title,img] of [['weapon','Affûter la lame',104],['armor','Renforcer l’armure',100],['luck','Charme de fortune',110]]){const row=document.createElement('div');row.className='upgrade';row.innerHTML=`<img src="assets/Tiles/tile_${String(img).padStart(4,'0')}.png" alt=""><div><b>${title}</b><p id="desc-${k}"></p></div><button id="buy-${k}" aria-label="${title}"></button>`;$('upgrades').append(row);$('buy-'+k).onclick=()=>{if(s.gold<cost(k))return;run(buyUpgrade(s,f,k));save();render()}}
