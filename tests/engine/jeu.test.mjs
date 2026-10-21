@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { BOSS_HP_MULT, BOSS_GOLD_MULT, RETALIATION_BASE, RETALIATION_BOSS_BASE, OFFLINE_CAP_SECONDS } from '../../dist/engine/balance.js';
 import { lancerJeu } from './horloge.mjs';
 
 const SAUVEGARDE = { gold: 0, xp: 0, level: 1, stage: 1, kills: 0, weapon: 0, armor: 0, luck: 0, last: 1_000_000 };
@@ -126,3 +127,53 @@ test('partie existante sans champ guide : aucun bandeau ni mise en évidence', (
   assert.equal(jeu.el('buy-weapon').classList.contains('guided'), false);
   assert.equal(jeu.el('guidehint').hidden, true);
 }));
+
+const NEUVE_PUISSANTE = { ...SAUVEGARDE, level: 1, kills: 4 };
+
+test('gardien : explication à la première apparition avec les chiffres de balance.js, une seule fois', async () => {
+  let ecrite;
+  await avecJeu({ stockageV2: { version: 2, ...NEUVE_PUISSANTE, guide: 'todo', vus: [] } }, jeu => {
+    assert.equal(jeu.el('bossintro').hidden, true, 'pas avant les 5 victoires');
+    jeu.avancer(60_000);
+    assert.equal(jeu.el('bossintro').hidden, false);
+    const txt = jeu.texte('bossintrotext');
+    for (const n of [BOSS_HP_MULT, BOSS_GOLD_MULT, RETALIATION_BASE, RETALIATION_BOSS_BASE]) assert.ok(txt.includes(String(n)), `${n} dans « ${txt} »`);
+    assert.match(txt, /butin/);
+    assert.deepEqual(jeu.stockage().vus, ['gardien']);
+    jeu.clic('bossintroclose');
+    assert.equal(jeu.el('bossintro').hidden, true);
+    ecrite = jeu.stockage();
+  });
+  await avecJeu({ stockageV2: { ...ecrite, kills: 5 } }, jeu => {
+    assert.equal(jeu.el('bossintro').hidden, true, 'vue : rechargement sans explication');
+    jeu.clic('boss');
+    jeu.avancer(2_000);
+    assert.equal(jeu.el('bossintro').hidden, true);
+  });
+});
+
+test('gardien : un joueur existant ne voit aucune explication ponctuelle', () => avecJeu({ sauvegarde: { ...SAUVEGARDE, stage: 4, level: 3, kills: 5, gold: 50 } }, jeu => {
+  jeu.avancer(5_000);
+  assert.equal(jeu.el('bossintro').hidden, true);
+  assert.equal(jeu.el('absenceintro').hidden, true);
+}));
+
+test('absence : message unique après le premier achat, ligne du plafond dans le panneau au retour', async () => {
+  let ecrite;
+  await avecJeu({ stockageV2: { version: 2, ...SAUVEGARDE, gold: 100, guide: 'todo', vus: ['gardien'] } }, jeu => {
+    assert.equal(jeu.el('absenceintro').hidden, true);
+    jeu.clic('buy-weapon');
+    assert.equal(jeu.el('absenceintro').hidden, false);
+    assert.ok(jeu.texte('absenceintrotext').includes(`${OFFLINE_CAP_SECONDS / 3600} h`));
+    jeu.clic('absenceintroclose');
+    jeu.clic('buy-weapon');
+    assert.equal(jeu.el('absenceintro').hidden, true, 'un seul message');
+    assert.deepEqual(jeu.stockage().vus, ['gardien', 'absence']);
+    ecrite = jeu.stockage();
+  });
+  await avecJeu({ debut: 10_000_000, stockageV2: { ...ecrite, last: 10_000_000 - 3_600_000 } }, jeu => {
+    assert.equal(jeu.el('absenceintro').hidden, true);
+    assert.match(jeu.texte('offline'), /estimés/);
+    assert.match(jeu.texte('offline'), new RegExp(`${OFFLINE_CAP_SECONDS / 3600} h`));
+  });
+});
