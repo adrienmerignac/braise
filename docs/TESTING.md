@@ -66,7 +66,7 @@ Largeur : relever `scrollWidth` du document et vérifier qu’aucun descendant d
 
 Dans tous les formats : zones tactiles ≥ 44 × 44 px (boutons, listes, curseur, Exporter/Importer, fermeture des panneaux), vérifié par `tests/engine/cibles-tactiles.test.mjs` pour la règle CSS, au navigateur pour la taille rendue.
 
-Copie de secours : mettre `{pas du json` dans `braise-v2` (console), recharger → message « copie gardée » et bouton « Télécharger la copie » (clavier, ≥ 44 px) ; `braise-v2-secours` contient le texte exact, `braise-v2` une partie neuve. Un second texte corrompu ne remplace pas la copie.
+Copie de secours : mettre `{pas du json` dans `braise-v2` (console), recharger → message « copie gardée » et bouton « Télécharger la copie » (clavier, ≥ 44 px) ; `braise-v2-secours` contient le texte exact, `braise-v2` une partie neuve. Un second texte corrompu ne remplace pas la copie. Si une copie existe déjà et qu'un autre texte est illisible : deux boutons, « Télécharger la copie » (texte de cette session) et « Télécharger l'ancienne copie » (`braise-v2-secours`), deux fichiers ; pour le jouer : `localStorage.setItem('braise-v2-secours','{ancienne'); localStorage.setItem('braise-v2','[actuel')` puis recharger.
 
 ## Résultats
 

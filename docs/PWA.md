@@ -56,7 +56,7 @@
 
 Démonstration par le code :
 - Le cache d'un service worker (`CacheStorage`) et `localStorage` sont deux stockages distincts : un worker n'a **pas accès** à `localStorage` (API synchrone indisponible dans les workers) et `caches.delete` ne concerne que les caches.
-- Le jeu n'appelle jamais `removeItem` ni `clear` : `grep -n "removeItem\|\.clear" dist/game.js dist/engine/*.js` ne renvoie rien. Les seules écritures sont `setItem(SAVE_KEY, …)` dans `writeSave` et, une seule fois, la copie `braise-v2-secours` (`backupUnreadable`) dans `loadSave` (`dist/engine/save.js:131`). « Nouvelle partie » (`dist/game.js:46`, après `confirm`) repart de `fresh()` puis réécrit la clé ; elle ne la supprime pas.
+- Le jeu n'appelle jamais `removeItem` ni `clear` : `grep -n "removeItem\|\.clear" dist/game.js dist/engine/*.js` ne renvoie rien. Les seules écritures sont `setItem(SAVE_KEY, …)` dans `writeSave` et, une seule fois, la copie `braise-v2-secours` (`backupUnreadable`) dans `loadSave` (`dist/engine/save.js:127`). « Nouvelle partie » (`dist/game.js:46`, après `confirm`) repart de `fresh()` puis réécrit la clé ; elle ne la supprime pas.
 - `braise-v1` n'est jamais modifiée par `loadSave` (commentaire `dist/engine/save.js:115-116`) : une migration reste rejouable.
 - Un service worker ajouté ne changerait ni `SAVE_KEY` ni le schéma ; il ne ferait que servir les mêmes fichiers.
 
