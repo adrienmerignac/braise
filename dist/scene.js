@@ -1,7 +1,7 @@
 import { createSceneQueue } from './engine/scene-queue.js';
 import { sonsPourEvenement } from './engine/sons.js';
 import { ajouterEtincelles, doitRedessiner } from './engine/etincelles.js';
-import { enemyLook, gardienLook, sequenceGardien, BASE_SCALE } from './engine/ennemis-visuels.js';
+import { enemyLook, gardienLook, sequenceGardien, ancrageEnnemi } from './engine/ennemis-visuels.js';
 import { AFFICHAGE_DEFAUT, normaliserAffichage, mouvementReduit, effetsDiscrets, echelleTexte } from './engine/affichage.js';
 // Direction rows belong to each sheet, not to the LPC family as a whole.
 const HERO_ROWS = Object.freeze({ east: 3 });
@@ -143,10 +143,10 @@ function draw(now) {
   if(lunging&&age<190)actor('hero-walk',reduit()?0:1+Math.floor(age/25)%8,HERO_ROWS.east,heroX,heroY);
   else if(lunging)actor('hero-swing',Math.min(5,Math.floor((age-190)/76)),HERO_ROWS.east,heroX,heroY);
   else actor('hero-walk',0,HERO_ROWS.east,heroX,heroY);
-  // Le gardien garde la planche de l'Éclaireur ; les autres types lisent leur entrée du catalogue visuel.
+  // Le gardien a sa propre planche et échelle ; les autres types lisent leur entrée du catalogue visuel.
   const look=isBoss?gardienLook():enemyLook(kind), sc=look.scale, rows=look.rows;
   // Pieds et centre restent à la même place quelle que soit l'échelle.
-  const shrink=isBoss?0:64*(BASE_SCALE-sc), ex=(dx=0)=>enemyX+dx+shrink/2, ey=isBoss?194:210+shrink;
+  const ancre=ancrageEnnemi(sc), ex=(dx=0)=>enemyX+dx+ancre.x, ey=ancre.y;
   const deathAge=age-360;
   if(dying&&deathAge>0&&deathAge<650){actor(look.sheet,Math.min(4,Math.floor(deathAge/100)),rows.death,ex(),ey,sc,Math.max(0,1-deathAge/650));}
   else {

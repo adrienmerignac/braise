@@ -69,3 +69,12 @@ test('mouvement réduit : aucun décalage, la lueur reste ; effets discrets : lu
     assert.equal(sequenceGardien(age, { discret: true }).lueur, plein.lueur / 2);
   }
 });
+
+test('pieds et centre tombent au même point pour l’Éclaireur, le Traqueur et le gardien', async () => {
+  const { ancrageEnnemi, gardienLook, SOL_ENNEMI } = await import('../../dist/engine/ennemis-visuels.js');
+  for (const [nom, scale] of [['eclaireur', enemyLook('eclaireur').scale], ['traqueur', enemyLook('traqueur').scale], ['gardien', gardienLook().scale]]) {
+    const a = ancrageEnnemi(scale, 515);
+    assert.equal(a.y + 64 * scale, SOL_ENNEMI, `${nom} : bas de case`);
+    assert.equal(a.x + 32 * scale, 515 + 64, `${nom} : centre`);
+  }
+});

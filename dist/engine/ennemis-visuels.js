@@ -16,6 +16,13 @@ export const enemyLook = kind => {
   return { ...look, rows: ENEMY_SHEETS[look.sheet] };
 };
 
+// Ancrage commun : bas de case à 338 et centre à enemyX + 64 quelle que soit l'échelle (la case fait 64 × scale).
+export const SOL_ENNEMI = 338;
+export function ancrageEnnemi(scale, enemyX = 0) {
+  const shrink = 64 * (BASE_SCALE - scale);
+  return { x: enemyX + shrink / 2, y: 210 + shrink, shrink };
+}
+
 // Gardien : même planche que l'Éclaireur (l'épée se lit comme une menace), plus grand, teinté braise, ombre plus large.
 export const GARDIEN_LOOK = Object.freeze({ sheet: 'goblin-sword', scale: 2.6, teinte: '#ff5a1f', teinteForce: 0.28, ombreRayon: 52 });
 export const gardienLook = () => ({ ...GARDIEN_LOOK, rows: ENEMY_SHEETS[GARDIEN_LOOK.sheet] });
