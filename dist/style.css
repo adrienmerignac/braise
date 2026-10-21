@@ -89,3 +89,25 @@ button:disabled,.upgrade button:disabled,.guide-panel button:disabled,.audio-bar
 
 .log .quiet{border:1px solid var(--line);margin:4px 8px 4px 0}
 .offline-loot{margin:0 0 14px;color:var(--muted)}.offline-loot-titre{margin:0 0 6px}.offline-loot ul{margin:0;padding-left:20px}.offline-loot[hidden]{display:none}
+
+/* M3.2b — inventaire */
+.inventaire-acces{padding:12px 20px 18px;border-top:1px solid var(--line)}
+.inventaire-acces button{width:100%;text-align:left}
+.inventaire .panel-head button{min-height:44px;min-width:44px;border:1px solid var(--control)}
+.inventaire-aide{margin:0 22px 10px;font-size:0.75rem}
+#inventairelist{list-style:none;margin:0;padding:0}
+#inventairelist li{min-height:44px;padding:8px 22px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:2px;cursor:pointer;font-size:0.75rem;border-left:3px solid transparent}
+#inventairelist li[aria-selected=true]{background:#252f29;border-left-color:var(--orange)}
+#inventairelist li:focus-visible{outline:2px solid var(--orange);outline-offset:-2px}
+#inventairelist li.vide{color:var(--muted)}
+#inventairelist .rang{font-weight:700}
+.rarete-commun{color:#e9eee6}.rarete-rare{color:#8fc1e8}.rarete-epique{color:#d3a8ee}
+#inventairelist .bonus{color:var(--muted)}
+.inventaire-detail{padding:14px 22px 18px;border-top:1px solid var(--line)}
+.inventaire-nom{margin:0 0 4px;font-weight:700}
+#inventairecomp{list-style:none;margin:10px 0;padding:0;display:grid;gap:6px;font-size:0.75rem}
+#inventairecomp li{display:flex;justify-content:space-between;gap:12px}
+#inventairecomp .gain{color:var(--green)}#inventairecomp .perte{color:#f0a198}
+.inventaire-detail .primary{width:100%}
+.inventaire[hidden]{display:none}
+body .inventaire button.primary:enabled{background:var(--orange);color:#30261d}

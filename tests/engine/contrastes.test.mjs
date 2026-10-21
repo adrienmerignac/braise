@@ -120,6 +120,14 @@ const paires = [
   ['crédits : texte', lire(creditsStyle, 'p', 'color'), bg, TEXTE],
   ['crédits : liens', lire(creditsStyle, 'a', 'color'), bg, TEXTE],
   ['crédits : lien de retour', creditsLien, bg, TEXTE],
+  ...['commun', 'rare', 'epique'].flatMap(r => [
+    [`inventaire : rareté ${r} / panneau`, lire(css, `.rarete-${r}`, 'color'), panel, TEXTE],
+    [`inventaire : rareté ${r} / ligne sélectionnée`, lire(css, `.rarete-${r}`, 'color'), lire(css, '#inventairelist li[aria-selected=true]', 'background'), TEXTE],
+  ]),
+  ['inventaire : bonus (--muted) / ligne sélectionnée', muted, lire(css, '#inventairelist li[aria-selected=true]', 'background'), TEXTE],
+  ['inventaire : delta positif / panneau', lire(css, '#inventairecomp .gain', 'color'), panel, TEXTE],
+  ['inventaire : delta négatif / panneau', lire(css, '#inventairecomp .perte', 'color'), panel, TEXTE],
+  ['inventaire : bouton Équiper', lire(css, 'body .inventaire button.primary:enabled', 'color'), lire(css, 'body .inventaire button.primary:enabled', 'background'), TEXTE],
   // Contours et indicateurs : 3:1.
   ['contour de focus / panneau', lire(css, 'a:focus-visible', 'outline'), panel, CONTROLE],
   ['contour de focus / fond de page', orange, bg, CONTROLE],

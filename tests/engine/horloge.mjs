@@ -3,7 +3,7 @@
 let compteur = 0;
 
 // Le focus est suivi : focus() fixe document.activeElement. `contains` reconnaît le bouton enfant de son panneau.
-const ENFANTS = { guidepanel: ['guideclose'], bosspanel: ['bossclose'], bossintro: ['bossintroclose'], absenceintro: ['absenceintroclose'] };
+const ENFANTS = { guidepanel: ['guideclose'], bosspanel: ['bossclose'], bossintro: ['bossintroclose'], absenceintro: ['absenceintroclose'], inventairepanel: ['inventaireclose', 'equiper', 'inventairelist'] };
 
 function element(id, doc) {
   const classes = new Set();
@@ -11,7 +11,7 @@ function element(id, doc) {
   const el = {
     id, textContent: '', innerHTML: '', disabled: false, onclick: null, style: {}, offsetWidth: 0, open: false,
     classList: { add: c => classes.add(c), remove: c => classes.delete(c), contains: c => classes.has(c) },
-    children: [], replaceChildren(...c) { el.children = c; }, append() {}, setAttribute() {},
+    children: [], replaceChildren(...c) { el.children = c; }, append(...c) { el.children.push(...c); }, setAttribute() {},
     click() { doc.telechargements.push({ nom: el.download, blob: el.href }); },
     showModal() { el.open = true; },
     close() { if (!el.open) return; el.open = false; (ecouteurs.close || []).forEach(fn => fn({ type: 'close' })); },
