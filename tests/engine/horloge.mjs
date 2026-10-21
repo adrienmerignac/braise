@@ -7,7 +7,8 @@ function element() {
   return {
     textContent: '', innerHTML: '', disabled: false, onclick: null, style: {}, offsetWidth: 0,
     classList: { add: c => classes.add(c), remove: c => classes.delete(c), contains: c => classes.has(c) },
-    append() {}, setAttribute() {}, showModal() {}, close() {},
+    append() {}, setAttribute() {}, showModal() {}, close() {}, addEventListener() {}, contains: () => false,
+    focus() {}, hidden: false, offsetParent: {}, isConnected: true, firstElementChild: { textContent: '' },
   };
 }
 
@@ -25,12 +26,13 @@ export async function lancerJeu({ debut = 1_000_000, sauvegarde = null, stockage
   globalThis.document = {
     getElementById: id => { if (!elements.has(id)) elements.set(id, element()); return elements.get(id); },
     createElement: () => element(),
-    addEventListener() {},
+    addEventListener() {}, activeElement: null,
   };
   globalThis.window = { dispatchEvent: e => evenements.push(e), addEventListener() {} };
   globalThis.localStorage = { getItem: k => stockage.get(k) ?? null, setItem: (k, v) => stockage.set(k, String(v)) };
   globalThis.setInterval = (fn, ms) => { minuteurs.push({ fn, ms, prochain: maintenant + ms }); return minuteurs.length; };
   globalThis.confirm = () => true;
+  globalThis.requestAnimationFrame = fn => { fn(); return 0; };
 
   await import(`../../dist/game.js?run=${++compteur}`);
 
