@@ -97,7 +97,7 @@ function draw(now) {
   else if(lunging)actor('hero-swing',Math.min(5,Math.floor((age-190)/76)),HERO_ROWS.east,heroX,heroY);
   else actor('hero-walk',0,HERO_ROWS.east,heroX,heroY);
   const deathAge=age-360;
-  if(dying&&deathAge>0&&deathAge<650){actor('goblin-sword',Math.min(4,Math.floor(deathAge/100)),GOBLIN_ROWS.death,enemyX,210,2,Math.max(0,1-deathAge/650));}
+  if(dying&&deathAge>0&&deathAge<650){actor('goblin-sword',Math.min(4,Math.floor(deathAge/100)),GOBLIN_ROWS.death,enemyX,isBoss?194:210,isBoss?2.25:2,Math.max(0,1-deathAge/650));}
   else {
     const entering=dying&&deathAge>=650?(Math.max(0,1350-age)):Math.max(0,650-(time-spawnAt));
     const frame=reduced.matches?0:Math.floor(t/150)%9;

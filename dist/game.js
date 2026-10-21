@@ -9,7 +9,7 @@ const names=['Éclaireur gobelin','Pillard des Murmures','Traqueur des sous-bois
 function log(t){$('message').textContent=t}function save(){s.last=Date.now();try{localStorage.setItem(KEY,JSON.stringify(s))}catch{saveOk=false;$('saved').textContent='Sauvegarde indisponible'}}
 const titles={weapon:'Affûter la lame',armor:'Renforcer l’armure',luck:'Charme de fortune'};
 window.braiseBacklog=[];
-const emit=(type,detail)=>{if(window.braiseBacklog)window.braiseBacklog.push([type,detail]);window.dispatchEvent(new CustomEvent(type,{detail}))};
+const emit=(type,detail)=>{if(window.braiseBacklog){window.braiseBacklog.push([type,detail]);if(window.braiseBacklog.length>200)window.braiseBacklog.splice(0,100)}window.dispatchEvent(new CustomEvent(type,{detail}))};
 function apply(e){switch(e.type){
 case'combat':emit('braise:combat',{damage:e.damage,strong:e.strong,defeated:e.defeated,boss:e.boss,health:e.health});$('float').textContent=`−${e.damage}`;$('float').classList.remove('hit');void $('float').offsetWidth;$('float').classList.add('hit');break;
 case'spawn':emit('braise:spawn',{boss:e.boss});break;

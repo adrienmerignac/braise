@@ -2,6 +2,15 @@
 // Les événements sont rejoués dans l'ordre ; avant `ready()` rien n'est livré, et après un coup fatal
 // ni nouveau coup ni apparition ne passent avant la fin de la chute.
 export const FALL_MS = 1010; // 360 ms avant la chute + 650 ms d'animation de mort
+export const MAX_PENDING = 2; // au-delà (onglet masqué : l'horloge de la scène est figée), on ne garde que l'état courant
+
+// Ne garde que le dernier coup et la dernière apparition, dans leur ordre d'arrivée.
+function compact(pending) {
+  const lastCombat = pending.findLastIndex(e => e.type === 'combat');
+  const lastSpawn = pending.findLastIndex(e => e.type === 'spawn');
+  const kept = pending.filter((e, i) => i === lastCombat || i === lastSpawn);
+  pending.splice(0, pending.length, ...kept);
+}
 
 export function createSceneQueue(deliver, fallMs = FALL_MS) {
   const pending = [];
@@ -17,7 +26,11 @@ export function createSceneQueue(deliver, fallMs = FALL_MS) {
     }
   }
   return {
-    push(type, detail, time) { pending.push({ type, detail }); flush(time); },
+    push(type, detail, time) {
+      pending.push({ type, detail });
+      if (loaded && pending.length > MAX_PENDING) compact(pending);
+      flush(time);
+    },
     ready(time) { loaded = true; flush(time); },
     flush,
     get size() { return pending.length; }
