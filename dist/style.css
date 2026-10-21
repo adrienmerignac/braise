@@ -148,7 +148,8 @@ body .inventaire button.primary:enabled{background:var(--orange);color:#30261d}
 .zone button[hidden]{display:none}
 @media(max-width:680px){.zone>div{flex-basis:100%}.zone button{width:100%}.zone{padding:10px 16px}}
 #cartenouveau:not(:empty){color:var(--orange);font-weight:700}
-#voyageconfirm .primary{background:var(--orange);color:#30261d}
+#voyageconfirm .primary,#rallumageconfirm .primary{background:var(--orange);color:#30261d}
+.rallumage p{margin:6px 0}.rallumage p:empty{display:none}.rallumage button{min-height:44px;min-width:44px;margin-top:6px}.rallumage button[hidden]{display:none}#rallumageconfirm ul{margin:4px 0 10px;padding-left:20px}#rallumageconfirm li{overflow-wrap:anywhere}
 .enemy-card>small{display:block;margin:-3px 0 7px;font-size:0.625rem;line-height:1.3;color:var(--orange)}.enemy-card>small:empty{display:none}
 
 #recit>div,#succes>div{flex:1;min-width:0}#recit b,#succes b{display:block;color:var(--orange)}#recit p,#succes p{margin:4px 0 0;overflow-wrap:anywhere}
