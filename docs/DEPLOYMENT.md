@@ -2,7 +2,7 @@
 
 ## Deux destinations
 
-- **GitHub** : `https://github.com/adrienmerignac/braise`, privé ; historique, documentation et contrôles CI.
+- **GitHub** : `https://github.com/adrienmerignac/braise`, public depuis le 2026-10-21 ; historique, documentation et contrôles CI.
 - **Sites** : hébergement de la version jouable privée. Identité existante dans `.openai/hosting.json`, contenu statique dans `dist/`.
 
 Un push GitHub seul ne déploie pas le jeu sur Sites. La CI GitHub exécute les contrôles ; elle ne possède pas de clé de déploiement. Ne pas créer un nouveau Site pour mettre à jour celui-ci.
@@ -39,8 +39,30 @@ Le dépôt source Sites n’est pas le remote `origin` GitHub. Les credentials n
 - **Déclencheurs** : chaque `push` sur `main` (fusion de PR) et `workflow_dispatch` manuel. `.github/workflows/pages.yml` lance `npm run check` (Node 22) puis publie `dist/` tel quel, sans build ; un seul déploiement à la fois (`concurrency`).
 - **Rôle** : version de test continu de la dernière fusion. Sites reste la version stable ; Pages ne la remplace pas et n'y touche pas.
 - **Sauvegarde** : le stockage local dépend de l'origine. La partie sur Pages est distincte de celle de Sites : pas de synchronisation, pas de migration entre les deux. Clé et schéma inchangés.
-- **Prérequis propriétaire** : dépôt public ou plan GitHub Pro (Pages sur dépôt privé), facturation Actions disponible, et *Settings > Pages > Source = GitHub Actions*.
-- **Retour arrière** : relancer le workflow (*Run workflow*) sur un commit précédent de `main`.
+- **Prérequis propriétaire** : dépôt public (cas actuel), facturation Actions disponible, et *Settings > Pages > Source = GitHub Actions*. Pour l'alternative de retour arrière par tag ou branche : motif (`v*` ou `retour/*`) ajouté dans *Settings > Environments > github-pages > Deployment branches and tags*.
+- **Vérification** : après `deploy-pages`, le workflow lance `node tools/verify-deploy.mjs <page_url>` ; il devient rouge si `index.html` ne répond pas 200, n'affiche pas la version de `package.json` ou si un fichier référencé (`game.js`, `scene.js`, une planche `assets/lpc/`, `credits.html`…) ne répond pas 200. Cinq essais espacés de 10 s absorbent la propagation de Pages.
+## Publier une version
+
+Dans la **même PR** : bumper `version` dans `package.json`, la version du pied de page de `dist/index.html` (`Bêta X.Y.Z`) et ajouter l'entrée correspondante dans `CHANGELOG.md`. La vérification de déploiement échoue si le site servi n'affiche pas la version de `package.json`.
+
+## Vérifier un déploiement à la main
+
+```sh
+node tools/verify-deploy.mjs https://adrienmerignac.github.io/braise/
+```
+
+Code de sortie 0 : version et fichiers servis conformes ; 1 : le rapport en français liste ce qui manque. Options : `--version X.Y.Z` (version attendue autre que celle de `package.json`), `--fichier chemin` (fichier supplémentaire), `--essais N`, `--delai ms`.
+
+## Retour arrière
+
+À suivre pas à pas quand la version en ligne est défectueuse :
+
+1. **Exporter la sauvegarde** : dans le jeu, bouton *Exporter* (fichier JSON). Une sauvegarde locale est conservée au retour arrière (même origine), mais une sauvegarde d'un schéma plus récent n'est jamais écrasée par une version plus ancienne (#49) : le jeu plus ancien ne la chargera pas. L'export permet de la récupérer.
+2. **Trouver le dernier commit sain de `main`** : lire `CHANGELOG.md` (dernière version saine) puis `git log --oneline main` pour repérer le commit de fusion correspondant, et copier son SHA.
+3. **Redéployer un état sain** : ouvrir une PR de `git revert -m 1 <sha-de-la-fusion-fautive>` et la fusionner sur `main` ; la fusion redéploie automatiquement (`npm run check`, publication de `dist/`, puis vérification du site).
+   - Alternative sans toucher à `main` : *Actions > Publication GitHub Pages > Run workflow* sur un tag ou une branche créée sur le SHA sain (par ex. `retour/0.9.0`). Prérequis : cette référence doit être autorisée dans *Settings > Environments > github-pages > Deployment branches and tags* (motif `v*` ou `retour/*`) ; sinon le job `deploy` est refusé (« not allowed to deploy to github-pages due to environment protection rules »), seule `main` étant autorisée par défaut.
+4. **Vérifier** : `node tools/verify-deploy.mjs https://adrienmerignac.github.io/braise/ --version <version-du-commit-sain>` doit sortir à 0 (l'étape finale du workflow le fait avec la version du commit déployé).
+5. Réimporter l'export JSON si la sauvegarde n'est plus reconnue, puis corriger le défaut dans une PR avant de republier.
 
 ## Évolutions futures
 

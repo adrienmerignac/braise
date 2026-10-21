@@ -28,3 +28,5 @@ jobs:
           path: dist
       - id: deployment
         uses: actions/deploy-pages@v4
+      - name: Vérifier le site déployé
+        run: node tools/verify-deploy.mjs "${{ steps.deployment.outputs.page_url }}"
