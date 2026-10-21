@@ -177,3 +177,12 @@ test('absence : message unique après le premier achat, ligne du plafond dans le
     assert.match(jeu.texte('offline'), new RegExp(`${OFFLINE_CAP_SECONDS / 3600} h`));
   });
 });
+
+test('mouvement : le choix pilote l’attribut racine qui fige les animations CSS, sans recharger', () => avecJeu({ sauvegarde: SAUVEGARDE }, jeu => {
+  assert.equal(jeu.racine.dataset.mouvement, 'systeme');
+  const select = jeu.el('mouvement');
+  select.onchange({ target: { value: 'reduit' } });
+  assert.equal(jeu.racine.dataset.mouvement, 'reduit');
+  select.onchange({ target: { value: 'complet' } });
+  assert.equal(jeu.racine.dataset.mouvement, 'complet');
+}));

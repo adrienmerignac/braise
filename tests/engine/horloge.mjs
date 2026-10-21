@@ -22,10 +22,12 @@ export async function lancerJeu({ debut = 1_000_000, sauvegarde = null, stockage
     localStorage: globalThis.localStorage, setInterval: globalThis.setInterval, confirm: globalThis.confirm };
 
   Date.now = () => maintenant;
+  const racine = { dataset: {} };
   globalThis.document = {
     getElementById: id => { if (!elements.has(id)) elements.set(id, element()); return elements.get(id); },
     createElement: () => element(),
     addEventListener() {},
+    documentElement: racine,
   };
   globalThis.window = { dispatchEvent: e => evenements.push(e), addEventListener() {} };
   globalThis.localStorage = { getItem: k => stockage.get(k) ?? null, setItem: (k, v) => stockage.set(k, String(v)) };
@@ -39,6 +41,7 @@ export async function lancerJeu({ debut = 1_000_000, sauvegarde = null, stockage
     texte: id => elements.get(id).textContent,
     stockage: () => JSON.parse(stockage.get('braise-v2')),
     evenements,
+    racine,
     clic: id => elements.get(id).onclick(),
     avancer(ms) {
       const fin = maintenant + ms;
