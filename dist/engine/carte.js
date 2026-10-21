@@ -2,6 +2,7 @@
 import { emplacementDePredilection } from './equipement.js';
 import { etatZones, etageDArrivee } from './zones.js';
 import { etatObjectifs } from './objectifs.js';
+import { etatRecits, RECITS } from './recits.js';
 
 export const plageTexte = z => (Number.isFinite(z.fin) ? `Étages ${z.debut} à ${z.fin}` : `Étages ${z.debut} et au-delà`);
 
@@ -27,3 +28,16 @@ export function decrireCarte(s, f) {
 
 const VERS = { foret: 'la', ruines: 'les', cryptes: 'les' };
 export const messageVoyage = (id, nom, etage) => `Vous voyagez vers ${VERS[id]} ${nom} (étage ${etage}).`;
+
+// Section « Récits » du panneau Carte : un fragment débloqué se relit en entier ; un fragment verrouillé n'affiche que sa condition, écrite
+// (jamais portée par la seule couleur ni par un cadenas). Le fragment de départ n'a pas de condition : il est toujours débloqué.
+export const conditionRecit = r => `Vaincre le gardien de l’étage ${r.etage - 1}`;
+export function decrireRecits(s) {
+  const conditions = Object.fromEntries(RECITS.map(r => [r.id, conditionRecit(r)]));
+  return etatRecits(s).map(r => (r.debloque
+    ? { id: r.id, debloque: true, titre: r.titre, texte: r.texte }
+    : { id: r.id, debloque: false, titre: 'Récit verrouillé', texte: conditions[r.id] }));
+}
+
+// Prochain récit à montrer dans l'encart : le premier débloqué et pas encore lu, jamais avant la fin du guide du premier parcours.
+export const recitAAfficher = (s, guide) => (guide === 'done' ? etatRecits(s).find(r => r.debloque && !r.lu)?.id ?? null : null);

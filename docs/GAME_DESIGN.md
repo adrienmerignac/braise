@@ -90,7 +90,7 @@ Deux objectifs par zone, chacun accompli une seule fois, avec de l’or versé �
 - Le déblocage se déduit de `meilleurEtage`, sans compteur. L’absence n’avance jamais `meilleurEtage` : elle ne débloque ni n’annonce aucun récit.
 - Un récit débloqué par la victoire d’un gardien et pas encore lu produit un événement `recit` (`id`), une seule fois. Aucun dialogue bloquant.
 - Sauvegarde v7 : `recitsLus`. Une partie v6 qui a progressé (`meilleurEtage` > 1) reprend avec tous ses récits débloqués considérés comme lus ; une partie sans progrès reprend avec une liste vide. Identifiants inconnus ignorés, doublons retirés, valeur non tableau réparée.
-- L’affichage des récits n’existe pas encore (tâche suivante).
+- Affichage : un encart non bloquant (titre et texte, bouton « Fermer » qui marque le récit lu) apparaît quand aucun autre encart n’est ouvert et jamais avant la fin du guide ; rechargé sans fermer, il réapparaît. Le panneau Carte liste les fragments : texte complet si débloqué, sinon la condition écrite (« Vaincre le gardien de l’étage 10 »).
 
 ## Objectifs à valider
 

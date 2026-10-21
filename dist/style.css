@@ -141,3 +141,6 @@ body .inventaire button.primary:enabled{background:var(--orange);color:#30261d}
 #cartenouveau:not(:empty){color:var(--orange);font-weight:700}
 #voyageconfirm .primary{background:var(--orange);color:#30261d}
 .enemy-card>small{display:block;margin:-3px 0 7px;font-size:0.625rem;line-height:1.3;color:var(--orange)}.enemy-card>small:empty{display:none}
+
+#recit>div{flex:1;min-width:0}#recit b{display:block;color:var(--orange)}#recit p{margin:4px 0 0;overflow-wrap:anywhere}
+.recits{padding:10px 22px;border-top:1px solid var(--line);font-size:0.75rem}.recits ul{list-style:none;margin:6px 0 0;padding:0}.recits li{margin:8px 0;overflow-wrap:anywhere}.recits li b{display:block}.recits li p{margin:2px 0 0}.recits .verrouille{color:var(--muted)}
