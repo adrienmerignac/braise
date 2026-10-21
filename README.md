@@ -53,7 +53,7 @@ Les scripts `tools/fetch-lpc.py` et `tools/compose-hero.py` permettent de récup
 
 ## Limites actuelles
 
-Sauvegarde propre au navigateur et à l’origine, sans compte ni synchronisation : changer d’adresse impose d’utiliser Exporter puis Importer. Les gains hors ligne sont une estimation sans simulation des défaites. Équilibrage exploratoire, aucune monétisation. Pas encore installable ni jouable hors ligne : le manifeste est prêt, le service worker reste à faire. La licence du code du jeu reste à choisir avant une diffusion publique ; les licences des assets sont déjà conservées séparément.
+Sauvegarde propre au navigateur et à l’origine, sans compte ni synchronisation : changer d’adresse impose d’utiliser Exporter puis Importer. Les gains hors ligne sont une estimation sans simulation des défaites. Équilibrage exploratoire, aucune monétisation. Installable (manifeste, icônes) et jouable hors ligne après une première visite (service worker en pré-cache versionné) ; une nouvelle version s’annonce par un bandeau « Recharger » qui sauvegarde avant de recharger. La recette sur appareils réels reste à faire (`docs/TESTING.md`). La licence du code du jeu reste à choisir avant une diffusion publique ; les licences des assets sont déjà conservées séparément.
 
 ## État des contrôles
 

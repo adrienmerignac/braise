@@ -20,6 +20,7 @@ const PRECACHE = [
   'engine/equipement.js',
   'engine/etincelles.js',
   'engine/inventaire.js',
+  'engine/mise-a-jour.js',
   'engine/objectifs.js',
   'engine/offline.js',
   'engine/pwa.js',
@@ -84,6 +85,11 @@ const PRECACHE = [
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(PRECACHE)));
+});
+
+// Pas de skipWaiting à l'install : la nouvelle version attend que le joueur clique sur « Recharger ».
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {

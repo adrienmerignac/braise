@@ -83,6 +83,18 @@ Dans tous les formats : zones tactiles ≥ 44 × 44 px (boutons, listes, curseur
 
 Copie de secours : mettre `{pas du json` dans `braise-v2` (console), recharger → message « copie gardée » et bouton « Télécharger la copie » (clavier, ≥ 44 px) ; `braise-v2-secours` contient le texte exact, `braise-v2` une partie neuve. Un second texte corrompu ne remplace pas la copie. Si une copie existe déjà et qu'un autre texte est illisible : deux boutons, « Télécharger la copie » (texte de cette session) et « Télécharger l'ancienne copie » (`braise-v2-secours`), deux fichiers ; pour le jouer : `localStorage.setItem('braise-v2-secours','{ancienne'); localStorage.setItem('braise-v2','[actuel')` puis recharger.
 
+## Recette appareil : PWA et mise à jour (procédure, non réalisée)
+
+À jouer sur HTTPS (site Pages) avec appareils réels ; consigner chaque résultat dans `HANDOFF.md`.
+
+1. **Android / Chrome** : ouvrir le site, jouer 1 minute, menu > « Installer l'application ». Lancer l'icône : plein écran, icône LPC correcte.
+2. **iOS / Safari** : Partager > « Sur l'écran d'accueil », puis lancer l'icône. Vérifier l'icône (apple-touch-icon) et le démarrage.
+3. **Mode avion** : après une première visite en ligne, activer le mode avion, fermer puis rouvrir l'app : le jeu charge, les sprites s'affichent, la partie reprend.
+4. **Mise à jour avec partie en cours** : installer la version N, jouer quelques combats ; déployer N+1 (ou servir un `dist/` dont `CACHE` diffère). Rouvrir ou attendre : le bandeau « Nouvelle version de Braise disponible. » apparaît, les combats continuent. Noter l'or, cliquer « Recharger » : un seul rechargement, or et étage conservés.
+5. **Bandeau** : atteignable à Tab, bouton ≥ 44 px, annoncé une fois au lecteur d'écran sans voler le focus, lisible à 360 px et avec Texte : Grand, sans animation avec le mouvement réduit.
+6. **`braise-v2` intacte** : avant et après la mise à jour, comparer `localStorage.getItem('braise-v2')` (console distante) ; seuls les caches `braise-*` changent (`caches.keys()`).
+7. **Ancien onglet** : avec deux onglets, laisser l'un sur l'ancien code après que l'autre a mis à jour : message de sauvegarde plus récente, aucune écriture.
+
 ## Résultats
 
 Consigner dans `HANDOFF.md` le scénario joué, le viewport, les commandes passées et les vérifications non réalisées. Ne pas réutiliser une validation de la session précédente comme preuve d’une modification actuelle.
