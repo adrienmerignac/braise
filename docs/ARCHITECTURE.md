@@ -7,6 +7,7 @@
 | `dist/index.html` | Structure, contrôles, HUD, fenêtre de retour et chargement des modules. |
 | `dist/style.css` | Palette, panneaux, responsive et préférences de mouvement. |
 | `dist/game.js` | État, sauvegarde, combat, gains, améliorations, événements et mise à jour du DOM. |
+| `dist/engine/audio.js` | Réglages audio purs (muet, volume borné, `peutJouer`) et registre `jouer(nom)` ; aucun son enregistré. Web Audio est branché dans `dist/game.js`, après la première interaction. |
 | `dist/scene.js` | Chargement des sprites, décor précalculé, horloge visuelle et rendu Canvas. |
 | `dist/credits.html` | Crédits accessibles aux joueurs. |
 | `dist/assets/lpc/` | Couches, sprites composés, décors, sources et licences LPC. |
@@ -56,6 +57,8 @@ Les noms `HERO_ROWS` et `GOBLIN_ROWS` rendent ces différences explicites dans `
 Clé actuelle : `braise-v2` (JSON avec `version: 2`). `braise-v1` (sans champ `version`) est migrée par `migrate` au premier chargement puis conservée comme secours, jamais réécrite. « Exporter » / « Importer » (pied de page) passent par `serializeSave` / `importSave`, donc `parseSave`. Champs : `gold`, `xp`, `level`, `stage`, `kills`, `weapon`, `armor`, `luck`, `last` (timestamp en millisecondes). Vitalité, ennemi, recharge et pause ne sont pas persistés. Un rechargement restaure donc la vitalité et l’adversaire.
 
 Le chargement combine valeurs par défaut et JSON ; seule la validité minimale de l’étage est contrôlée. Les autres champs, les migrations, le comportement en stockage indisponible et les nombres non finis nécessitent le durcissement prévu en M1. Ne pas simplement changer le nom de clé pour contourner ce travail.
+
+Champ optionnel `audio: { muet, volume }` (volume dans [0, 1]) : absent → défaut (son actif, 60 %) sans réparation ; invalide → défaut et statut `repaired`, le reste de la partie est conservé. `SAVE_VERSION` reste 2.
 
 ## Évolution prévue
 

@@ -35,6 +35,7 @@ Ouvrir http://localhost:8080 dans un vrai navigateur. Pour tester un téléphone
 | Absence | Revenir après plus d’une minute : panneau de gains, plafond 8 h, absence de double collecte à rejouer après une modification. |
 | Mobile | À 390 × 844 puis 360 × 800 : aucun débordement horizontal ; héros et ennemi visibles ; commandes tactiles accessibles. |
 | Accessibilité | Navigation clavier, focus visible, texte lisible, préférence de réduction des mouvements prise en compte. |
+| Son | Bouton « Son » (`aria-pressed`) et volume 0–100 % au clavier et au toucher ; actif à 60 % par défaut ; aucun contexte audio avant la première interaction ; suspendu en pause et onglet masqué ; réglages conservés au rechargement et à l’import. |
 | Crédits | Lien du pied de page fonctionnel ; sources et licences présentes. |
 
 Pour un changement de sprite, vérifier au moins marche, attaque et chute, pas seulement une frame immobile. Pour une évolution du moteur, ajouter des tests déterministes avec horloge et stockage simulés avant d’étendre la recette manuelle.
