@@ -126,7 +126,7 @@ let cleEquipement=null;
 function emettreEquipement(){const r=resumeEquipement(s.equipe),cle=`${r.arme}|${r.armure}`;if(cle===cleEquipement)return;cleEquipement=cle;emit('braise:equipement',r)}
 // Carte : panneau inline comme Talents ; un voyage depuis un gardien en cours demande confirmation (dialogue). Le voyage reste possible en pause.
 let carteNouveau=false,carteLignes=[],voyageCible=null;
-const FOCUS_CARTE=()=>[...ZONE_IDS.map(id=>'zone-voyage-'+id),'carteclose'].map($).filter(b=>!b.hidden&&!b.disabled&&b.offsetParent!==null);
+const FOCUS_CARTE=()=>[...ZONE_IDS.map(id=>'zone-voyage-'+id),'rallumage-ouvrir','carteclose'].map($).filter(b=>!b.hidden&&!b.disabled&&b.offsetParent!==null);
 function renderCarteNouveau(){$('cartenouveau').textContent=carteNouveau?'● nouveau':'';$('carte').setAttribute('aria-label',carteNouveau?'Carte, nouvelle zone ouverte':'Carte')}
 let bestiaireSig='';
 function renderBestiaire(){const zones=decrireBestiaire(s),sig=JSON.stringify(zones);if(sig===bestiaireSig)return;bestiaireSig=sig;$('bestiairelist').replaceChildren(...zones.map(z=>{const li=document.createElement('li');li.className='bestiaire-zone';const t=document.createElement('b');t.textContent=`${z.nom} · ${z.compteur}`;const ul=document.createElement('ul');ul.replaceChildren(...z.entrees.map(e=>{const l=document.createElement('li');if(!e.vu)l.className='inconnu';const n=document.createElement('span');n.className='bestiaire-nom';n.textContent=e.gardien&&e.vu?`${e.nom} · Gardien`:e.nom;l.append(n);for(const x of [e.gardien&&!e.vu?'Gardien':'',e.modificateur,e.victoires,e.detail]){if(!x)continue;const p=document.createElement('span');p.textContent=x;l.append(p)}return l}));li.append(t,ul);return li}))}
@@ -145,7 +145,7 @@ function rallumerBraise(){const r=rallumer(s,Date.now(),{confirme:true});if(!r.o
 $('rallumage-ouvrir').onclick=()=>{if(!apercuRallumage(s).disponible)return;const c=confirmationRallumage(s);$('rallumageconfirmtexte').textContent=c.gain;listeRallumage('rallumageremis',c.remisAZero);listeRallumage('rallumageconserve',c.conserve);$('rallumageconfirm').showModal();$('rallumageconfirmnon').focus()};
 $('rallumageconfirmok').onclick=()=>{$('rallumageconfirm').close();rallumerBraise()};
 $('rallumageconfirmnon').onclick=()=>$('rallumageconfirm').close();
-$('rallumageconfirm').addEventListener('close',()=>{if(!$('cartepanel').hidden){renderCarte();const b=FOCUS_CARTE()[0];if(b)b.focus()}});
+$('rallumageconfirm').addEventListener('close',()=>{if(!$('cartepanel').hidden){renderCarte();const o=$('rallumage-ouvrir');const b=o.hidden||o.offsetParent===null?FOCUS_CARTE()[0]:o;if(b)b.focus()}});
 $('cartepanel').onkeydown=ev=>{if(ev.key!=='Tab')return;const l=FOCUS_CARTE();if(!l.length)return;const i=l.indexOf(document.activeElement);const j=ev.shiftKey?(i<=0?l.length-1:i-1):(i<0||i===l.length-1?0:i+1);ev.preventDefault?.();l[j].focus()};
 let zoneEmise=null;
 function emettreZone(){if(s.zone===zoneEmise)return;zoneEmise=s.zone;emit('braise:zone',{zone:s.zone})}

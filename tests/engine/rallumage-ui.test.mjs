@@ -43,7 +43,7 @@ test('le dialogue reprend l’aperçu ; Annuler et Échap ne changent rien, le f
     fermeture();
     assert.equal(jeu.el('rallumageconfirm').open, false);
     assert.equal(jeu.el('cartepanel').hidden, false);
-    assert.ok(jeu.el('cartepanel').contains(jeu.actif()), 'focus dans le panneau Carte');
+    assert.equal(jeu.actif(), jeu.el('rallumage-ouvrir'), 'focus rendu au bouton qui a ouvert le dialogue');
   }
   assert.equal(JSON.stringify(jeu.stockage()), avant);
 }));
@@ -65,4 +65,14 @@ test('Rallumer : état neuf sauvegardé, forêt étage 1, journal et jeu toujour
   assert.equal(jeu.texte('pause'), '▶ Reprendre');
   assert.equal(jeu.el('cartepanel').hidden, true);
   assert.ok(jeu.evenements.some(e => e.type === 'braise:zone' && e.detail.zone === 'foret'));
+}));
+
+test('Tab dans la Carte atteint « Rallumer la braise »', () => avecJeu(avance(), jeu => {
+  jeu.clic('carte');
+  const tab = shift => jeu.el('cartepanel').onkeydown({ key: 'Tab', shiftKey: shift });
+  jeu.focus('carteclose');
+  tab(true);
+  assert.equal(jeu.actif(), jeu.el('rallumage-ouvrir'));
+  tab(false);
+  assert.equal(jeu.actif(), jeu.el('carteclose'));
 }));
