@@ -3,6 +3,28 @@
 Toutes les évolutions jouables de Braise, de la plus récente à la plus ancienne.
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). La version de référence est celle de `package.json`.
 
+## [0.12.0] — Rallumage de la braise
+
+- Rallumer la braise : remise à zéro de l’expédition contre des éclats qui augmentent les gains, avec aperçu exact avant de confirmer ; sauvegarde v12, les anciennes parties sont migrées (#155).
+- Bouton, aperçu et confirmation dans le panneau Carte (#156).
+- La 2e expédition est simulée et son rythme consigné (#157).
+- Bonus de rallumage réglé à 7,5 % par éclat pour que la 2e expédition reste dans la fourchette visée ; le panneau Carte affiche une décimale (#161).
+
+## [0.11.0] — Automatisations
+
+- Gardien automatique : le moteur le débloque et le lance dès qu’il est prêt, sauf s’il est jugé Mortel ; sauvegarde v10 (#140).
+- Réglage « Gardien automatique » visible et accessible (#141).
+- Achat automatique de l’amélioration la moins chère, débloqué en jeu ; sauvegarde v11 (#146).
+- Réglage « Achat automatique » visible et accessible (#147).
+
+## [0.10.0] — Rythme et bestiaire
+
+- Équilibrage : l’absence avance moins vite (facteur 1,2 → 2,4, puis 4,8) (#130, #148).
+- Équilibrage : montée plus longue vers le gardien 15 (points de vie des ennemis et coût des améliorations) (#131).
+- Bestiaire : collection des ennemis rencontrés dans le panneau Carte ; sauvegarde v8 (#132, #133).
+- Succès : conditions, annonce non bloquante et liste dans le panneau Carte ; sauvegarde v9 (#138, #139).
+- Les polices DM Sans et Space Grotesk sont auto-hébergées : même rendu hors ligne (#122).
+
 ## [0.9.1] — Relevé de performance
 
 - `?perf` dans l’URL affiche un petit relevé (images par seconde, temps de `draw`, étincelles, état du rendu) et un bouton « Copier le relevé » ; sans ce paramètre, rien ne change (#124).
