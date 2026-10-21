@@ -2,6 +2,7 @@ import {SAVE_KEY,BACKUP_KEY,KILLS_PER_STAGE,cheapestUpgrade,fresh as freshState,
 import {normaliserReglages,peutJouer,creerAudio} from './engine/audio.js';
 import {annoncePour,annoncesPour,texteGardienVaincu,SAUVEGARDE_FUTURE,IMPORT_FUTURE} from './engine/annonces.js';
 import {normaliserAffichage} from './engine/affichage.js';
+import {enregistrerServiceWorker} from './engine/pwa.js';
 
 import {RECETTES} from './engine/sons.js';
 import {loadSave,writeSave,serializeSave,importSave} from './engine/save.js';
@@ -149,3 +150,4 @@ $('mouvement').onchange=e=>{affichageSet=normaliserAffichage({...affichageSet,mo
 $('texte').onchange=e=>{affichageSet=normaliserAffichage({...affichageSet,texte:e.target.value});renderAffichage();save()};
 $('effets').onchange=e=>{affichageSet=normaliserAffichage({...affichageSet,effets:e.target.value});renderAffichage();save()};
 renderAudio();renderAffichage();
+enregistrerServiceWorker();
