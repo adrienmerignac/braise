@@ -1,0 +1,12 @@
+{
+  "name": "braise-idle-rpg",
+  "version": "0.2.1",
+  "private": true,
+  "type": "module",
+  "description": "Idle RPG en pixel art LPC pour navigateur desktop et mobile",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "check": "node tools/check.mjs",
+    "start": "python3 -m http.server 8080 --directory dist"
+  }
+}

@@ -1,4 +1,7 @@
-// LPC sheets use 64 × 64 frames; rows: north, west, south, east.
+// Direction rows belong to each sheet, not to the LPC family as a whole.
+const HERO_ROWS = Object.freeze({ east: 3 });
+// Redshrike’s goblinsword.png faces right on row 1 and left on row 3.
+const GOBLIN_ROWS = Object.freeze({ west: 3, death: 4 });
 const canvas = document.getElementById('world');
 const ctx = canvas.getContext('2d');
 canvas.width = 960;
@@ -77,16 +80,16 @@ function draw(now) {
   const heroX=330+approach, heroY=210;
   const enemyX=515+(age>370&&age<560&&!reduced.matches?Math.sin(age/35)*6:0);
   ellipse(heroX+64,heroY+117,36,11,'#111b2580');ellipse(enemyX+64,327,isBoss?43:35,12,'#111b2580');
-  if(lunging&&age<190)actor('hero-walk',reduced.matches?0:1+Math.floor(age/25)%8,3,heroX,heroY);
-  else if(lunging)actor('hero-swing',Math.min(5,Math.floor((age-190)/76)),3,heroX,heroY);
-  else actor('hero-walk',0,3,heroX,heroY);
+  if(lunging&&age<190)actor('hero-walk',reduced.matches?0:1+Math.floor(age/25)%8,HERO_ROWS.east,heroX,heroY);
+  else if(lunging)actor('hero-swing',Math.min(5,Math.floor((age-190)/76)),HERO_ROWS.east,heroX,heroY);
+  else actor('hero-walk',0,HERO_ROWS.east,heroX,heroY);
   const deathAge=age-360;
-  if(dying&&deathAge>0&&deathAge<650){actor('goblin-sword',Math.min(4,Math.floor(deathAge/100)),4,enemyX,210,2,Math.max(0,1-deathAge/650));}
+  if(dying&&deathAge>0&&deathAge<650){actor('goblin-sword',Math.min(4,Math.floor(deathAge/100)),GOBLIN_ROWS.death,enemyX,210,2,Math.max(0,1-deathAge/650));}
   else {
     const entering=dying&&deathAge>=650?(Math.max(0,1350-age)):Math.max(0,650-(time-spawnAt));
     const frame=reduced.matches?0:Math.floor(t/150)%9;
     const attack=age>650&&age<1000&&!dying;
-    actor('goblin-sword',attack?9+Math.floor((age-650)/175)%2:frame,1,enemyX+(reduced.matches?0:entering*.13),isBoss?194:210,isBoss?2.25:2,Math.max(.15,1-entering/1000));
+    actor('goblin-sword',attack?9+Math.floor((age-650)/175)%2:frame,GOBLIN_ROWS.west,enemyX+(reduced.matches?0:entering*.13),isBoss?194:210,isBoss?2.25:2,Math.max(.15,1-entering/1000));
   }
   if(lunging&&age>230&&age<530){
     ctx.save();ctx.globalAlpha=Math.sin((age-230)/300*Math.PI);ctx.strokeStyle=strong?'#fff1a4':'#d4e9ec';ctx.lineWidth=strong?8:4;

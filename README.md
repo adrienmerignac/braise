@@ -1,21 +1,57 @@
 # Braise
-Prototype d’Idle RPG responsive en français, sans dépendance de compilation.
 
-## Lancer
-`python3 -m http.server 8080 --directory dist`
+Un idle RPG en pixel art LPC, jouable dans le navigateur sur desktop et mobile. Un chevalier affronte les gobelins de la forêt des Murmures, récolte de l’or, améliore son équipement et défie un gardien pour passer à l’étage suivant.
 
-Ouvrir http://localhost:8080. Le jeu sauvegarde dans le navigateur (localStorage).
+**État : prototype jouable 0.2.** [Jouer à la version privée](https://braise-idle-rpg.lemonyhake5.chatgpt.site) (connexion ChatGPT). [Dépôt GitHub](https://github.com/adrienmerignac/braise).
 
-## Boucle de jeu
-Combat automatique toutes les 1,2 s, expérience, améliorations d’attaque/vitalité/or, compétence active avec recharge de 15 s, boss après cinq victoires et étages sans fin. Gains d’absence plafonnés à huit heures. Repli gratuit après défaite.
+## Lancer en local
 
-## Assets
-Tiny Dungeon de Kenney, CC0 : https://kenney.nl/assets/tiny-dungeon. Licence incluse dans dist/assets. Typographies Google Fonts ; polices système en secours.
+Prérequis : Python 3 pour servir les fichiers, Node.js 22+ pour les contrôles. Le jeu n’a aucune dépendance npm.
 
-## Limites du prototype
-Sauvegarde locale uniquement, pas de compte ni synchronisation. Équilibrage initial à affiner. Les gains hors ligne sont estimés, sans simulation des défaites. Pas de monétisation.
+```sh
+git clone https://github.com/adrienmerignac/braise.git
+cd braise
+python3 -m http.server 8080 --directory dist
+```
 
-## Direction graphique 0.2
-Forêt LPC au crépuscule, héros en armure par couches, gobelin de Redshrike. Marche d’approche, coup d’épée, attaque du gobelin, chute/disparition, particules d’impact, frappe spéciale, feu animé et lucioles. La pause fige aussi la scène et les préférences de réduction des mouvements sont respectées.
+Ouvrir http://localhost:8080. Ne pas ouvrir `index.html` en `file://` : les scripts utilisent les modules JavaScript.
 
-Crédits accessibles depuis le jeu dans `dist/credits.html`. Sources et licences accompagnent les fichiers de `dist/assets/lpc`. `tools/fetch-lpc.py` récupère les ressources depuis le dépôt officiel ; `tools/compose-hero.py` compose les couches (Pillow requis uniquement pour cette opération). La sauvegarde `braise-v1` est conservée.
+```sh
+npm run check
+```
+
+`dist/` contient aujourd’hui les sources HTML/CSS/JS et les assets directement servis. Il ne faut pas l’effacer comme un dossier de compilation.
+
+## Déjà jouable
+
+- Combat automatique toutes les 1,2 seconde ; expérience et niveaux.
+- Améliorations d’attaque, vitalité et or par victoire.
+- Frappe active ×4, avec recharge de 15 secondes.
+- Gardien débloqué après cinq victoires ; progression d’étage après sa défaite.
+- Sauvegarde locale `braise-v1` et estimation des gains d’absence plafonnée à huit heures.
+- Forêt au crépuscule, héros LPC en armure, gobelin animé, approche, attaque, riposte, chute, feu, lucioles et impacts.
+- Pause et adaptation aux préférences de réduction des mouvements.
+
+## Documentation partagée Codex / Claude
+
+| Document | Rôle |
+| --- | --- |
+| [AGENTS.md](AGENTS.md) | Règles communes aux assistants ; importées par [CLAUDE.md](CLAUDE.md). |
+| [Relance](docs/HANDOFF.md) | Point de reprise court, contrôles et prochaine étape. |
+| [Contexte IA](docs/AI_CONTEXT.md) | Intentions utilisateur, état réel et contraintes. |
+| [Roadmap](ROADMAP.md) | Étapes priorisées, dépendances et critères de fin. |
+| [Architecture](docs/ARCHITECTURE.md) | Fichiers, simulation, événements et sauvegarde. |
+| [Direction du jeu](docs/GAME_DESIGN.md) | Boucle de jeu et principes d’équilibrage. |
+| [Vérifications](docs/TESTING.md) | Commande de contrôle et recette manuelle. |
+| [Décisions](docs/DECISIONS.md) | Choix établis et sujets encore ouverts. |
+| [Publication](docs/DEPLOYMENT.md) | GitHub et hébergement Sites. |
+
+## Assets et licences
+
+Personnages et décors : [Liberated Pixel Cup](https://github.com/OpenGameArt/LiberatedPixelCup), sous CC BY-SA 3.0 dans cette distribution ; artistes et sources détaillés dans [les crédits du jeu](dist/credits.html). Les couches originales, licences et sprites assemblés sont conservés dans `dist/assets/lpc/`. Les icônes d’amélioration Kenney Tiny Dungeon sont CC0.
+
+Les scripts `tools/fetch-lpc.py` et `tools/compose-hero.py` permettent de récupérer et composer les couches LPC ; Pillow est nécessaire uniquement à la composition. Le téléchargement référence actuellement la branche amont `master` : la roadmap prévoit de figer les versions. Le jeu utilise les fichiers déjà inclus, sans téléchargement au lancement.
+
+## Limites actuelles
+
+Sauvegarde propre au navigateur et à l’origine, sans compte ni synchronisation ; pas d’export/import. Les gains hors ligne sont une estimation sans simulation des défaites. Un seul biome et une famille d’ennemis ; le gardien est une variante agrandie. Équilibrage exploratoire, aucune monétisation. La licence du code du jeu reste à choisir avant une diffusion publique ; les licences des assets sont déjà conservées séparément.
