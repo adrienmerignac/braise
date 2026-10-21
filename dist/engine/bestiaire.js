@@ -2,6 +2,7 @@
 // Entrées : les types de `ENEMY_CATALOG` (clé du type) et un gardien par zone (`gardien:<zone>`) ; chacune porte `vus` et `victoires`.
 // L'absence ne crédite jamais la collection : seules les apparitions et victoires en session passent ici.
 import { ENEMY_CATALOG, BESTIAIRE, ZONE_IDS, ZONES } from './balance.js';
+import { modificateurDe } from './combat.js';
 
 export const GARDIEN_PREFIXE = 'gardien:';
 export const cleGardien = zone => GARDIEN_PREFIXE + zone;
@@ -54,4 +55,21 @@ export function lireBestiaire(brut) {
     b[id] = { vus: e.vus === true || victoires > 0, victoires };
   }
   return { bestiaire: b, repaired };
+}
+
+// Libellés du panneau Carte, groupés par zone. Une entrée jamais vue ne révèle ni son nom ni son modificateur.
+const victoiresTexte = n => (n === 0 ? 'Aucune victoire' : `${n.toLocaleString('fr-FR')} ${n === 1 ? 'victoire' : 'victoires'}`);
+export function decrireBestiaire(s) {
+  return ZONE_IDS.map(zone => {
+    const entree = (cle, nom, gardien) => {
+      const e = s.bestiaire[cle];
+      if (!e.vus) return { cle, vu: false, gardien, nom: '???', modificateur: '', victoires: '', detail: 'Pas encore rencontré' };
+      return { cle, vu: true, gardien, nom, modificateur: gardien ? '' : modificateurDe(cle), victoires: victoiresTexte(e.victoires), detail: '' };
+    };
+    const entrees = [
+      ...BESTIAIRE[zone].types.map(t => entree(t, ENEMY_CATALOG[t].name, false)),
+      entree(cleGardien(zone), BESTIAIRE[zone].gardien, true),
+    ];
+    return { zone, nom: ZONES[zone].nom, compteur: `${entrees.filter(x => x.vu).length}/${entrees.length} rencontrés`, entrees };
+  });
 }
