@@ -67,3 +67,7 @@ Code de sortie 0 : version et fichiers servis conformes ; 1 : le rapport en fran
 ## Évolutions futures
 
 L’automatisation de publication et une éventuelle migration d’hébergeur sont des décisions à prendre au jalon de diffusion. Préserver la même origine ou fournir export/import avant de changer d’URL : le stockage local est lié à l’origine.
+
+## Service worker
+
+- Mettre à jour la version (`package.json`), donc le nom du cache `CACHE` de `dist/sw.js`, à chaque release : c'est ce qui renouvelle le pré-cache et purge les anciens caches `braise-*`.
