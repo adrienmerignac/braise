@@ -2,7 +2,7 @@
 // Le stockage est injecté (localStorage dans le jeu, un faux dans les tests).
 import { AUDIO_DEFAUT, reglagesValides } from './audio.js';
 import { AFFICHAGE_DEFAUT, MOUVEMENTS, EFFETS, affichageValide, normaliserAffichage } from './affichage.js';
-import { SAVE_KEY, BACKUP_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP } from './state.js';
+import { SAVE_KEY, BACKUP_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP, zoneDeEtage } from './state.js';
 import { enemyMaxHP } from './combat.js';
 import { pointsTalents, rechargeCompetence } from './talents.js';
 import { ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, EQUIPMENT_BASE, EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, INVENTORY_CAP, EQUIPMENT_UPGRADE_MAX, TALENT_IDS, TALENT_MAX_RANK } from './balance.js';
@@ -20,14 +20,16 @@ const isRecord = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const validInt = (v, min, max) => typeof v === 'number' && Number.isSafeInteger(v) && v >= min && v <= max;
 
 // Migre un enregistrement jusqu'à la version courante, sans perte : v1 (sans `version`) → v2 (version ajoutée),
-// v2 → v3 (`inventaire` vide et `equipe` vide ajoutés s'ils manquent), v3 → v4 (`talents` vide ajouté s'il manque). Une version inconnue ou un non-objet est rendu
+// v2 → v3 (`inventaire` vide et `equipe` vide ajoutés s'ils manquent), v3 → v4 (`talents` vide ajouté s'il manque), v4 → v5 (`meilleurEtage` = étage, `zone` = zone qui contient l'étage). Une version inconnue ou un non-objet est rendu
 // tel quel ; `parseSave` le refusera.
 export function migrate(raw) {
   if (!isRecord(raw)) return raw;
   let data = raw;
   if (data.version === undefined) data = { ...data, version: 2 };
   if (data.version === 2) data = { inventaire: [], equipe: {}, ...data, version: 3 };
-  if (data.version === 3) data = { talents: {}, ...data, version: SAVE_VERSION };
+  if (data.version === 3) data = { talents: {}, ...data, version: 4 };
+  // Sans étage entier valide, rien n'est déduit : `parseSave` répare le champ manquant.
+  if (data.version === 4) data = { ...(Number.isInteger(data.stage) ? { meilleurEtage: data.stage, zone: zoneDeEtage(data.stage) } : {}), ...data, version: SAVE_VERSION };
   return data;
 }
 
@@ -162,6 +164,12 @@ export function parseSave(text, now) {
     if (validInt(data[key], min, max)) s[key] = data[key];
     else repaired = true;
   }
+  // `zone` inconnue ou qui ne contient pas l'étage → zone de l'étage ; `meilleurEtage` entier au moins égal à l'étage.
+  s.zone = zoneDeEtage(s.stage);
+  if (data.zone !== s.zone) repaired = true;
+  s.meilleurEtage = s.stage;
+  if (validInt(data.meilleurEtage, s.stage, MAX_STAGE)) s.meilleurEtage = data.meilleurEtage;
+  else repaired = true;
   if (validInt(data.last, 0, now)) s.last = data.last;
   else repaired = true;
   const eq = parseEquipement(data);

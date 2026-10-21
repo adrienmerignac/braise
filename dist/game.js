@@ -7,7 +7,7 @@ import {RECETTES} from './engine/sons.js';
 import {loadSave,writeSave,serializeSave,importSave} from './engine/save.js';
 import {libelleObjet,EQUIPMENT_SLOTS} from './engine/equipement.js';
 import {equiper,desequiper,comparer,signe,texteBonus,nomEmplacement,nomRarete,recycler,ameliorer,orRecyclage,coutAmelioration,confirmationRequise} from './engine/inventaire.js';
-import {EQUIPMENT_UPGRADE_MAX} from './engine/balance.js';
+import {EQUIPMENT_UPGRADE_MAX,ZONES} from './engine/balance.js';
 import {resumeEquipement} from './engine/apparence-heros.js';
 import {offlineGains} from './engine/offline.js';
 import {rechargeCompetence} from './engine/talents.js';
@@ -29,7 +29,7 @@ case'combat':emit('braise:combat',{damage:e.damage,strong:e.strong,defeated:e.de
 case'spawn':emit('braise:spawn',{boss:e.boss,kind:e.kind});break;
 case'levelup':log(`Niveau ${e.level} ! La braise grandit. Vitalité restaurée${e.healed>0?` (+${e.healed})`:''}.`);if(e.healed>0)setVit(`+${e.healed} soins`);break;
 case'victory':log(`Ennemi vaincu · +${e.gold} or · +${e.xp} expérience${gain(e.healed)}`);if(e.healed>0)setVit(`+${e.healed} soins`);break;
-case'bossVictory':log(`Gardien vaincu ! L’étage ${e.stage} s’ouvre. Vitalité restaurée${e.healed>0?` (+${e.healed})`:''}.`);if(e.healed>0)setVit(`+${e.healed} soins`);showBossPanel(e);break;
+case'bossVictory':log(e.zoneOuverte?`Gardien vaincu ! Les ${ZONES[e.zoneOuverte].nom} s’ouvrent : ouvrez la carte pour y voyager. Vitalité restaurée${e.healed>0?` (+${e.healed})`:''}.`:`Gardien vaincu ! L’étage ${e.stage} s’ouvre. Vitalité restaurée${e.healed>0?` (+${e.healed})`:''}.`);if(e.healed>0)setVit(`+${e.healed} soins`);showBossPanel(e);break;
 case'retreat':{const m=`Repli : ${e.boss?'le gardien':'l’ennemi'} frappait pour ${e.taken}, il lui restait ${Math.max(0,Math.ceil(e.enemyHP))} PV. Butin conservé.`;log(m);break}
 case'butin':log(annoncePour(e));if(!$('inventairepanel').hidden)renderInventaire();break
 case'bossStart':log('Le gardien approche. Fais parler la braise !');break;

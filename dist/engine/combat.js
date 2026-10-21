@@ -1,10 +1,10 @@
 // Récompenses et résolution de combat : fonctions pures, sans DOM ni horloge.
 // `s` est l'état persisté (schéma braise-v1) ; `f` l'état de combat, non persisté : { hp, boss, enemyHP, enemyMax }.
 // Chaque fonction renvoie { s, f, events } sans modifier ses arguments ; game.js applique les événements.
-import { KILLS_PER_STAGE, attack, maxHP, reward, cost } from './state.js';
+import { KILLS_PER_STAGE, attack, maxHP, reward, cost, zoneDeEtage } from './state.js';
 import {
   XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, ENEMY_KINDS, ENEMY_CATALOG,
-  RETALIATION_BASE, RETALIATION_BOSS_BASE, RETALIATION_PER_STAGE, RETALIATION_ARMOR_REDUCTION,
+  ZONES, RETALIATION_BASE, RETALIATION_BOSS_BASE, RETALIATION_PER_STAGE, RETALIATION_ARMOR_REDUCTION,
 } from './balance.js';
 import { soinVictoire } from './talents.js';
 import { bonusEquipement, tirerButin, ajouterObjet } from './equipement.js';
@@ -86,17 +86,20 @@ export function strike(s, f, mult = 1, rng = null) {
   const events = [{ type: 'combat', damage, strong: mult > 1, defeated, boss: f.boss, kind: f.boss ? null : enemyKind(s), health: f.hp / maxHP(s), taken }];
   f = { ...f, enemyHP };
   if (defeated) {
-    const wonBoss = f.boss;
+    const wonBoss = f.boss, etageVaincu = s.stage;
     const gold = victoryGold(s, wonBoss);
     s = { ...s, gold: s.gold + gold };
     const xp = gainXP(s, f, wonBoss ? XP_BOSS : XP_ENEMY);
     ({ s, f } = xp);
     events.push(...xp.events);
     if (wonBoss) {
-      s = { ...s, stage: s.stage + 1, kills: 0 };
+      const ancienne = zoneDeEtage(s.meilleurEtage), meilleurEtage = Math.max(s.meilleurEtage, etageVaincu + 1);
+      // Le plafond de la zone retient le héros : l'étage ne monte que si la zone continue.
+      s = { ...s, stage: Math.min(etageVaincu + 1, ZONES[s.zone].fin), kills: 0, meilleurEtage };
+      const zoneOuverte = zoneDeEtage(meilleurEtage) !== ancienne ? zoneDeEtage(meilleurEtage) : undefined;
       const healed = Math.max(0, maxHP(s) - f.hp);
       f = { ...f, boss: false, hp: maxHP(s) };
-      events.push({ type: 'bossVictory', stage: s.stage, gold, xp: XP_BOSS, healed });
+      events.push({ type: 'bossVictory', stage: s.stage, gold, xp: XP_BOSS, healed, ...(zoneOuverte && { zoneOuverte }) });
     } else {
       s = { ...s, kills: Math.min(KILLS_PER_STAGE, s.kills + 1) };
       const healed = Math.min(maxHP(s), f.hp + soinVictoire(s)) - f.hp;
@@ -104,7 +107,7 @@ export function strike(s, f, mult = 1, rng = null) {
       events.push({ type: 'victory', gold, xp: XP_ENEMY, healed });
     }
     if (rng) {
-      for (const objet of tirerButin({ ennemi: wonBoss ? 'gardien' : 'ordinaire', etape: wonBoss ? s.stage - 1 : s.stage, rng })) {
+      for (const objet of tirerButin({ ennemi: wonBoss ? 'gardien' : 'ordinaire', etape: etageVaincu, rng })) {
         const r = ajouterObjet(s, objet);
         s = r.s;
         events.push({ type: 'butin', objet, converti: r.converti });
