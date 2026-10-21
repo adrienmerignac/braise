@@ -4,6 +4,7 @@
 // Politique fixe (aucun rééquilibrage, seulement une mesure) :
 //   1 tick = ATTACK_INTERVAL_MS de temps de jeu (jamais le framerate), un coup automatique par tick ;
 //   au début de chaque tick :
+//     0. dépense les points de talent libres selon `build` ;
 //     1. achète l'amélioration la moins chère tant que l'or le permet (égalité : arme, armure, fortune) ;
 //     2. lance le gardien dès KILLS_PER_STAGE victoires ;
 //     3. utilise la compétence (× SKILL_MULT, recharge SKILL_COOLDOWN_SECONDS) dès qu'elle est prête,
@@ -12,12 +13,14 @@
 // Les temps sont en secondes de jeu, mesurés à la fin du tick qui produit l'événement (achat : au début du tick).
 import { fresh, cost } from '../dist/engine/state.js';
 import { newFight, startBoss, buyUpgrade, strike } from '../dist/engine/combat.js';
-import { ATTACK_INTERVAL_MS, SKILL_MULT, SKILL_COOLDOWN_SECONDS, KILLS_PER_STAGE } from '../dist/engine/balance.js';
+import { rechargeCompetence, investir } from '../dist/engine/talents.js';
+import { ATTACK_INTERVAL_MS, SKILL_MULT, KILLS_PER_STAGE } from '../dist/engine/balance.js';
 
 const UPGRADES = ['weapon', 'armor', 'luck'];
 const round = n => n === null ? null : Math.round(n * 100) / 100;
 
-export function simulate({ minutes = 30 } = {}) {
+// `build` : talents dépensés dans l'ordre dès qu'un point est libre (ex. ['assaut', 'assaut', 'assaut']) ; vide par défaut.
+export function simulate({ minutes = 30, build = [] } = {}) {
   const dt = ATTACK_INTERVAL_MS / 1000;
   const ticks = Math.floor(minutes * 60 / dt);
   let s = fresh(0), f = newFight(s).f;
@@ -32,6 +35,7 @@ export function simulate({ minutes = 30 } = {}) {
   };
   for (let tick = 0; tick < ticks; tick++) {
     const start = tick * dt, end = (tick + 1) * dt;
+    for (const id of build) s = investir(s, id);
     for (;;) {
       const kind = UPGRADES.reduce((a, b) => cost(s, b) < cost(s, a) ? b : a);
       if (s.gold < cost(s, kind)) break;
@@ -40,7 +44,7 @@ export function simulate({ minutes = 30 } = {}) {
       if (firstPurchase === null) firstPurchase = start;
     }
     if (s.kills >= KILLS_PER_STAGE && !f.boss) apply(startBoss(s, f), start);
-    if (cool <= 0) { cool = SKILL_COOLDOWN_SECONDS; apply(strike(s, f, SKILL_MULT), end); }
+    if (cool <= 0) { cool = rechargeCompetence(s); apply(strike(s, f, SKILL_MULT), end); }
     apply(strike(s, f), end);
     cool -= dt;
   }

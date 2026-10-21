@@ -84,7 +84,7 @@ test('import : fichier invalide signalé sans rien changer ; fichier valide conf
 
 test('reprise : une partie braise-v1 avancée est migrée en braise-v2 au démarrage', () => avecJeu({ sauvegarde: AVANCEE }, jeu => {
   assert.equal(jeu.texte('gold'), '900');
-  assert.equal(jeu.stockage().version, 3);
+  assert.equal(jeu.stockage().version, 4);
   assert.equal(jeu.stockage().stage, 9);
 }));
 
