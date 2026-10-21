@@ -25,11 +25,18 @@ export function migrate(raw) {
 // Texte écrit en stockage et dans les fichiers d'export. `fight` (facultatif) : { hp, boss, enemyHP, cool }.
 // La pause n'est jamais persistée : on reprend toujours en jeu actif.
 // `guide` : avancement du premier parcours ('todo' | 'done'), absent si non fourni.
-export const serializeSave = (s, fight, guide) => JSON.stringify({ version: SAVE_VERSION, ...s, ...fight, ...(guide ? { guide } : {}) });
+// `vus` : explications ponctuelles déjà montrées (voir GUIDE_VUS), absent si non fourni.
+export const serializeSave = (s, fight, guide, vus) => JSON.stringify({ version: SAVE_VERSION, ...s, ...fight, ...(guide ? { guide } : {}), ...(vus ? { vus } : {}) });
 
 export const GUIDE_STATES = ['todo', 'done'];
 // Défaut quand le champ `guide` est absent (sauvegarde v1 ou v2 antérieure) : un joueur qui a progressé n'a plus besoin du guide.
 export const defaultGuide = s => (s.level > 1 || s.stage > 1 || s.weapon > 0 || s.armor > 0 || s.luck > 0 || s.gold > 0 || s.xp > 0 || s.kills > 0 ? 'done' : 'todo');
+
+// Explications ponctuelles du premier parcours : gardien (première apparition) et absence (après le premier achat).
+export const GUIDE_VUS = ['gardien', 'absence'];
+// Défaut quand `vus` est absent : un joueur qui a progressé est considéré comme les ayant vues ; une partie vierge, non.
+export const defaultVus = s => (defaultGuide(s) === 'done' ? [...GUIDE_VUS] : []);
+const validVus = v => Array.isArray(v) && v.every(k => GUIDE_VUS.includes(k)) && new Set(v).size === v.length;
 
 // Champs de combat facultatifs, hors bornes ou absents → absents du résultat (le jeu applique alors ses défauts).
 // Absent n'est pas une réparation ; présent mais invalide l'est. `cool` est diminué du temps réellement écoulé
@@ -57,7 +64,7 @@ function parseFight(data, s, now) {
 // Retourne { s, status } : 'new' (rien de stocké), 'ok', 'repaired' (champs remplacés) ou 'reset' (illisible).
 export function parseSave(text, now) {
   const base = fresh(now);
-  if (text === null || text === undefined) return { s: base, status: 'new', guide: 'todo' };
+  if (text === null || text === undefined) return { s: base, status: 'new', guide: 'todo', vus: [] };
   let data;
   try { data = JSON.parse(text); } catch { return { s: base, status: 'reset' }; }
   data = migrate(data);
@@ -76,7 +83,11 @@ export function parseSave(text, now) {
   if (data.guide !== undefined) {
     if (GUIDE_STATES.includes(data.guide)) guide = data.guide; else repaired = true;
   }
-  const result = { s, status: repaired ? 'repaired' : 'ok', guide };
+  let vus = defaultVus(s);
+  if (data.vus !== undefined) {
+    if (validVus(data.vus)) vus = GUIDE_VUS.filter(k => data.vus.includes(k)); else repaired = true;
+  }
+  const result = { s, status: repaired ? 'repaired' : 'ok', guide, vus };
   if (Object.keys(f.fight).length) result.fight = f.fight;
   return result;
 }
@@ -91,18 +102,18 @@ export function loadSave(storage, now) {
   if (legacy === null || legacy === undefined) return current;
   const migrated = parseSave(legacy, now);
   if (migrated.status === 'reset') return { s: current.s, status: 'reset' };
-  writeSave(storage, migrated.s, undefined, migrated.guide);
+  writeSave(storage, migrated.s, undefined, migrated.guide, migrated.vus);
   return migrated;
 }
 
 // Retourne true si l'écriture a réussi.
-export function writeSave(storage, s, fight, guide) {
-  try { storage.setItem(SAVE_KEY, serializeSave(s, fight, guide)); return true; } catch { return false; }
+export function writeSave(storage, s, fight, guide, vus) {
+  try { storage.setItem(SAVE_KEY, serializeSave(s, fight, guide, vus)); return true; } catch { return false; }
 }
 
 // Import d'un fichier : n'accepte que ce que `parseSave` juge intact ; sinon rien ne doit changer.
 export function importSave(text, now) {
-  const { s, status, fight, guide } = parseSave(text, now);
+  const { s, status, fight, guide, vus } = parseSave(text, now);
   if (status !== 'ok') return { ok: false };
-  return fight ? { ok: true, s, fight, guide } : { ok: true, s, guide };
+  return fight ? { ok: true, s, fight, guide, vus } : { ok: true, s, guide, vus };
 }

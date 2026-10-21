@@ -8,7 +8,7 @@ const valid = { gold: 120, xp: 5, level: 3, stage: 4, kills: 2, weapon: 1, armor
 const mem = (init = {}) => ({ data: { ...init }, getItem(k) { return k in this.data ? this.data[k] : null; }, setItem(k, v) { this.data[k] = v; } });
 
 test('une sauvegarde valide est conservée telle quelle', () => {
-  assert.deepEqual(parseSave(JSON.stringify(valid), NOW), { s: valid, status: 'ok', guide: 'done' });
+  assert.deepEqual(parseSave(JSON.stringify(valid), NOW), { s: valid, status: 'ok', guide: 'done', vus: ['gardien', 'absence'] });
 });
 
 test('JSON illisible, null, tableau, scalaire : partie neuve', () => {
@@ -18,7 +18,7 @@ test('JSON illisible, null, tableau, scalaire : partie neuve', () => {
 });
 
 test('aucune sauvegarde : partie neuve sans alerte', () => {
-  assert.deepEqual(parseSave(null, NOW), { s: fresh(NOW), status: 'new', guide: 'todo' });
+  assert.deepEqual(parseSave(null, NOW), { s: fresh(NOW), status: 'new', guide: 'todo', vus: [] });
 });
 
 test('chaînes, NaN, Infinity, flottants : repli champ par champ', () => {
@@ -70,8 +70,8 @@ test('migrate : braise-v1 complet converti sans perte, entrée non modifiée', (
 test('loadSave : v1 complet repris, écrit en v2, ancienne clé conservée', () => {
   const storage = mem({ [LEGACY_SAVE_KEY]: JSON.stringify(v1) });
   const r = loadSave(storage, NOW);
-  assert.deepEqual(r, { s: v1, status: 'ok', guide: 'done' });
-  assert.deepEqual(JSON.parse(storage.data[SAVE_KEY]), { version: 2, ...v1, guide: 'done' });
+  assert.deepEqual(r, { s: v1, status: 'ok', guide: 'done', vus: ['gardien', 'absence'] });
+  assert.deepEqual(JSON.parse(storage.data[SAVE_KEY]), { version: 2, ...v1, guide: 'done', vus: ['gardien', 'absence'] });
   assert.equal(storage.data[LEGACY_SAVE_KEY], JSON.stringify(v1));
 });
 
@@ -97,7 +97,7 @@ test('version inconnue : refusée', () => {
 
 test('aller-retour export/import identique', () => {
   const r = importSave(serializeSave(v1), NOW);
-  assert.deepEqual(r, { ok: true, s: v1, guide: 'done' });
+  assert.deepEqual(r, { ok: true, s: v1, guide: 'done', vus: ['gardien', 'absence'] });
   assert.equal(serializeSave(r.s), serializeSave(v1));
 });
 
@@ -120,7 +120,7 @@ test('guide absent : à faire pour une partie vierge, terminé dès qu’il y a 
 
 test('guide présent : conservé ; invalide → repaired avec le défaut selon la progression', () => {
   assert.equal(parseSave(JSON.stringify({ version: 2, ...neuve, guide: 'todo' }), NOW).guide, 'todo');
-  assert.equal(parseSave(JSON.stringify({ version: 2, ...v1, guide: 'done' }), NOW).status, 'ok');
+  assert.equal(parseSave(JSON.stringify({ version: 2, ...v1, guide: 'done', vus: ['gardien', 'absence'] }), NOW).status, 'ok');
   for (const guide of ['fini', 1, null, true, {}]) {
     const r = parseSave(JSON.stringify({ version: 2, ...neuve, guide }), NOW);
     assert.equal(r.status, 'repaired', String(guide));
@@ -142,4 +142,22 @@ test('braise-v1 : partie vierge → guide à faire, partie avancée → terminé
   const storage = mem({ [LEGACY_SAVE_KEY]: JSON.stringify(v1) });
   assert.equal(loadSave(storage, NOW).guide, 'done');
   assert.equal(JSON.parse(storage.data[SAVE_KEY]).guide, 'done');
+});
+
+test('vus : absent → vues pour une partie avancée, non vues pour une partie vierge', () => {
+  const vus = s => parseSave(JSON.stringify({ version: 2, ...s }), NOW).vus;
+  assert.deepEqual(vus(neuve), []);
+  assert.deepEqual(vus({ ...neuve, stage: 3 }), ['gardien', 'absence']);
+  assert.deepEqual(vus({ ...neuve, gold: 5, guide: 'done' }), ['gardien', 'absence']);
+});
+
+test('vus : conservées à l’export/import, invalides → repaired avec le défaut', () => {
+  assert.deepEqual(importSave(serializeSave(neuve, undefined, 'todo', ['gardien']), NOW).vus, ['gardien']);
+  assert.deepEqual(importSave(serializeSave(neuve, undefined, 'done', []), NOW).vus, []);
+  assert.deepEqual(loadSave(mem({ [SAVE_KEY]: serializeSave(neuve, undefined, 'done', ['absence']) }), NOW).vus, ['absence']);
+  for (const vus of ['gardien', ['inconnu'], ['gardien', 'gardien'], [1], null, {}]) {
+    const r = parseSave(JSON.stringify({ version: 2, ...neuve, vus }), NOW);
+    assert.equal(r.status, 'repaired', JSON.stringify(vus));
+    assert.deepEqual(r.vus, []);
+  }
 });
