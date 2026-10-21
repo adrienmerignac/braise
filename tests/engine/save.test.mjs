@@ -5,7 +5,7 @@ import { objectifsNeufs } from '../../dist/engine/objectifs.js';
 import { fresh, SAVE_KEY, BACKUP_KEY, LEGACY_SAVE_KEY } from '../../dist/engine/state.js';
 
 const NOW = 1_700_000_000_000;
-const valid = { gold: 120, xp: 5, level: 3, stage: 4, zone: 'foret', meilleurEtage: 4, kills: 2, weapon: 1, armor: 2, luck: 0, last: NOW - 1000, inventaire: [], equipe: {}, talents: {}, objectifs: objectifsNeufs() };
+const valid = { gold: 120, xp: 5, level: 3, stage: 4, zone: 'foret', meilleurEtage: 4, kills: 2, weapon: 1, armor: 2, luck: 0, last: NOW - 1000, inventaire: [], equipe: {}, talents: {}, objectifs: objectifsNeufs(), recitsLus: ['braise'] };
 const mem = (init = {}) => ({ data: { ...init }, getItem(k) { return k in this.data ? this.data[k] : null; }, setItem(k, v) { this.data[k] = v; } });
 
 test('une sauvegarde valide est conservée telle quelle', () => {
@@ -31,8 +31,8 @@ test('chaînes, NaN, Infinity, flottants : repli champ par champ', () => {
 
 test('valeurs négatives ou hors bornes refusées, le reste conservé', () => {
   const { s } = parseSave(JSON.stringify({ ...valid, gold: -5, level: 0, stage: -1, kills: 6, armor: -2, luck: 1e9, last: NOW + 5000 }), NOW);
-  assert.deepEqual(s, { ...fresh(NOW), xp: 5, weapon: 1, meilleurEtage: 4 });
-  for (const [k, v] of Object.entries(s)) if (!['inventaire', 'equipe', 'talents', 'zone', 'objectifs'].includes(k)) assert.ok(Number.isFinite(v) && v >= 0);
+  assert.deepEqual(s, { ...fresh(NOW), xp: 5, weapon: 1, meilleurEtage: 4, recitsLus: ['braise'] });
+  for (const [k, v] of Object.entries(s)) if (!['inventaire', 'equipe', 'talents', 'zone', 'objectifs', 'recitsLus'].includes(k)) assert.ok(Number.isFinite(v) && v >= 0);
 });
 
 test('champs inconnus ignorés', () => {
@@ -53,24 +53,24 @@ test('getItem qui lève : partie neuve et statut unavailable', () => {
 test('writeSave : succès, puis quota dépassé sans exception', () => {
   const storage = mem();
   assert.equal(writeSave(storage, valid), true);
-  assert.deepEqual(JSON.parse(storage.data[SAVE_KEY]), { version: 6, ...valid });
+  assert.deepEqual(JSON.parse(storage.data[SAVE_KEY]), { version: 7, ...valid });
   const full = { setItem() { throw new Error('QuotaExceededError'); } };
   assert.equal(writeSave(full, valid), false);
 });
 
 const v1 = { gold: 5000, xp: 40, level: 12, stage: 30, kills: 3, weapon: 9, armor: 7, luck: 4, last: NOW - 60_000 };
-const v1D = { gold: 5000, xp: 40, level: 12, stage: 30, zone: 'cryptes', meilleurEtage: 30, kills: 3, weapon: 9, armor: 7, luck: 4, last: NOW - 60_000, inventaire: [], equipe: {}, talents: {}, objectifs: objectifsNeufs() };
+const v1D = { gold: 5000, xp: 40, level: 12, stage: 30, zone: 'cryptes', meilleurEtage: 30, kills: 3, weapon: 9, armor: 7, luck: 4, last: NOW - 60_000, inventaire: [], equipe: {}, talents: {}, objectifs: objectifsNeufs(), recitsLus: ['braise', 'ruines', 'cryptes', 'cendres'] };
 
 const gardiensFaits = () => Object.fromEntries(Object.entries(objectifsNeufs()).map(([z, o]) => [z, { ...o, faits: ['gardien'] }]));
 const v1M = { ...v1D, gold: v1D.gold + 2200, objectifs: gardiensFaits() };
 
 test('migrate : braise-v1 complet converti sans perte, entrée non modifiée', () => {
   const copie = { ...v1 };
-  assert.deepEqual(migrate(v1), { ...v1D, version: 6, gold: v1D.gold + 2200, objectifs: gardiensFaits() });
+  assert.deepEqual(migrate(v1), { ...v1D, version: 7, gold: v1D.gold + 2200, objectifs: gardiensFaits() });
   assert.deepEqual(v1, copie);
-  assert.deepEqual(migrate({ version: 2, gold: 1 }), { version: 6, gold: 1, inventaire: [], equipe: {}, talents: {}, objectifs: objectifsNeufs() });
-  assert.deepEqual(migrate({ version: 3, gold: 1 }), { version: 6, gold: 1, talents: {}, objectifs: objectifsNeufs() });
-  assert.deepEqual(migrate({ version: 6, gold: 1 }), { version: 6, gold: 1 });
+  assert.deepEqual(migrate({ version: 2, gold: 1 }), { version: 7, gold: 1, inventaire: [], equipe: {}, talents: {}, objectifs: objectifsNeufs(), recitsLus: [] });
+  assert.deepEqual(migrate({ version: 3, gold: 1 }), { version: 7, gold: 1, talents: {}, objectifs: objectifsNeufs(), recitsLus: [] });
+  assert.deepEqual(migrate({ version: 7, gold: 1 }), { version: 7, gold: 1 });
   assert.equal(migrate(null), null);
 });
 
@@ -78,7 +78,7 @@ test('loadSave : v1 complet repris, écrit en v2, ancienne clé conservée', () 
   const storage = mem({ [LEGACY_SAVE_KEY]: JSON.stringify(v1) });
   const r = loadSave(storage, NOW);
   assert.deepEqual(r, { s: v1M, status: 'ok', guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 }, affichage: { mouvement: 'systeme', effets: 'actifs', texte: 'normal' } });
-  assert.deepEqual(JSON.parse(storage.data[SAVE_KEY]), { version: 6, ...v1M, guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 }, affichage: { mouvement: 'systeme', effets: 'actifs', texte: 'normal' } });
+  assert.deepEqual(JSON.parse(storage.data[SAVE_KEY]), { version: 7, ...v1M, guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 }, affichage: { mouvement: 'systeme', effets: 'actifs', texte: 'normal' } });
   assert.equal(storage.data[LEGACY_SAVE_KEY], JSON.stringify(v1));
 });
 
@@ -86,7 +86,7 @@ test('loadSave : v1 partiel migré, champs manquants par défaut, valeurs prése
   const storage = mem({ [LEGACY_SAVE_KEY]: JSON.stringify({ gold: 77, stage: 8 }) });
   const r = loadSave(storage, NOW);
   assert.equal(r.status, 'repaired');
-  assert.deepEqual(r.s, { ...fresh(NOW), gold: 77 + 200, stage: 8, zone: 'ruines', meilleurEtage: 8, objectifs: { ...fresh(NOW).objectifs, foret: { chasse: 0, faits: ['gardien'] } } });
+  assert.deepEqual(r.s, { ...fresh(NOW), gold: 77 + 200, stage: 8, zone: 'ruines', meilleurEtage: 8, objectifs: { ...fresh(NOW).objectifs, foret: { chasse: 0, faits: ['gardien'] } }, recitsLus: ['braise', 'ruines'] });
   assert.equal(JSON.parse(storage.data[SAVE_KEY]).gold, 77 + 200);
 });
 
@@ -98,7 +98,7 @@ test('loadSave : braise-v2 prioritaire sur braise-v1 ; v2 illisible retombe sur 
 });
 
 test('version inconnue : refusée (plus récente → future, non entière → reset)', () => {
-  assert.equal(parseSave(JSON.stringify({ ...v1, version: 7 }), NOW).status, 'future');
+  assert.equal(parseSave(JSON.stringify({ ...v1, version: 8 }), NOW).status, 'future');
   assert.equal(parseSave(JSON.stringify({ ...v1, version: '2' }), NOW).status, 'reset');
 });
 
@@ -127,7 +127,7 @@ test('guide absent : à faire pour une partie vierge, terminé dès qu’il y a 
 
 test('guide présent : conservé ; invalide → repaired avec le défaut selon la progression', () => {
   assert.equal(parseSave(JSON.stringify({ version: 2, ...neuve, guide: 'todo' }), NOW).guide, 'todo');
-  assert.equal(parseSave(JSON.stringify({ version: 6, ...v1M, guide: 'done', vus: ['gardien', 'absence'] }), NOW).status, 'ok');
+  assert.equal(parseSave(JSON.stringify({ version: 7, ...v1M, guide: 'done', vus: ['gardien', 'absence'] }), NOW).status, 'ok');
   for (const guide of ['fini', 1, null, true, {}]) {
     const r = parseSave(JSON.stringify({ version: 2, ...neuve, guide }), NOW);
     assert.equal(r.status, 'repaired', String(guide));
@@ -217,7 +217,7 @@ test('texte illisible : copié tel quel, puis partie neuve écrite sans perte du
   assert.equal(l.secours, 'copiee');
   assert.equal(writeSave(st, l.s, undefined, l.guide, l.vus, l.audio, l.affichage), true);
   assert.equal(st.m.get(BACKUP_KEY), '{pas du json');
-  assert.equal(JSON.parse(st.m.get(SAVE_KEY)).version, 6);
+  assert.equal(JSON.parse(st.m.get(SAVE_KEY)).version, 7);
   assert.equal(parseSave(st.m.get(SAVE_KEY), NOW).status, 'ok');
 });
 
