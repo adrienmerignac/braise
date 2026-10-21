@@ -99,6 +99,26 @@ masquer un équilibrage insuffisant par le prestige. Pistes réversibles, à ess
 Aucune n'altère le schéma de sauvegarde : pas de migration. Chaque essai se mesure en relançant `npm run simulate:jours -- 7` et
 en mettant à jour les instantanés de `tests/engine/equilibrage.test.mjs`.
 
+## Essai piste 1
+
+Sens de la constante : `offline.js` calcule `victoires = absence / (coups par victoire × OFFLINE_FIGHT_FACTOR)`. **Baisser** le facteur
+(1,2 → 0,6) aurait *augmenté* les gains d'absence ; l'essai **monte** donc le facteur de 1,2 à **2,4** (gains d'absence divisés par deux : or,
+expérience et butin estimé). Plafond 8 h, seuil 60 s, schéma `braise-v2` v7 : inchangés, aucune migration. Relevé : `npm run simulate:jours -- 7`
+(graine 1) et `node tools/simulate.mjs` (identique avant/après : il ne joue pas d'absence).
+
+| profil · mesure | avant (1,2) | après (2,4) |
+| --- | --- | --- |
+| actif · part d'or hors ligne | 76,6 % | 63,3 % |
+| actif · minutes de jeu au gardien 15 | 5,7 | 6,5 |
+| actif · meilleur étage jour 7 | 263 | 237 |
+| occasionnel · part d'or hors ligne | 97,5 % | 94,9 % |
+| occasionnel · minutes de jeu au gardien 15 | 6,0 | 6,2 |
+| occasionnel · meilleur étage jour 7 | 219 | 192 |
+
+Lecture : l'absence avance moins le héros (niveau 216 → 161 en actif au jour 7) et l'expédition s'allonge (gardien 100 : 58 → 135 min de jeu en
+actif, 36,5 → 40,5 en occasionnel). Le gardien 15 reste à 6 à 6,5 min de jeu, loin de la cible de 20 à 30 min : la piste 2
+(`ENEMY_HP_PER_STAGE`) reste nécessaire. L'occasionnel tire encore 95 % de son or de l'absence : cette piste seule n'y change presque rien.
+
 ## Conclusion
 
 **Sans prestige, l'équilibrage tient techniquement sur 7 jours** (pas de mur, pas de valeur infinie, progression quotidienne), **mais
