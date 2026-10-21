@@ -1,5 +1,6 @@
 import { createSceneQueue } from './engine/scene-queue.js';
 import { sonsPourEvenement } from './engine/sons.js';
+import { ajouterEtincelles, doitRedessiner } from './engine/etincelles.js';
 import { AFFICHAGE_DEFAUT, normaliserAffichage, mouvementReduit, effetsDiscrets, echelleTexte } from './engine/affichage.js';
 // Direction rows belong to each sheet, not to the LPC family as a whole.
 const HERO_ROWS = Object.freeze({ east: 3 });
@@ -30,14 +31,23 @@ const queue = createSceneQueue((type, detail) => {
   if (type === 'combat') {
     attackAt = time; dying = detail.defeated; strong = detail.strong;
     damage = detail.damage; taken = detail.taken || 0; isBoss = detail.boss; heroRatio = detail.health;
-    if (!discret()) for (let i = 0; i < (strong ? 30 : 10); i++) sparks.push({start:time + 330,x:556,y:270,vx:Math.cos(i*2.4)*(25+i*3),vy:-30-i*5});
+    if (!discret()) ajouterEtincelles(sparks, Array.from({ length: strong ? 30 : 10 }, (_, i) => ({start:time + 330,x:556,y:270,vx:Math.cos(i*2.4)*(25+i*3),vy:-30-i*5})));
   } else if (type === 'spawn') { dying = false; isBoss = detail.boss; spawnAt = time; }
   for (const { nom, delaiMs } of sonsPourEvenement(type, detail, { mouvementReduit: reduit() })) sons.push({ nom, at: time + delaiMs });
 });
+// En pause, la boucle d'images s'arrête après une dernière image ; un événement ou la reprise la relance.
+let boucleActive = true, imageFinalePosee = false, evenementEnAttente = false;
+function reveiller() {
+  evenementEnAttente = true;
+  if (boucleActive) return;
+  boucleActive = true; previous = 0;
+  requestAnimationFrame(draw);
+}
 function receive(type, detail) {
-  if (type === 'braise:pause') paused = detail;
+  if (type === 'braise:pause') { paused = detail; if (!paused) imageFinalePosee = false; }
   else if (type === 'braise:affichage') affichage = normaliserAffichage(detail);
   else queue.push(type.slice(7), detail, time);
+  reveiller();
 }
 // game.js s'exécute avant cette scène : on rejoue d'abord ce qu'il a déjà émis, puis on écoute en direct.
 const backlog = window.braiseBacklog || [];
@@ -140,6 +150,9 @@ function draw(now) {
   tree(-50,255,1.65,true);tree(825,265,1.8,true);tree(710,390,1.5,false);
   const shade=ctx.createLinearGradient(0,0,0,480);shade.addColorStop(0,'#101d3b88');shade.addColorStop(.5,'#17243c00');shade.addColorStop(1,'#07151d77');ctx.fillStyle=shade;ctx.fillRect(0,0,960,480);
   if(!reduit()&&!discret())for(let i=0;i<15;i++){const x=(i*163+Math.sin(t/2500+i)*32)%960,y=120+(i*73)%280+Math.sin(t/1700+i)*14;ctx.globalAlpha=.2+(Math.sin(t/700+i)+1)*.25;ctx.fillStyle='#dfdf9f';ctx.fillRect(x,y,2,2);}ctx.globalAlpha=1;
-  ctx.restore();requestAnimationFrame(draw);
+  ctx.restore();
+  imageFinalePosee = paused; evenementEnAttente = false;
+  if (doitRedessiner({ pause: paused, imageFinalePosee, evenementEnAttente })) requestAnimationFrame(draw);
+  else boucleActive = false;
 }
 requestAnimationFrame(draw);
