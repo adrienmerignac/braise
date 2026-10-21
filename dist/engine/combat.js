@@ -6,6 +6,7 @@ import {
   XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, ENEMY_KINDS, ENEMY_CATALOG,
   RETALIATION_BASE, RETALIATION_BOSS_BASE, RETALIATION_PER_STAGE, RETALIATION_ARMOR_REDUCTION,
 } from './balance.js';
+import { soinVictoire } from './talents.js';
 import { bonusEquipement, tirerButin, ajouterObjet } from './equipement.js';
 
 export {
@@ -98,7 +99,7 @@ export function strike(s, f, mult = 1, rng = null) {
       events.push({ type: 'bossVictory', stage: s.stage, gold, xp: XP_BOSS, healed });
     } else {
       s = { ...s, kills: Math.min(KILLS_PER_STAGE, s.kills + 1) };
-      const healed = Math.min(maxHP(s), f.hp + HEAL_ON_VICTORY) - f.hp;
+      const healed = Math.min(maxHP(s), f.hp + soinVictoire(s)) - f.hp;
       f = { ...f, hp: f.hp + healed };
       events.push({ type: 'victory', gold, xp: XP_ENEMY, healed });
     }

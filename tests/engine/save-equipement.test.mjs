@@ -11,32 +11,32 @@ const mem = (init = {}) => ({ data: { ...init }, getItem(k) { return k in this.d
 const epee = creerObjet('arme', 'rare', 4);
 const cuirasse = creerObjet('armure', 'commun', 2);
 const charme = creerObjet('charme', 'epique', 7);
-const avecObjets = { ...base, inventaire: [cuirasse, charme], equipe: { arme: epee } };
+const avecObjets = { ...base, inventaire: [cuirasse, charme], equipe: { arme: epee }, talents: {} };
 
-test('schéma : la version courante est la 3', () => assert.equal(SAVE_VERSION, 3));
+test('schéma : la version courante est la 4', () => assert.equal(SAVE_VERSION, 4));
 
 test('partie v2 existante : rechargée à l’identique, inventaire vide, rien d’équipé, aucune réparation', () => {
   const r = parseSave(JSON.stringify({ version: 2, ...base, guide: 'todo', vus: [] }), NOW);
   assert.equal(r.status, 'ok');
-  assert.deepEqual(r.s, { ...base, inventaire: [], equipe: {} });
+  assert.deepEqual(r.s, { ...base, inventaire: [], equipe: {}, talents: {} });
   assert.equal(r.guide, 'todo');
 });
 
-test('partie v1 (sans version) : migrée jusqu’à la v3 avec les défauts', () => {
-  assert.deepEqual(migrate(base), { ...base, version: 3, inventaire: [], equipe: {} });
+test('partie v1 (sans version) : migrée jusqu’à la v4 avec les défauts', () => {
+  assert.deepEqual(migrate(base), { ...base, version: 4, inventaire: [], equipe: {}, talents: {} });
   const r = parseSave(JSON.stringify(base), NOW);
   assert.equal(r.status, 'ok');
   assert.deepEqual([r.s.inventaire, r.s.equipe], [[], {}]);
 });
 
-test('loadSave : une partie v2 stockée est reprise puis réécrite en v3 sans perte', () => {
+test('loadSave : une partie v2 stockée est reprise puis réécrite en v4 sans perte', () => {
   const st = mem({ [SAVE_KEY]: JSON.stringify({ version: 2, ...base }) });
   const l = loadSave(st, NOW);
   assert.equal(l.status, 'ok');
   assert.equal(l.s.gold, 120);
   assert.equal(writeSave(st, l.s, undefined, l.guide, l.vus, l.audio, l.affichage), true);
   const ecrit = JSON.parse(st.data[SAVE_KEY]);
-  assert.equal(ecrit.version, 3);
+  assert.equal(ecrit.version, 4);
   assert.deepEqual([ecrit.inventaire, ecrit.equipe, ecrit.gold], [[], {}, 120]);
 });
 
@@ -58,7 +58,7 @@ test('export/import : les objets sont couverts', () => {
 });
 
 test('fichier d’une version plus récente : toujours refusé, sauvegarde non écrasée', () => {
-  const futur = JSON.stringify({ version: 4, ...avecObjets });
+  const futur = JSON.stringify({ version: 5, ...avecObjets });
   assert.deepEqual(importSave(futur, NOW), { ok: false, motif: 'future' });
   const st = mem({ [SAVE_KEY]: futur });
   assert.equal(writeSave(st, fresh(NOW)), false);

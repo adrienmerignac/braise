@@ -19,6 +19,16 @@ test('snapshot : premier achat et premier gardien', () => {
   assert.equal(r.stageReached, 25);
 });
 
+test('talents : assaut max et rempart max atteignent le premier gardien dans le budget de temps', () => {
+  const sans = simulate({ minutes: 30 });
+  for (const id of ['assaut', 'rempart']) {
+    const r = simulate({ minutes: 30, build: [id, id, id] });
+    assert.ok(r.firstBossSeconds !== null && r.firstBossSeconds <= 60, `${id} : ${r.firstBossSeconds} s`);
+    assert.ok(r.stageReached > sans.stageReached, `${id} : étage ${r.stageReached} vs ${sans.stageReached}`);
+  }
+  assert.equal(sans.firstBossSeconds, 34.8);
+});
+
 test('les modules exposent les constantes centralisées', () => {
   for (const [k, v] of Object.entries(balance)) {
     const exposed = k in state ? state[k] : k in combat ? combat[k] : k in offline ? offline[k] : undefined;

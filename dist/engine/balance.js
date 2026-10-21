@@ -73,3 +73,12 @@ export const RECYCLE_CONFIRM_RARITIES = ['rare', 'epique'];
 export const EQUIPMENT_UPGRADE_MAX = 5;
 export const EQUIPMENT_UPGRADE_BASE_COST = { commun: 20, rare: 45, epique: 90 };
 export const EQUIPMENT_UPGRADE_STAT = { attaque: 1, vieMax: 4, reductionRiposte: 0, or: 1 };
+
+// Talents (M3.5a) : 1 point au niveau 3 puis 1 tous les 3 niveaux (points = floor((niveau − 1) / TALENT_LEVELS_PER_POINT)), 3 rangs maximum par talent.
+// Effets par rang : attaque et vie max en multiplicateur (arrondi), soin de victoire en or fixe, or de victoire en multiplicateur, recharge en secondes.
+export const TALENT_LEVELS_PER_POINT = 3, TALENT_MAX_RANK = 3;
+export const TALENT_IDS = ['assaut', 'rempart', 'fortune', 'braise'];
+export const TALENT_ASSAULT_ATTACK = 0.1;
+export const TALENT_RAMPART_HEALTH = 0.08, TALENT_RAMPART_HEAL = 3;
+export const TALENT_FORTUNE_GOLD = 0.1;
+export const TALENT_BRAISE_COOLDOWN = 2;

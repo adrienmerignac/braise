@@ -4,7 +4,8 @@ import { AUDIO_DEFAUT, reglagesValides } from './audio.js';
 import { AFFICHAGE_DEFAUT, MOUVEMENTS, EFFETS, affichageValide, normaliserAffichage } from './affichage.js';
 import { SAVE_KEY, BACKUP_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP } from './state.js';
 import { enemyMaxHP } from './combat.js';
-import { ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, EQUIPMENT_BASE, EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, INVENTORY_CAP, EQUIPMENT_UPGRADE_MAX } from './balance.js';
+import { pointsTalents, rechargeCompetence } from './talents.js';
+import { ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, EQUIPMENT_BASE, EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, INVENTORY_CAP, EQUIPMENT_UPGRADE_MAX, TALENT_IDS, TALENT_MAX_RANK } from './balance.js';
 
 export const COOLDOWN_SECONDS = 15;
 
@@ -19,13 +20,14 @@ const isRecord = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const validInt = (v, min, max) => typeof v === 'number' && Number.isSafeInteger(v) && v >= min && v <= max;
 
 // Migre un enregistrement jusqu'à la version courante, sans perte : v1 (sans `version`) → v2 (version ajoutée),
-// v2 → v3 (`inventaire` vide et `equipe` vide ajoutés s'ils manquent). Une version inconnue ou un non-objet est rendu
+// v2 → v3 (`inventaire` vide et `equipe` vide ajoutés s'ils manquent), v3 → v4 (`talents` vide ajouté s'il manque). Une version inconnue ou un non-objet est rendu
 // tel quel ; `parseSave` le refusera.
 export function migrate(raw) {
   if (!isRecord(raw)) return raw;
   let data = raw;
   if (data.version === undefined) data = { ...data, version: 2 };
-  if (data.version === 2) data = { inventaire: [], equipe: {}, ...data, version: SAVE_VERSION };
+  if (data.version === 2) data = { inventaire: [], equipe: {}, ...data, version: 3 };
+  if (data.version === 3) data = { talents: {}, ...data, version: SAVE_VERSION };
   return data;
 }
 
@@ -76,6 +78,22 @@ function parseEquipement(data) {
   return res;
 }
 
+// `talents` : identifiants connus, rangs entiers 0..TALENT_MAX_RANK, total ≤ points du niveau. Le moindre défaut remet `{}` (le reste de la partie est conservé) ;
+// absent (parties d'avant M3.5a), c'est le défaut sans réparation. Les rangs à 0 sont omis. Dépend de `level` : à appeler une fois `s` lu.
+function parseTalents(data, s) {
+  if (data.talents === undefined) return { talents: {}, repaired: false };
+  const t = data.talents, talents = {};
+  let total = 0, ok = isRecord(t);
+  if (ok) {
+    for (const [id, r] of Object.entries(t)) {
+      if (!TALENT_IDS.includes(id) || !validInt(r, 0, TALENT_MAX_RANK)) { ok = false; break; }
+      if (r > 0) talents[id] = r;
+      total += r;
+    }
+  }
+  return ok && total <= pointsTalents(s) ? { talents, repaired: false } : { talents: {}, repaired: true };
+}
+
 // Texte écrit en stockage et dans les fichiers d'export. `fight` (facultatif) : { hp, boss, enemyHP, cool }.
 // La pause n'est jamais persistée : on reprend toujours en jeu actif.
 // `guide` : avancement du premier parcours ('todo' | 'done'), absent si non fourni.
@@ -105,7 +123,7 @@ function parseFight(data, s, now) {
     if (ok(data[key])) set(data[key]); else repaired = true;
   };
   check('hp', v => validInt(v, 1, maxHP(s)), v => { fight.hp = v; });
-  check('cool', v => validInt(v, 0, COOLDOWN_SECONDS), v => { fight.cool = Math.max(0, v - Math.floor(Math.max(0, now - s.last) / 1000)); });
+  check('cool', v => validInt(v, 0, COOLDOWN_SECONDS), v => { fight.cool = Math.max(0, Math.min(v, rechargeCompetence(s)) - Math.floor(Math.max(0, now - s.last) / 1000)); });
   // L'adversaire est valide ou ignoré en bloc : ses PV maximaux dépendent de `boss`.
   const hasEnemy = data.boss !== undefined || data.enemyHP !== undefined;
   const boss = data.boss === undefined ? false : data.boss;
@@ -149,6 +167,9 @@ export function parseSave(text, now) {
   const eq = parseEquipement(data);
   s.inventaire = eq.inventaire; s.equipe = eq.equipe;
   if (eq.repaired) repaired = true;
+  const tal = parseTalents(data, s);
+  s.talents = tal.talents;
+  if (tal.repaired) repaired = true;
   const f = parseFight(data, s, now);
   if (f.repaired) repaired = true;
   let guide = defaultGuide(s);

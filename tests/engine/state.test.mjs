@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { fresh, attack, maxHP, reward, cost, KILLS_PER_STAGE } from '../../dist/engine/state.js';
 
 test('fresh utilise l’horloge injectée', () => {
-  assert.deepEqual(fresh(1234), { gold: 0, xp: 0, level: 1, stage: 1, kills: 0, weapon: 0, armor: 0, luck: 0, last: 1234, inventaire: [], equipe: {} });
+  assert.deepEqual(fresh(1234), { gold: 0, xp: 0, level: 1, stage: 1, kills: 0, weapon: 0, armor: 0, luck: 0, last: 1234, inventaire: [], equipe: {}, talents: {} });
   assert.equal(KILLS_PER_STAGE, 5);
 });
 
