@@ -13,13 +13,13 @@ const assets = {};
 const files = ['hero-walk','hero-swing','hero-hurt','goblin-sword','grass','dirt','treetop','trunk','rock','chests'];
 let failed = false;
 let time = 0, previous = 0, paused = false, attackAt = -5000, spawnAt = 0;
-let dying = false, strong = false, isBoss = false, damage = 0, heroRatio = 1;
+let dying = false, strong = false, isBoss = false, damage = 0, taken = 0, heroRatio = 1;
 const sparks = [];
 // Les événements du jeu sont tamponnés jusqu'à la fin du chargement des images (et de la chute en cours).
 const queue = createSceneQueue((type, detail) => {
   if (type === 'combat') {
     attackAt = time; dying = detail.defeated; strong = detail.strong;
-    damage = detail.damage; isBoss = detail.boss; heroRatio = detail.health;
+    damage = detail.damage; taken = detail.taken || 0; isBoss = detail.boss; heroRatio = detail.health;
     for (let i = 0; i < (strong ? 30 : 10); i++) sparks.push({start:time + 330,x:556,y:270,vx:Math.cos(i*2.4)*(25+i*3),vy:-30-i*5});
   } else if (type === 'spawn') { dying = false; isBoss = detail.boss; spawnAt = time; }
 });
@@ -110,6 +110,8 @@ function draw(now) {
   }
   for(let i=sparks.length-1;i>=0;i--){const p=sparks[i],a=(time-p.start)/1000;if(a>1){sparks.splice(i,1);continue}if(a<0||reduced.matches)continue;ctx.globalAlpha=1-a;ctx.fillStyle=strong?'#ffd47e':'#e4c8a2';ctx.fillRect(p.x+p.vx*a,p.y+p.vy*a+100*a*a,4,4);ctx.globalAlpha=1;}
   if(age>330&&age<1050){const a=(age-330)/720;ctx.globalAlpha=1-a;ctx.font=`bold ${strong?30:23}px monospace`;ctx.textAlign='center';ctx.fillStyle='#19202c';ctx.fillText(`−${damage}`,582,215-a*32);ctx.fillStyle=strong?'#ffdb89':'#fff4db';ctx.fillText(`−${damage}`,580,213-a*32);ctx.globalAlpha=1;}
+  // Dégâts reçus : signe − et suffixe PV (jamais la couleur seule) ; sans flottement en mouvement réduit.
+  if(taken>0&&age>680&&age<1500){const a=(age-680)/820;ctx.globalAlpha=Math.min(1,2*(1-a));ctx.font='bold 22px monospace';ctx.textAlign='center';const y=190-(reduced.matches?0:a*28);ctx.fillStyle='#19202c';ctx.fillText(`−${taken} PV`,397,y+2);ctx.fillStyle='#ff9d8a';ctx.fillText(`−${taken} PV`,395,y);ctx.globalAlpha=1;}
   ctx.fillStyle='#1a2b27';ctx.fillRect(365,207,62,4);ctx.fillStyle='#bfd4a0';ctx.fillRect(365,207,62*heroRatio,4);
   tree(-50,255,1.65,true);tree(825,265,1.8,true);tree(710,390,1.5,false);
   const shade=ctx.createLinearGradient(0,0,0,480);shade.addColorStop(0,'#101d3b88');shade.addColorStop(.5,'#17243c00');shade.addColorStop(1,'#07151d77');ctx.fillStyle=shade;ctx.fillRect(0,0,960,480);
