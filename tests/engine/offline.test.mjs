@@ -16,12 +16,21 @@ test('même durée, même gain, quel que soit le point d’entrée', () => {
   assert.equal(a.s.gold, a.gold);
 });
 
-test('1 h d’absence : moitié moins de victoires qu’avec l’ancien facteur 1,2 (arrondi bas)', () => {
+test('même durée d’absence : mêmes gains, onglet masqué puis revenu ou rechargement', () => {
+  const s = fresh(T0), enCombat = { hp: 5, boss: false, enemyHP: 10, enemyMax: 40 };
+  const rechargement = offlineGains(s, apres(7200));
+  const ongletMasque = offlineGains(s, apres(7200), enCombat);
+  assert.equal(ongletMasque.wins, rechargement.wins);
+  assert.equal(ongletMasque.gold, rechargement.gold);
+  assert.ok(rechargement.wins > 0);
+});
+
+test('1 h d’absence : un quart des victoires de l’ancien facteur 1,2 (arrondi bas)', () => {
   const s = fresh(T0), ANCIEN_FACTEUR = 1.2;
   const coups = Math.ceil(enemyMaxHP(s, false) / heroDamage(s, false));
   const ancien = Math.floor(3600 / (coups * ANCIEN_FACTEUR));
-  assert.equal(OFFLINE_FIGHT_FACTOR, 2.4);
-  assert.equal(offlineGains(s, apres(3600)).wins, Math.floor(ancien / 2));
+  assert.equal(OFFLINE_FIGHT_FACTOR, 4.8);
+  assert.equal(offlineGains(s, apres(3600)).wins, Math.floor(ancien / 4));
 });
 
 test('plafond de 8 h', () => {
