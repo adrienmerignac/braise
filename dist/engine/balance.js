@@ -12,6 +12,8 @@ export const BASE_REWARD = 8, REWARD_PER_STAGE = 3, REWARD_PER_LUCK = 3;
 // Améliorations
 export const BASE_COSTS = { weapon: 24, armor: 30, luck: 40 };
 export const COST_GROWTH = 1.6;
+// Niveau maximal de chaque amélioration (M5.5) : au-delà, 24 × 1,6^niveau dépasse 1e308 (Infinity vers le niveau 1500) ; le coût reste fini et l'achat est refusé.
+export const UPGRADE_MAX_LEVEL = 200;
 
 // Expérience, gardien, soins, ennemis
 export const XP_PER_LEVEL = 35;

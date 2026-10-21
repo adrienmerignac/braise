@@ -1,7 +1,7 @@
 // Récompenses et résolution de combat : fonctions pures, sans DOM ni horloge.
 // `s` est l'état persisté (schéma braise-v1) ; `f` l'état de combat, non persisté : { hp, boss, enemyHP, enemyMax }.
 // Chaque fonction renvoie { s, f, events } sans modifier ses arguments ; game.js applique les événements.
-import { KILLS_PER_STAGE, attack, maxHP, reward, cost, zoneDeEtage } from './state.js';
+import { KILLS_PER_STAGE, attack, maxHP, reward, cost, upgradeAtMax, zoneDeEtage } from './state.js';
 import {
   XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, BESTIAIRE, ENEMY_CATALOG,
   ZONES, RETALIATION_BASE, RETALIATION_BOSS_BASE, RETALIATION_PER_STAGE, RETALIATION_ARMOR_REDUCTION,
@@ -92,7 +92,7 @@ export function startBoss(s, f) {
 }
 
 export function buyUpgrade(s, f, kind) {
-  if (s.gold < cost(s, kind)) return { s, f, events: [] };
+  if (upgradeAtMax(s, kind) || s.gold < cost(s, kind)) return { s, f, events: [] };
   s = { ...s, gold: s.gold - cost(s, kind), [kind]: s[kind] + 1 };
   if (kind === 'armor') f = { ...f, hp: f.hp + HEAL_ON_ARMOR };
   return { s, f, events: [{ type: 'upgrade', kind, level: s[kind], ...(kind === 'armor' && { healed: HEAL_ON_ARMOR }) }] };
