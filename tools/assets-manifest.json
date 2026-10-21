@@ -32,6 +32,46 @@
    "sha256": "ca2d26579be3738be5abfb74cea388634e212fb991b84701deeda65da4780f1c"
   },
   {
+   "chemin": "assets/icons/apple-touch-icon-180.png",
+   "source": {
+    "type": "derive",
+    "script": "tools/make-icons.mjs",
+    "origine": "assets/lpc/portrait.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "c52634d3fe21b4a4a385180ed5b97565b9dcca6ecf80629f007543093d6f102a"
+  },
+  {
+   "chemin": "assets/icons/icon-192.png",
+   "source": {
+    "type": "derive",
+    "script": "tools/make-icons.mjs",
+    "origine": "assets/lpc/portrait.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "6a5e6b608c0c0579282a1af1cf17af7dce03a7c2b9ff92cc7f4f8c88c5b79edb"
+  },
+  {
+   "chemin": "assets/icons/icon-512.png",
+   "source": {
+    "type": "derive",
+    "script": "tools/make-icons.mjs",
+    "origine": "assets/lpc/portrait.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "459f4722c9ad36646cebea41e925b9a781b3dce5e4b041b14d89b972f1d270b3"
+  },
+  {
+   "chemin": "assets/icons/icon-maskable-512.png",
+   "source": {
+    "type": "derive",
+    "script": "tools/make-icons.mjs",
+    "origine": "assets/lpc/portrait.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "a4500c6e90e8dd72d281f985e658bf78527ca0d286144e07fd7f3a6fe025b07f"
+  },
+  {
    "chemin": "assets/lpc/bat.png",
    "source": {
     "type": "lpc",

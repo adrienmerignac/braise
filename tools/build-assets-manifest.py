@@ -12,6 +12,8 @@ for path in sorted(assets.rglob('*.png')):
     name = path.name
     if path.parent.name == 'Tiles':
         source, licence = {'type': 'kenney', 'pack': 'Tiny Dungeon'}, 'CC0'
+    elif path.parent.name == 'icons':
+        source, licence = {'type': 'derive', 'script': 'tools/make-icons.mjs', 'origine': 'assets/lpc/portrait.png'}, 'CC-BY-SA-3.0'
     elif path.parent.name == 'lpc' and name in derived:
         source, licence = {'type': 'derive', 'script': 'tools/compose-hero.py'}, 'CC-BY-SA-3.0'
     elif path.parent.name == 'lpc' and name in upstream:
