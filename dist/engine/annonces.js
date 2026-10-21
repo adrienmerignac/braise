@@ -29,6 +29,8 @@ export function annoncePour(e) {
       return `Objet trouvé : ${libelleObjet(e.objet)}.${e.converti ? ` Inventaire plein : ${libelleObjet(e.converti.objet)} converti en ${e.converti.or} or.` : ''}`;
     case 'objectif':
       return `Objectif accompli : ${ZONES[e.zone].nom} — ${faitObjectif(e.zone, e.id)}, +${e.or} or.`;
+    case 'succes':
+      return `Succès obtenu : ${e.libelle}.`;
     case 'achatImpossible':
       return 'Achat impossible : pas assez d’or.';
     case 'sauvegardeFuture':

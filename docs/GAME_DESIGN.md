@@ -111,7 +111,8 @@ Neuf succès, obtenus une seule fois, **informatifs** : aucun or, aucun bonus, a
 - **Objectifs** : accomplir les 6 objectifs de zone ; lire les 4 récits.
 - **Build** : équiper un objet épique ; investir 5 points de talent.
 
-Évalués en session après chaque changement (victoire, gardien, équipement, talent, récit lu, voyage) ; l'absence n'en déclenche aucun. Une partie reprise reçoit sans annonce les succès déjà remplis. Pour l'instant, seule une ligne du journal annonce un succès ; l'encart et la liste viennent ensuite.
+Évalués en session après chaque changement (victoire, gardien, équipement, talent, récit lu, voyage) ; l'absence n'en déclenche aucun. Une partie reprise reçoit sans annonce les succès déjà remplis. 
+**Affichage** : section « Succès » du panneau Carte, après le bestiaire (compteur « 3 / 9 succès », puis libellé, état écrit « Obtenu » / « À obtenir » et progrès chiffré quand la cible dépasse 1). À chaque succès obtenu en session : une ligne du journal et un encart non bloquant « Succès obtenu » (bouton Fermer, Échap), en file d'attente : jamais avant la fin du guide ni par-dessus un autre encart ouvert, un seul à la fois, une annonce polie par succès. La file n'est pas sauvegardée : un succès déjà obtenu n'est jamais réannoncé au rechargement.
 
 ## Objectifs à valider
 
