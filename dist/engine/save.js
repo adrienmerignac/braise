@@ -5,6 +5,7 @@ import { AFFICHAGE_DEFAUT, MOUVEMENTS, EFFETS, affichageValide, normaliserAffich
 import { SAVE_KEY, BACKUP_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP, zoneDeEtage } from './state.js';
 import { enemyMaxHP } from './combat.js';
 import { objectifsNeufs, gardienDepasse } from './objectifs.js';
+import { bestiaireMigre, lireBestiaire } from './bestiaire.js';
 import { RECIT_IDS, recitsDebloques } from './recits.js';
 import { pointsTalents, rechargeCompetence } from './talents.js';
 import { UPGRADE_MAX_LEVEL, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, EQUIPMENT_BASE, EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, INVENTORY_CAP, EQUIPMENT_UPGRADE_MAX, TALENT_IDS, TALENT_MAX_RANK, ZONE_IDS, OBJECTIFS, OBJECTIF_IDS } from './balance.js';
@@ -23,7 +24,7 @@ const isRecord = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const validInt = (v, min, max) => typeof v === 'number' && Number.isSafeInteger(v) && v >= min && v <= max;
 
 // Migre un enregistrement jusqu'à la version courante, sans perte : v1 (sans `version`) → v2 (version ajoutée),
-// v2 → v3 (`inventaire` vide et `equipe` vide ajoutés s'ils manquent), v3 → v4 (`talents` vide ajouté s'il manque), v4 → v5 (`meilleurEtage` = étage, `zone` = zone qui contient l'étage), v6 → v7 (`recitsLus` : récits débloqués par `meilleurEtage` marqués lus), v5 → v6 (`objectifs` : chasse à 0, gardien accompli et son or versé une fois pour chaque zone dont la cible est dépassée). Une version inconnue ou un non-objet est rendu
+// v2 → v3 (`inventaire` vide et `equipe` vide ajoutés s'ils manquent), v3 → v4 (`talents` vide ajouté s'il manque), v4 → v5 (`meilleurEtage` = étage, `zone` = zone qui contient l'étage), v7 → v8 (`bestiaire`), v6 → v7 (`recitsLus` : récits débloqués par `meilleurEtage` marqués lus), v5 → v6 (`objectifs` : chasse à 0, gardien accompli et son or versé une fois pour chaque zone dont la cible est dépassée). Une version inconnue ou un non-objet est rendu
 // tel quel ; `parseSave` le refusera.
 function migrerObjectifs(data) {
   const objectifs = objectifsNeufs();
@@ -47,6 +48,8 @@ export function migrate(raw) {
   if (data.version === 5) data = migrerObjectifs(data);
   // v6 → v7 : les récits déjà débloqués par `meilleurEtage` sont considérés comme lus (pas de rafale au chargement).
   if (data.version === 6) data = { ...data, recitsLus: recitsDebloques(Number.isInteger(data.meilleurEtage) ? data.meilleurEtage : 0), version: 7 };
+  // v7 → v8 : `bestiaire` déduit de `meilleurEtage` (types des zones atteintes vus, gardiens battus vus, 0 victoire).
+  if (data.version === 7) data = { ...data, bestiaire: bestiaireMigre(data.meilleurEtage), version: 8 };
   return data;
 }
 
@@ -215,6 +218,9 @@ export function parseSave(text, now) {
   // `recitsLus` : identifiants connus, sans doublon. Absent : récits déjà débloqués considérés comme lus (comme `vus`) ; non-tableau : même défaut, réparé.
   if (Array.isArray(data.recitsLus)) s.recitsLus = RECIT_IDS.filter(id => data.recitsLus.includes(id));
   else { s.recitsLus = recitsDebloques(s.meilleurEtage); if (data.recitsLus !== undefined) repaired = true; }
+  const bes = lireBestiaire(data.bestiaire);
+  s.bestiaire = bes.bestiaire;
+  if (bes.repaired) repaired = true;
   const f = parseFight(data, s, now);
   if (f.repaired) repaired = true;
   let guide = defaultGuide(s);

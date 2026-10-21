@@ -25,6 +25,7 @@ const PRECACHE = [
   'engine/objectifs.js',
   'engine/offline.js',
   'engine/pwa.js',
+  'engine/bestiaire.js',
   'engine/recits.js',
   'engine/save.js',
   'engine/scene-queue.js',

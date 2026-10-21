@@ -15,6 +15,7 @@ import {offlineGains} from './engine/offline.js';
 import {rechargeCompetence,investir,reinitialiserTalents,pointsLibres,pointsDepenses,TALENT_IDS} from './engine/talents.js';
 import {decrireCarte,decrireRecits,recitAAfficher,messageVoyage} from './engine/carte.js';
 import {RECITS,marquerRecitLu} from './engine/recits.js';
+import {marquerVu,cleEnnemi} from './engine/bestiaire.js';
 import {voyager,ZONE_IDS} from './engine/zones.js';
 import {nomTalent,rangTexte,effetSuivant,pointsTexte,investissable,libelleInvestir,comparerTalent,messageInvestir,texteConfirmation} from './engine/talents-libelles.js';
 import {ATTACK_INTERVAL_MS,SKILL_MULT,SKILL_COOLDOWN_SECONDS,ATTACK_PER_WEAPON,HEALTH_PER_ARMOR,REWARD_PER_LUCK,OFFLINE_CAP_SECONDS,BOSS_HP_MULT,BOSS_GOLD_MULT,RETALIATION_BASE,RETALIATION_BOSS_BASE,ENEMY_CATALOG,INVENTORY_CAP} from './engine/balance.js';
@@ -23,6 +24,7 @@ const $=id=>document.getElementById(id);
 const fresh=()=>freshState(Date.now());
 let s,loadStatus,loadSecours,loadBrut,saved,guide,vus,audioSet,affichageSet;{const l=loadSave((()=>{try{return localStorage}catch{return {getItem(){throw Error()}}}})(),Date.now());s=l.s;loadStatus=l.status;loadSecours=l.secours;loadBrut=l.brut;saved=l.fight||{};guide=l.guide||'todo';vus=l.vus||[];audioSet=normaliserReglages(l.audio);affichageSet=normaliserAffichage(l.affichage)}
 let paused=false,cool=saved.cool||0,f=restoreFight(s,saved),saveOk=true,lectureSeule=loadStatus==='future';
+s=marquerVu(s,cleEnnemi(f.boss,s.zone,enemyKind(s)));
 const attack=()=>attackOf(s),maxHP=()=>maxHPOf(s),reward=()=>rewardOf(s),cost=k=>costOf(s,k);
 const names=Object.fromEntries(Object.entries(ENEMY_CATALOG).map(([k,v])=>[k,v.name]));
 function log(t){$('message').textContent=t}function setVit(t){$('vitdelta').textContent=t}const gain=n=>n>0?` · +${n} vitalité`:'';function save(){if(lectureSeule)return;s.last=Date.now();let ok=false;try{ok=writeSave(localStorage,s,{hp:f.hp,boss:f.boss,enemyHP:f.enemyHP,cool},guide,vus,audioSet,affichageSet)}catch{}if(!ok){saveOk=false;$('saved').textContent='Sauvegarde indisponible'}else if(!saveOk){saveOk=true;$('saved').textContent='● Sauvegarde automatique'}}
