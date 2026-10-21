@@ -2,7 +2,7 @@
 // Le stockage est injecté (localStorage dans le jeu, un faux dans les tests).
 import { AUDIO_DEFAUT, reglagesValides } from './audio.js';
 import { AFFICHAGE_DEFAUT, MOUVEMENTS, EFFETS, affichageValide, normaliserAffichage } from './affichage.js';
-import { SAVE_KEY, BACKUP_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP, zoneDeEtage } from './state.js';
+import { SAVE_KEY, BACKUP_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, rallumageNeuf, maxHP, zoneDeEtage } from './state.js';
 import { enemyMaxHP } from './combat.js';
 import { objectifsNeufs, gardienDepasse } from './objectifs.js';
 import { bestiaireMigre, lireBestiaire } from './bestiaire.js';
@@ -10,7 +10,7 @@ import { succesRemplis, lireSucces } from './succes.js';
 import { lireAutomatismes } from './automatismes.js';
 import { RECIT_IDS, recitsDebloques } from './recits.js';
 import { pointsTalents, rechargeCompetence } from './talents.js';
-import { UPGRADE_MAX_LEVEL, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, EQUIPMENT_BASE, EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, INVENTORY_CAP, EQUIPMENT_UPGRADE_MAX, TALENT_IDS, TALENT_MAX_RANK, ZONE_IDS, OBJECTIFS, OBJECTIF_IDS } from './balance.js';
+import { UPGRADE_MAX_LEVEL, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, EQUIPMENT_BASE, EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, INVENTORY_CAP, EQUIPMENT_UPGRADE_MAX, TALENT_IDS, TALENT_MAX_RANK, ZONE_IDS, OBJECTIFS, OBJECTIF_IDS, RALLUMAGE_ECLATS_MAX } from './balance.js';
 
 export const COOLDOWN_SECONDS = 15;
 
@@ -58,7 +58,22 @@ export function migrate(raw) {
   if (data.version === 9) data = { ...data, automatismes: { gardien: false }, version: 10 };
   // v10 → v11 : l'achat automatique arrive éteint ; `gardien` est conservé tel quel.
   if (data.version === 10) data = { ...data, automatismes: { ...(isRecord(data.automatismes) ? data.automatismes : {}), achat: false }, version: 11 };
+  // v11 → v12 : `rallumage` neuf, record = meilleur étage ; la partie reprend à l'identique (0 éclat = ×1).
+  if (data.version === 11) data = { ...data, rallumage: { eclats: 0, nombre: 0, record: Number.isInteger(data.meilleurEtage) ? data.meilleurEtage : Number.isInteger(data.stage) ? data.stage : 1 }, version: 12 };
   return data;
+}
+
+// `rallumage` : entiers positifs bornés, record au moins égal au meilleur étage ; absent → neuf ; non-objet → neuf, réparé.
+function lireRallumage(brut, s) {
+  const neuf = { ...rallumageNeuf(), record: s.meilleurEtage };
+  if (brut === undefined) return { rallumage: neuf, repaired: false };
+  if (!isRecord(brut)) return { rallumage: neuf, repaired: true };
+  let repaired = false;
+  const lire = (v, max, defaut) => (validInt(v, 0, max) ? v : (repaired = true, defaut));
+  const eclats = lire(brut.eclats, RALLUMAGE_ECLATS_MAX, 0), nombre = lire(brut.nombre, MAX_BONUS, 0);
+  // Le record n'est pas mis à jour pendant la partie : plus bas que le meilleur étage, il est relevé sans réparation.
+  const record = validInt(brut.record, 0, MAX_STAGE) ? Math.max(brut.record, s.meilleurEtage) : (repaired = true, s.meilleurEtage);
+  return { rallumage: { eclats, nombre, record }, repaired };
 }
 
 const MAX_BONUS = 1e9;
@@ -235,6 +250,9 @@ export function parseSave(text, now) {
   const aut = lireAutomatismes(data.automatismes, s);
   s.automatismes = aut.automatismes;
   if (aut.repaired) repaired = true;
+  const ral = lireRallumage(data.rallumage, s);
+  s.rallumage = ral.rallumage;
+  if (ral.repaired) repaired = true;
   const f = parseFight(data, s, now);
   if (f.repaired) repaired = true;
   let guide = defaultGuide(s);

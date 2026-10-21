@@ -11,7 +11,7 @@ const v11 = (extra = {}) => ({ ...v9(), version: 11, automatismes: NEUFS, ...ext
 const DEBLOQUEE = { stage: 12, meilleurEtage: 12, zone: 'cryptes' };
 const DEBLOQUEE_ACHAT = { stage: 17, meilleurEtage: 17, zone: 'cryptes' };
 
-test('schéma : la version courante est la 11', () => assert.equal(SAVE_VERSION, 11));
+test('schéma : la version courante est la 12', () => assert.equal(SAVE_VERSION, 12));
 
 test('v9 → v11 : tout éteint, même sur une partie débloquée', () => {
   for (const extra of [{}, DEBLOQUEE, DEBLOQUEE_ACHAT]) {
@@ -19,12 +19,12 @@ test('v9 → v11 : tout éteint, même sur une partie débloquée', () => {
     assert.equal(r.status, 'ok');
     assert.deepEqual(r.s.automatismes, NEUFS);
   }
-  assert.deepEqual(migrate({ version: 9, gold: 1 }), { version: 11, gold: 1, automatismes: { gardien: false, achat: false } });
+  assert.deepEqual(migrate({ version: 9, gold: 1 }), { version: 12, gold: 1, automatismes: { gardien: false, achat: false }, rallumage: { eclats: 0, nombre: 0, record: 1 } });
 });
 
 test('v10 → v11 : achat ajouté éteint, gardien intact', () => {
   assert.deepEqual(migrate({ version: 10, automatismes: { gardien: true } }).automatismes, { gardien: true, achat: false });
-  assert.equal(migrate({ version: 10, automatismes: { gardien: true } }).version, 11);
+  assert.equal(migrate({ version: 10, automatismes: { gardien: true } }).version, 12);
   assert.deepEqual(migrate({ version: 10, automatismes: { gardien: false } }).automatismes, NEUFS);
   assert.deepEqual(migrate({ version: 10 }).automatismes, { achat: false });
 });
@@ -74,14 +74,14 @@ test('v11 sans champ : défaut sans réparation', () => {
   assert.deepEqual(r.s.automatismes, NEUFS);
 });
 
-test('v12 : future, jamais écrasée', () => {
-  const t = JSON.stringify({ ...fresh(0), version: 12 });
+test('v13 : future, jamais écrasée', () => {
+  const t = JSON.stringify({ ...fresh(0), version: 13 });
   assert.equal(isFutureSave(t), true);
   assert.equal(parseSave(t, NOW).status, 'future');
 });
 
 test('export/import aller-retour identique', () => {
-  const s = { ...fresh(0), ...DEBLOQUEE_ACHAT, automatismes: { gardien: true, achat: true } };
+  const s = { ...fresh(0), ...DEBLOQUEE_ACHAT, automatismes: { gardien: true, achat: true }, rallumage: { eclats: 0, nombre: 0, record: 17 } };
   const r = importSave(serializeSave(s), NOW);
   assert.equal(r.ok, true);
   assert.deepEqual(r.s.automatismes, { gardien: true, achat: true });

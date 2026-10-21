@@ -8,7 +8,7 @@ const NOW = 1_000_000;
 const lire = data => parseSave(JSON.stringify(data), NOW);
 const v8 = (extra = {}) => { const { succes, ...r } = fresh(0); return { ...r, version: 8, last: 500, stage: 60, meilleurEtage: 60, zone: 'cryptes', ...extra }; };
 
-test('schéma : la version courante est la 11', () => assert.equal(SAVE_VERSION, 11));
+test('schéma : la version courante est la 12', () => assert.equal(SAVE_VERSION, 12));
 
 test('v8 à l’étage 60 avec un épique équipé : succès déjà remplis repris, sans événement', () => {
   const r = lire(v8({ equipe: { arme: creerObjet('arme', 'epique', 5) } }));
@@ -37,14 +37,14 @@ test('v9 sans champ : liste déduite, sans réparation', () => {
   assert.deepEqual(r.s.succes, ['etage25', 'etage50']);
 });
 
-test('v12 : future, jamais écrasée', () => {
-  const t = JSON.stringify({ ...fresh(0), version: 12 });
+test('v13 : future, jamais écrasée', () => {
+  const t = JSON.stringify({ ...fresh(0), version: 13 });
   assert.equal(isFutureSave(t), true);
   assert.equal(parseSave(t, NOW).status, 'future');
 });
 
 test('export/import aller-retour identique', () => {
-  const s = { ...fresh(0), succes: ['etage25', 'epique'], meilleurEtage: 30, equipe: { arme: creerObjet('arme', 'epique', 2) } };
+  const s = { ...fresh(0), succes: ['etage25', 'epique'], meilleurEtage: 30, rallumage: { eclats: 0, nombre: 0, record: 30 }, equipe: { arme: creerObjet('arme', 'epique', 2) } };
   const r = importSave(serializeSave(s), NOW);
   assert.equal(r.ok, true);
   assert.deepEqual(r.s.succes, s.succes);
