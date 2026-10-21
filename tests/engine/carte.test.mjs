@@ -89,6 +89,17 @@ test('interface : « nouveau » après l’ouverture d’une zone, effacé à l�
   assert.equal(jeu.texte('cartenouveau'), '');
 }));
 
+test('zone ouverte : deux objectifs écrits avec progression et récompense, rien pour une zone fermée', () => {
+  const s = partie({ objectifs: { ...fresh(1_000_000).objectifs, foret: { chasse: 12, faits: [] } } });
+  const l = decrireCarte(s);
+  assert.deepEqual(ligne(l, 'foret').objectifs.map(o => o.texte), ['Vaincre 25 ennemis de la zone — 12/25 · 100 or', 'Vaincre le gardien de l’étage 5 — À accomplir · 200 or']);
+  assert.deepEqual(ligne(l, 'ruines').objectifs, []);
+  const fait = decrireCarte(partie({ objectifs: { ...s.objectifs, foret: { chasse: 25, faits: ['chasse'] } } }));
+  const o = ligne(fait, 'foret').objectifs[0];
+  assert.equal(o.accompli, true);
+  assert.equal(o.texte, 'Vaincre 25 ennemis de la zone — ✓ Accompli · 100 or');
+});
+
 test('chaque zone, fermée comprise, annonce son butin en texte', () => {
   const l = decrireCarte(partie(), { boss: false });
   assert.deepEqual(l.map(x => x.butin), ['Butin : armes plus fréquentes', 'Butin : armures plus fréquentes', 'Butin : charmes plus fréquents']);

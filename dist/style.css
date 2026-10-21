@@ -135,6 +135,7 @@ body .inventaire button.primary:enabled{background:var(--orange);color:#30261d}
 .zone p{margin:2px 0 0}
 .zone-etat{font-weight:700}
 .zone>div{flex:1 1 160px;min-width:0}
+.zone-objectifs{list-style:none;margin:4px 0 0;padding:0;overflow-wrap:anywhere}.zone-objectifs:empty{display:none}.zone-objectifs li{margin:2px 0}.zone-objectifs .fait{font-weight:700}
 .zone button{min-height:44px;min-width:44px;flex:0 0 auto}
 .zone button[hidden]{display:none}
 #cartenouveau:not(:empty){color:var(--orange);font-weight:700}

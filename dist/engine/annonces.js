@@ -1,5 +1,5 @@
 import { libelleObjet } from './equipement.js';
-import { ZONES } from './balance.js';
+import { ZONES, OBJECTIFS } from './balance.js';
 
 export const SAUVEGARDE_FUTURE = 'Cette sauvegarde vient d’une version plus récente de Braise. Recharge la page pour retrouver ta partie ; rien n’a été modifié.';
 export const IMPORT_FUTURE = 'Import refusé : ce fichier vient d’une version plus récente de Braise. La partie en cours est inchangée.';
@@ -10,6 +10,9 @@ export function texteGardienVaincu(e) {
   if (e.plafond) return 'Gardien vaincu ! Fin de la zone : la suite se rejoint par la carte.';
   return `Gardien vaincu ! L’étage ${e.stage} s’ouvre.`;
 }
+
+// Ce qui a été fait, au passé, pour l'annonce d'un objectif de zone accompli.
+export const faitObjectif = (zone, id) => (id === 'chasse' ? `${OBJECTIFS[zone].chasse.cible} ennemis vaincus` : `gardien de l’étage ${OBJECTIFS[zone].gardien.cible} vaincu`);
 
 // Décide ce qui est annoncé aux lecteurs d'écran (région #alert) : seulement les événements rares. Pur, sans DOM.
 // Un coup ordinaire, une victoire ordinaire, une recharge ou une mise à jour de barre ne sont jamais annoncés.
@@ -23,6 +26,8 @@ export function annoncePour(e) {
       return `Niveau ${e.level} atteint.`;
     case 'butin':
       return `Objet trouvé : ${libelleObjet(e.objet)}.${e.converti ? ` Inventaire plein : ${libelleObjet(e.converti.objet)} converti en ${e.converti.or} or.` : ''}`;
+    case 'objectif':
+      return `Objectif accompli : ${ZONES[e.zone].nom} — ${faitObjectif(e.zone, e.id)}, +${e.or} or.`;
     case 'achatImpossible':
       return 'Achat impossible : pas assez d’or.';
     case 'sauvegardeFuture':

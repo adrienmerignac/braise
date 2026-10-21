@@ -31,3 +31,10 @@ test('le texte du gardien vaincu distingue zone ouverte, étage atteint et fin d
   assert.equal(texteGardienVaincu(fin), 'Gardien vaincu ! Fin de la zone : la suite se rejoint par la carte.');
   assert.doesNotMatch(annoncePour(fin), /s’ouvre\./);
 });
+
+test('un objectif accompli est annoncé ; dix victoires sans accomplissement ne le sont pas', () => {
+  assert.equal(annoncePour({ type: 'objectif', zone: 'foret', id: 'chasse', or: 100 }), 'Objectif accompli : Forêt des Murmures — 25 ennemis vaincus, +100 or.');
+  assert.match(annoncePour({ type: 'objectif', zone: 'ruines', id: 'gardien', or: 600 }), /gardien de l’étage 10 vaincu, \+600 or/);
+  const victoires = Array.from({ length: 10 }, () => ({ type: 'victory', gold: 5, xp: 3 }));
+  assert.equal(annoncesPour(victoires), null);
+});
