@@ -37,7 +37,7 @@ export async function lancerJeu({ debut = 1_000_000, sauvegarde = null } = {}) {
   const jeu = {
     el: id => elements.get(id),
     texte: id => elements.get(id).textContent,
-    stockage: () => JSON.parse(stockage.get('braise-v1')),
+    stockage: () => JSON.parse(stockage.get('braise-v2')),
     evenements,
     clic: id => elements.get(id).onclick(),
     avancer(ms) {
