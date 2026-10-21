@@ -108,6 +108,11 @@ export const TALENT_BRAISE_COOLDOWN = 2;
 export const AUTO_GARDIEN_DEBLOCAGE = 10;
 // Achat automatique (M5.4c) : même règle, un cran plus loin.
 export const AUTO_ACHAT_DEBLOCAGE = 15;
+// Rallumage (M5.2a) : valeurs de départ, réversibles. Possible quand le gardien de l'étage `RALLUMAGE_DEBLOCAGE` est vaincu.
+// Éclats gagnés = max(0, floor(meilleurEtage / RALLUMAGE_PAS) - RALLUMAGE_DECALAGE), plafonnés ; chaque éclat : +RALLUMAGE_BONUS (multiplicatif) d'attaque, de vie max et d'or.
+export const RALLUMAGE_DEBLOCAGE = 15;
+export const RALLUMAGE_PAS = 5, RALLUMAGE_DECALAGE = 2, RALLUMAGE_BONUS = 0.05;
+export const RALLUMAGE_ECLATS_MAX = 100000;
 export const ZONE_IDS = ['foret', 'ruines', 'cryptes'];
 export const ZONES = {
   foret: { nom: 'Forêt des Murmures', debut: 1, fin: 5 },

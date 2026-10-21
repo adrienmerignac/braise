@@ -10,6 +10,7 @@
 | `dist/engine/audio.js` | Réglages audio purs (muet, volume borné, `peutJouer`) et registre `jouer(nom)`. Web Audio est branché dans `dist/game.js`, après la première interaction. |
 | `dist/engine/affichage.js` | Réglages d'affichage purs (mouvement `systeme`/`reduit`/`complet`, effets `actifs`/`discrets`) et `mouvementReduit(reglage, prefereSysteme)`. |
 | `dist/engine/sons.js` | Recettes pures des sons synthétisés (`coup`, `coup-gardien`, `feu`, `pas`) et `sonsPourEvenement` ; la scène planifie les sons sur son horloge et émet `braise:son`, `game.js` les lit en Web Audio (oscillateurs, bruit blanc). Aucun fichier audio. |
+| `dist/engine/rallumage.js` | Rallumage (M5.2a, sans interface) : `rallumageDisponible`, `apercuRallumage` (gains et remise à zéro en libellés), `rallumer(s, now, { confirme })` → `{ s, f, ok, motif }`. Éclats permanents : +5 % attaque, vie max et or (`multRallumage`, `state.js`). Sauvegarde v12 (`rallumage`). |
 | `dist/scene.js` | Chargement des sprites, décor précalculé, horloge visuelle et rendu Canvas. |
 | `dist/credits.html` | Crédits accessibles aux joueurs. |
 | `dist/assets/lpc/` | Couches, sprites composés, décors, sources et licences LPC. |

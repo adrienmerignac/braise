@@ -4,7 +4,7 @@ import { bestiaireNeuf } from '../../dist/engine/bestiaire.js';
 import { fresh, attack, maxHP, reward, cost, KILLS_PER_STAGE } from '../../dist/engine/state.js';
 
 test('fresh utilise l’horloge injectée', () => {
-  assert.deepEqual(fresh(1234), { gold: 0, xp: 0, level: 1, stage: 1, zone: 'foret', meilleurEtage: 1, kills: 0, weapon: 0, armor: 0, luck: 0, last: 1234, inventaire: [], equipe: {}, talents: {}, objectifs: { foret: { chasse: 0, faits: [] }, ruines: { chasse: 0, faits: [] }, cryptes: { chasse: 0, faits: [] } }, recitsLus: [], bestiaire: bestiaireNeuf(), succes: [], automatismes: { gardien: false, achat: false } });
+  assert.deepEqual(fresh(1234), { gold: 0, xp: 0, level: 1, stage: 1, zone: 'foret', meilleurEtage: 1, kills: 0, weapon: 0, armor: 0, luck: 0, last: 1234, inventaire: [], equipe: {}, talents: {}, objectifs: { foret: { chasse: 0, faits: [] }, ruines: { chasse: 0, faits: [] }, cryptes: { chasse: 0, faits: [] } }, recitsLus: [], bestiaire: bestiaireNeuf(), succes: [], automatismes: { gardien: false, achat: false }, rallumage: { eclats: 0, nombre: 0, record: 1 } });
   assert.equal(KILLS_PER_STAGE, 5);
 });
 

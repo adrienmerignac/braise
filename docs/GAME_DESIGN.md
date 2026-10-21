@@ -128,6 +128,18 @@ Première automatisation (M5.4a) : **lancer le gardien**. La frappe de braise re
 - **Achat automatique** (M5.4c, clé `achat`) : débloqué quand le gardien de l'étage 15 est vaincu (`meilleurEtage > AUTO_ACHAT_DEBLOCAGE`), éteint par défaut, bascule refusée avant. Actif, au plus **une** amélioration par pas de combat : la moins chère parmi arme, armure, charme (égalité : arme, armure, charme), si l'or suffit et si elle n'est pas au niveau max (`choisirAchatAuto`, pure ; l'achat passe par `buyUpgrade`, même événement et même soin d'armure). Jamais en pause, avant la fin du guide, ni pendant l'absence : l'or rapporté n'est dépensé qu'aux pas suivants. Journal : « Achat automatique : Arme niveau 12 », sans annonce aux lecteurs d'écran. Décision prise dans le pas de combat de `dist/game.js`, comme le gardien.
 - **Sauvegarde v10 → v11** : `achat: false` ajouté sans toucher à `gardien` ; `true` sur une partie non débloquée revient à `false`.
 
+### Rallumage
+
+Rallumage de la braise (M5.2a) : **moteur et sauvegarde seulement, aucune interface encore**. Module `dist/engine/rallumage.js` (`rallumageDisponible`, `apercuRallumage`, `rallumer`) ; valeurs de départ, réversibles, dans `dist/engine/balance.js` (`RALLUMAGE_*`). Sauvegarde v12 : `rallumage: { eclats: 0, nombre: 0, record: 1 }`.
+
+- **Disponible** quand le gardien de l'étage 15 est vaincu (`meilleurEtage > RALLUMAGE_DEBLOCAGE`). Refus `'indisponible'` avant, `'confirmation'` sans `confirme: true` (même idiome que `recycler`), état inchangé.
+- **Gain** : éclats de braise = `max(0, floor(meilleurEtage / 5) − 2)` (étage 16 → 1, 20 → 2, 50 → 8, 100 → 18), cumulés, plafonnés à `RALLUMAGE_ECLATS_MAX`.
+- **Effet permanent** : +5 % par éclat d'attaque, de vie max et d'or (multiplicatif, `attack`, `maxHP`, `reward` de `state.js`). L'absence en profite par les mêmes formules.
+- **Remis à zéro** (valeurs de `fresh`) : or, expérience, niveau (talents vidés), étage, zone, meilleur étage, victoires de l'étage, améliorations, inventaire et objets équipés, combat en cours (`rallumer` renvoie le combat neuf `f`).
+- **Conservé** : éclats, nombre de rallumages, record d'étage, objectifs de zone accomplis, récits lus, bestiaire, succès, réglages, interrupteurs d'automatisation. Le déblocage des automatismes lit `max(meilleurEtage, rallumage.record)` : ils restent débloqués.
+- **Aperçu exact** : `apercuRallumage` renvoie `{ disponible, eclatsGagnes, eclatsApres, bonusAvant, bonusApres, remisAZero, conserve }` (libellés français) ; le test le compare au résultat de `rallumer`.
+- **Sauvegarde v11 → v12** : `eclats: 0`, `nombre: 0`, `record = meilleurEtage` ; la partie reprend à l'identique. Nombres non finis, négatifs ou non entiers ramenés à 0 (sauvegarde `repaired`) ; record relevé au meilleur étage s'il est en retard (sans réparation : il n'est pas tenu à jour en cours de partie) ; champ non objet remplacé par la valeur neuve.
+
 
 ## Objectifs à valider
 

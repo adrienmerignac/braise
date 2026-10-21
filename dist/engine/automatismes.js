@@ -12,7 +12,9 @@ export const MESSAGE_GARDIEN_DEBLOQUE = 'Gardien automatique disponible';
 export const MESSAGE_ACHAT_DEBLOQUE = 'Achat automatique disponible';
 
 // Débloqué quand le gardien de l'étage `AUTO_GARDIEN_DEBLOCAGE` a été vaincu.
-const DEBLOCAGES = { gardien: s => s.meilleurEtage > AUTO_GARDIEN_DEBLOCAGE, achat: s => s.meilleurEtage > AUTO_ACHAT_DEBLOCAGE };
+// Le record d'étage d'avant un rallumage compte : on ne reperd pas ce qu'on avait débloqué.
+const meilleur = s => Math.max(s.meilleurEtage, s.rallumage?.record ?? 0);
+const DEBLOCAGES = { gardien: s => meilleur(s) > AUTO_GARDIEN_DEBLOCAGE, achat: s => meilleur(s) > AUTO_ACHAT_DEBLOCAGE };
 export const estDebloque = (s, id) => !!DEBLOCAGES[id]?.(s);
 export const estActif = (s, id) => estDebloque(s, id) && s.automatismes?.[id] === true;
 

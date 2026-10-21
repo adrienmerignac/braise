@@ -7,7 +7,7 @@ import { maxHP, SAVE_KEY, LEGACY_SAVE_KEY } from '../../dist/engine/state.js';
 import { objectifsNeufs } from '../../dist/engine/objectifs.js';
 
 const NOW = 1_700_000_000_000;
-const s = { gold: 120, xp: 5, level: 3, stage: 4, zone: 'foret', meilleurEtage: 4, kills: 2, weapon: 1, armor: 2, luck: 0, last: NOW, inventaire: [], equipe: {}, talents: {}, objectifs: objectifsNeufs(), recitsLus: ['braise'], bestiaire: bestiaireNeuf(), succes: [], automatismes: { gardien: false, achat: false } };
+const s = { gold: 120, xp: 5, level: 3, stage: 4, zone: 'foret', meilleurEtage: 4, kills: 2, weapon: 1, armor: 2, luck: 0, last: NOW, inventaire: [], equipe: {}, talents: {}, objectifs: objectifsNeufs(), recitsLus: ['braise'], bestiaire: bestiaireNeuf(), succes: [], automatismes: { gardien: false, achat: false }, rallumage: { eclats: 0, nombre: 0, record: 4 } };
 const sBoss = { ...s, kills: 5 };
 const mem = (init = {}) => ({ data: { ...init }, getItem(k) { return k in this.data ? this.data[k] : null; }, setItem(k, v) { this.data[k] = v; } });
 const roundtrip = (state, fight) => parseSave(serializeSave(state, fight), NOW);
@@ -94,7 +94,7 @@ test('la pause n’est jamais écrite', () => {
 });
 
 test('sauvegarde d’une version plus récente : statut dédié, jamais écrasée, import refusé avec motif', () => {
-  const futur = JSON.stringify({ version: 12, gold: 9, inconnu: { a: 1 } });
+  const futur = JSON.stringify({ version: 13, gold: 9, inconnu: { a: 1 } });
   const store = mem({ [SAVE_KEY]: futur, [LEGACY_SAVE_KEY]: JSON.stringify(s) });
   assert.equal(parseSave(futur, NOW).status, 'future');
   assert.equal(loadSave(store, NOW).status, 'future');
