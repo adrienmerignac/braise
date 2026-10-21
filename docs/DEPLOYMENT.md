@@ -33,6 +33,15 @@ Lorsqu’un assistant dispose du plugin Sites, suivre son skill et ses outils na
 
 Le dépôt source Sites n’est pas le remote `origin` GitHub. Les credentials ne doivent exister qu’en mémoire et transiter par l’entrée standard du helper, jamais dans le dépôt. Si Claude ou Codex ne dispose pas des outils Sites, livrer le commit GitHub et indiquer que la publication n’a pas été effectuée ; ne pas prétendre qu’un push a mis le jeu en ligne.
 
+## GitHub Pages — test continu
+
+- **URL** : `https://adrienmerignac.github.io/braise/` (sous-chemin `/braise/` : tout chemin de `dist/` reste relatif, contrôlé par `npm run check`).
+- **Déclencheurs** : chaque `push` sur `main` (fusion de PR) et `workflow_dispatch` manuel. `.github/workflows/pages.yml` lance `npm run check` (Node 22) puis publie `dist/` tel quel, sans build ; un seul déploiement à la fois (`concurrency`).
+- **Rôle** : version de test continu de la dernière fusion. Sites reste la version stable ; Pages ne la remplace pas et n'y touche pas.
+- **Sauvegarde** : le stockage local dépend de l'origine. La partie sur Pages est distincte de celle de Sites : pas de synchronisation, pas de migration entre les deux. Clé et schéma inchangés.
+- **Prérequis propriétaire** : dépôt public ou plan GitHub Pro (Pages sur dépôt privé), facturation Actions disponible, et *Settings > Pages > Source = GitHub Actions*.
+- **Retour arrière** : relancer le workflow (*Run workflow*) sur un commit précédent de `main`.
+
 ## Évolutions futures
 
 L’automatisation de publication et une éventuelle migration d’hébergeur sont des décisions à prendre au jalon de diffusion. Préserver la même origine ou fournir export/import avant de changer d’URL : le stockage local est lié à l’origine.

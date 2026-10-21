@@ -26,6 +26,26 @@ for (const path of files.filter(path => path.endsWith('.html'))) {
     if (!existsSync(local)) errors.push(`${relative(root, path)}: référence manquante ${reference}`);
   }
 }
+// Pages sert sous /braise/ : aucun chemin absolu local dans le code servi (HTML, JS, CSS).
+const ABSOLUTE_PATH_PATTERNS = [
+  /\b(?:src|href|action|poster)\s*=\s*["']\/(?!\/)/,
+  /\b(?:import|export)\b[^;\n]*?\bfrom\s*["']\/(?!\/)/,
+  /\bimport\s*\(?\s*["']\/(?!\/)/,
+  /\b(?:fetch|Worker|SharedWorker|Audio|Image)\s*\(\s*["'`]\/(?!\/)/,
+  /\burl\(\s*["']?\/(?!\/)/,
+];
+for (const path of files.filter(path => /\.(?:html|js|mjs|css)$/.test(path))) {
+  readFileSync(path, 'utf8').split('\n').forEach((line, index) => {
+    if (ABSOLUTE_PATH_PATTERNS.some(pattern => pattern.test(line))) {
+      errors.push(`${relative(root, path)}:${index + 1}: chemin absolu local interdit (Pages sert sous /braise/) : ${line.trim()}`);
+    }
+  });
+}
+const pagesWorkflow = resolve(root, '.github/workflows/pages.yml');
+if (!existsSync(pagesWorkflow)) errors.push('.github/workflows/pages.yml manquant');
+else if (!/^\s*path:\s*dist\s*$/m.test(readFileSync(pagesWorkflow, 'utf8'))) {
+  errors.push('.github/workflows/pages.yml : « path: dist » attendu pour publier dist/ tel quel');
+}
 const testsDir = resolve(root, 'tests');
 const testFiles = existsSync(testsDir) ? walk(testsDir).filter(path => path.endsWith('.test.mjs')) : [];
 const tests = spawnSync(process.execPath, ['--test', ...testFiles], { cwd: root, encoding: 'utf8' });
@@ -79,4 +99,4 @@ if (!hosting.project_id || hosting.static?.directory !== 'dist') errors.push('Ma
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exitCode = 1;
-} else console.log('OK — syntaxe JS, liens HTML/docs locaux, tests Node, sprites et manifest statique.');
+} else console.log('OK — syntaxe JS, liens HTML/docs locaux, chemins relatifs, workflow Pages, tests Node, sprites et manifest statique.');
