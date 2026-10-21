@@ -36,10 +36,18 @@ test('les deux profils jouent des sessions distinctes et progressent chaque jour
   }
 });
 
+test('le temps de jeu des jalons est non nul et ne dépasse jamais le temps d’horloge', () => {
+  for (const profil of PROFILS) {
+    const { jalonsMinutes, jalonsJeuMinutes } = simulerJours({ jours: 7, profil });
+    const jeu = jalonsJeuMinutes.gardien15, horloge = jalonsMinutes.gardien15;
+    assert.ok(jeu > 0 && jeu <= horloge, `${profil} : ${jeu} min de jeu pour ${horloge} min d’horloge`);
+  }
+});
+
 test('hors ligne : le gain d’absence reste plafonné, l’or par jour ne s’emballe pas sur 3 jours', () => {
   const occasionnel = simulerJours({ jours: 1, profil: 'occasionnel' }), repos = simulerJours({ jours: 3, profil: 'occasionnel' });
   assert.ok(repos.final.orHorsLigne > occasionnel.final.orHorsLigne, 'le temps passé hors ligne rapporte');
-  assert.ok(repos.parJour[2].orGagne < 1e9, 'chaque absence est plafonnée : pas d’emballement en or sur 3 jours');
+  assert.ok(repos.parJour[2].orGagne < 1e8, 'chaque absence est plafonnée : pas d’emballement en or sur 3 jours');
 });
 
 test('le framerate ne change rien : 10 min de jeu en un bloc, en pas de 1 s ou de 16 ms donnent la même sauvegarde', async () => {
