@@ -104,3 +104,27 @@ test('chaque zone, fermée comprise, annonce son butin en texte', () => {
   const l = decrireCarte(partie(), { boss: false });
   assert.deepEqual(l.map(x => x.butin), ['Butin : armes plus fréquentes', 'Butin : armures plus fréquentes', 'Butin : charmes plus fréquents']);
 });
+
+import { decrireRecits, recitAAfficher } from '../../dist/engine/carte.js';
+import { fresh as freshRecits } from '../../dist/engine/state.js';
+
+test('section Récits : texte débloqué ou condition écrite, selon le meilleur étage', () => {
+  const lignes = meilleurEtage => decrireRecits({ ...freshRecits(0), meilleurEtage });
+  const a = lignes(1);
+  assert.deepEqual(a.map(r => r.debloque), [true, false, false, false]);
+  assert.match(a[0].texte, /braise/);
+  assert.equal(a[1].texte, 'Vaincre le gardien de l’étage 5');
+  assert.equal(a[2].texte, 'Vaincre le gardien de l’étage 10');
+  assert.equal(a[1].titre, 'Récit verrouillé');
+  assert.deepEqual(lignes(6).map(r => r.debloque), [true, true, false, false]);
+  assert.equal(lignes(6)[1].titre, 'Une route sous les eaux');
+  assert.deepEqual(lignes(16).map(r => r.debloque), [true, true, true, true]);
+});
+
+test('récit à afficher : jamais avant la fin du guide, jamais un récit déjà lu', () => {
+  const s = freshRecits(0);
+  assert.equal(recitAAfficher(s, 'todo'), null);
+  assert.equal(recitAAfficher(s, 'done'), 'braise');
+  assert.equal(recitAAfficher({ ...s, recitsLus: ['braise'] }, 'done'), null);
+  assert.equal(recitAAfficher({ ...s, meilleurEtage: 6, recitsLus: ['braise'] }, 'done'), 'ruines');
+});
