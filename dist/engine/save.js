@@ -1,6 +1,7 @@
 // Lecture et écriture de la sauvegarde `braise-v2` (migrée depuis `braise-v1`) : validation champ par champ, sans DOM.
 // Le stockage est injecté (localStorage dans le jeu, un faux dans les tests).
 import { AUDIO_DEFAUT, reglagesValides } from './audio.js';
+import { AFFICHAGE_DEFAUT, affichageValide } from './affichage.js';
 import { SAVE_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP } from './state.js';
 import { enemyMaxHP } from './combat.js';
 
@@ -28,7 +29,8 @@ export function migrate(raw) {
 // `guide` : avancement du premier parcours ('todo' | 'done'), absent si non fourni.
 // `vus` : explications ponctuelles déjà montrées (voir GUIDE_VUS), absent si non fourni.
 // `audio` : { muet, volume }, absent si non fourni.
-export const serializeSave = (s, fight, guide, vus, audio) => JSON.stringify({ version: SAVE_VERSION, ...s, ...fight, ...(guide ? { guide } : {}), ...(vus ? { vus } : {}), ...(audio ? { audio } : {}) });
+// `affichage` : { mouvement, effets }, absent si non fourni.
+export const serializeSave = (s, fight, guide, vus, audio, affichage) => JSON.stringify({ version: SAVE_VERSION, ...s, ...fight, ...(guide ? { guide } : {}), ...(vus ? { vus } : {}), ...(audio ? { audio } : {}), ...(affichage ? { affichage } : {}) });
 
 export const GUIDE_STATES = ['todo', 'done'];
 // Défaut quand le champ `guide` est absent (sauvegarde v1 ou v2 antérieure) : un joueur qui a progressé n'a plus besoin du guide.
@@ -66,7 +68,7 @@ function parseFight(data, s, now) {
 // Retourne { s, status } : 'new' (rien de stocké), 'ok', 'repaired' (champs remplacés) ou 'reset' (illisible).
 export function parseSave(text, now) {
   const base = fresh(now);
-  if (text === null || text === undefined) return { s: base, status: 'new', guide: 'todo', vus: [], audio: { ...AUDIO_DEFAUT } };
+  if (text === null || text === undefined) return { s: base, status: 'new', guide: 'todo', vus: [], audio: { ...AUDIO_DEFAUT }, affichage: { ...AFFICHAGE_DEFAUT } };
   let data;
   try { data = JSON.parse(text); } catch { return { s: base, status: 'reset' }; }
   data = migrate(data);
@@ -94,7 +96,12 @@ export function parseSave(text, now) {
   if (data.audio !== undefined) {
     if (reglagesValides(data.audio)) audio = { muet: data.audio.muet, volume: data.audio.volume }; else repaired = true;
   }
-  const result = { s, status: repaired ? 'repaired' : 'ok', guide, vus, audio };
+  // Même règle pour `affichage`.
+  let affichage = { ...AFFICHAGE_DEFAUT };
+  if (data.affichage !== undefined) {
+    if (affichageValide(data.affichage)) affichage = { mouvement: data.affichage.mouvement, effets: data.affichage.effets }; else repaired = true;
+  }
+  const result = { s, status: repaired ? 'repaired' : 'ok', guide, vus, audio, affichage };
   if (Object.keys(f.fight).length) result.fight = f.fight;
   return result;
 }
@@ -109,18 +116,18 @@ export function loadSave(storage, now) {
   if (legacy === null || legacy === undefined) return current;
   const migrated = parseSave(legacy, now);
   if (migrated.status === 'reset') return { s: current.s, status: 'reset' };
-  writeSave(storage, migrated.s, undefined, migrated.guide, migrated.vus, migrated.audio);
+  writeSave(storage, migrated.s, undefined, migrated.guide, migrated.vus, migrated.audio, migrated.affichage);
   return migrated;
 }
 
 // Retourne true si l'écriture a réussi.
-export function writeSave(storage, s, fight, guide, vus, audio) {
-  try { storage.setItem(SAVE_KEY, serializeSave(s, fight, guide, vus, audio)); return true; } catch { return false; }
+export function writeSave(storage, s, fight, guide, vus, audio, affichage) {
+  try { storage.setItem(SAVE_KEY, serializeSave(s, fight, guide, vus, audio, affichage)); return true; } catch { return false; }
 }
 
 // Import d'un fichier : n'accepte que ce que `parseSave` juge intact ; sinon rien ne doit changer.
 export function importSave(text, now) {
-  const { s, status, fight, guide, vus, audio } = parseSave(text, now);
+  const { s, status, fight, guide, vus, audio, affichage } = parseSave(text, now);
   if (status !== 'ok') return { ok: false };
-  return fight ? { ok: true, s, fight, guide, vus, audio } : { ok: true, s, guide, vus, audio };
+  return fight ? { ok: true, s, fight, guide, vus, audio, affichage } : { ok: true, s, guide, vus, audio, affichage };
 }

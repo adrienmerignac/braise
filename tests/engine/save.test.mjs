@@ -8,7 +8,7 @@ const valid = { gold: 120, xp: 5, level: 3, stage: 4, kills: 2, weapon: 1, armor
 const mem = (init = {}) => ({ data: { ...init }, getItem(k) { return k in this.data ? this.data[k] : null; }, setItem(k, v) { this.data[k] = v; } });
 
 test('une sauvegarde valide est conservée telle quelle', () => {
-  assert.deepEqual(parseSave(JSON.stringify(valid), NOW), { s: valid, status: 'ok', guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 } });
+  assert.deepEqual(parseSave(JSON.stringify(valid), NOW), { s: valid, status: 'ok', guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 }, affichage: { mouvement: 'systeme', effets: 'actifs' } });
 });
 
 test('JSON illisible, null, tableau, scalaire : partie neuve', () => {
@@ -18,7 +18,7 @@ test('JSON illisible, null, tableau, scalaire : partie neuve', () => {
 });
 
 test('aucune sauvegarde : partie neuve sans alerte', () => {
-  assert.deepEqual(parseSave(null, NOW), { s: fresh(NOW), status: 'new', guide: 'todo', vus: [], audio: { muet: false, volume: 0.6 } });
+  assert.deepEqual(parseSave(null, NOW), { s: fresh(NOW), status: 'new', guide: 'todo', vus: [], audio: { muet: false, volume: 0.6 }, affichage: { mouvement: 'systeme', effets: 'actifs' } });
 });
 
 test('chaînes, NaN, Infinity, flottants : repli champ par champ', () => {
@@ -70,8 +70,8 @@ test('migrate : braise-v1 complet converti sans perte, entrée non modifiée', (
 test('loadSave : v1 complet repris, écrit en v2, ancienne clé conservée', () => {
   const storage = mem({ [LEGACY_SAVE_KEY]: JSON.stringify(v1) });
   const r = loadSave(storage, NOW);
-  assert.deepEqual(r, { s: v1, status: 'ok', guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 } });
-  assert.deepEqual(JSON.parse(storage.data[SAVE_KEY]), { version: 2, ...v1, guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 } });
+  assert.deepEqual(r, { s: v1, status: 'ok', guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 }, affichage: { mouvement: 'systeme', effets: 'actifs' } });
+  assert.deepEqual(JSON.parse(storage.data[SAVE_KEY]), { version: 2, ...v1, guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 }, affichage: { mouvement: 'systeme', effets: 'actifs' } });
   assert.equal(storage.data[LEGACY_SAVE_KEY], JSON.stringify(v1));
 });
 
@@ -97,7 +97,7 @@ test('version inconnue : refusée', () => {
 
 test('aller-retour export/import identique', () => {
   const r = importSave(serializeSave(v1), NOW);
-  assert.deepEqual(r, { ok: true, s: v1, guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 } });
+  assert.deepEqual(r, { ok: true, s: v1, guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 }, affichage: { mouvement: 'systeme', effets: 'actifs' } });
   assert.equal(serializeSave(r.s), serializeSave(v1));
 });
 

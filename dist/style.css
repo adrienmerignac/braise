@@ -20,5 +20,9 @@
 .volume{display:flex;align-items:center;gap:10px;min-height:44px;color:var(--muted)}
 .volume input{width:min(180px,40vw);min-height:44px;accent-color:var(--orange)}
 .volume input:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.reglage{display:flex;align-items:center;gap:10px;min-height:44px;color:var(--muted)}
+.reglage select{min-height:44px;border:1px solid var(--line);background:transparent;color:#e9eee6;padding:0 10px;font:inherit}
+.reglage select option{background:#151a18;color:#e9eee6}
+.reglage select:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
 .volume output{min-width:4ch;text-align:right}
 @media(max-width:680px){.audio-bar{padding:4px 20px}}

@@ -8,6 +8,7 @@
 | `dist/style.css` | Palette, panneaux, responsive et préférences de mouvement. |
 | `dist/game.js` | État, sauvegarde, combat, gains, améliorations, événements et mise à jour du DOM. |
 | `dist/engine/audio.js` | Réglages audio purs (muet, volume borné, `peutJouer`) et registre `jouer(nom)`. Web Audio est branché dans `dist/game.js`, après la première interaction. |
+| `dist/engine/affichage.js` | Réglages d'affichage purs (mouvement `systeme`/`reduit`/`complet`, effets `actifs`/`discrets`) et `mouvementReduit(reglage, prefereSysteme)`. |
 | `dist/engine/sons.js` | Recettes pures des sons synthétisés (`coup`, `coup-gardien`, `feu`, `pas`) et `sonsPourEvenement` ; la scène planifie les sons sur son horloge et émet `braise:son`, `game.js` les lit en Web Audio (oscillateurs, bruit blanc). Aucun fichier audio. |
 | `dist/scene.js` | Chargement des sprites, décor précalculé, horloge visuelle et rendu Canvas. |
 | `dist/credits.html` | Crédits accessibles aux joueurs. |
@@ -60,6 +61,8 @@ Clé actuelle : `braise-v2` (JSON avec `version: 2`). `braise-v1` (sans champ `v
 Le chargement combine valeurs par défaut et JSON ; seule la validité minimale de l’étage est contrôlée. Les autres champs, les migrations, le comportement en stockage indisponible et les nombres non finis nécessitent le durcissement prévu en M1. Ne pas simplement changer le nom de clé pour contourner ce travail.
 
 Champ optionnel `audio: { muet, volume }` (volume dans [0, 1]) : absent → défaut (son actif, 60 %) sans réparation ; invalide → défaut et statut `repaired`, le reste de la partie est conservé. `SAVE_VERSION` reste 2.
+
+Champ optionnel `affichage: { mouvement, effets }` (`mouvement` : `systeme` | `reduit` | `complet`, `effets` : `actifs` | `discrets`) : absent → `systeme` / `actifs` sans réparation ; invalide → défaut et statut `repaired`, le reste de la partie est conservé. Règles pures dans `dist/engine/affichage.js` ; `game.js` les transmet à la scène par `braise:affichage`.
 
 ## Évolution prévue
 
