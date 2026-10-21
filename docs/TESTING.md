@@ -95,6 +95,23 @@ Copie de secours : mettre `{pas du json` dans `braise-v2` (console), recharger �
 6. **`braise-v2` intacte** : avant et après la mise à jour, comparer `localStorage.getItem('braise-v2')` (console distante) ; seuls les caches `braise-*` changent (`caches.keys()`).
 7. **Ancien onglet** : avec deux onglets, laisser l'un sur l'ancien code après que l'autre a mis à jour : message de sauvegarde plus récente, aucune écriture.
 
+## Performance (budget et relevé `?perf`)
+
+Valeurs de départ, réversibles, à relever sur un mobile milieu de gamme, combat en cours :
+
+- pire image de `draw` ≤ 33 ms et moyenne ≤ 16,7 ms ;
+- rendu arrêté en pause et onglet masqué (l'encart l'indique : « rendu arrêté en pause », « onglet masqué ») ;
+- étincelles actives ≤ `ETINCELLES_MAX` (`dist/engine/etincelles.js`, 60 aujourd'hui).
+
+Procédure sur téléphone, sans outil de développement :
+
+1. Ouvrir `https://adrienmerignac.github.io/braise/?perf` (sans `?perf`, rien ne change). Si le jeu est installé, recharger après la mise à jour du cache.
+2. Jouer 2 min de combat.
+3. Mettre en pause 30 s : l'encart doit afficher « rendu arrêté en pause » et 0 i/s.
+4. Toucher « Copier le relevé » (le texte copié suit la dernière fenêtre de 2 s ; faire l'étape 3 puis un relevé pendant le combat, ou deux relevés), puis le coller dans une issue.
+
+Le relevé (user agent, écran, devicePixelRatio, i/s, `draw` moyen et pire, étincelles, état, version) reste local : aucune requête réseau. Non vérifié sur un vrai mobile : c'est la mesure du propriétaire.
+
 ## Résultats
 
 Consigner dans `HANDOFF.md` le scénario joué, le viewport, les commandes passées et les vérifications non réalisées. Ne pas réutiliser une validation de la session précédente comme preuve d’une modification actuelle.

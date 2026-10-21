@@ -3,6 +3,10 @@
 Toutes les évolutions jouables de Braise, de la plus récente à la plus ancienne.
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). La version de référence est celle de `package.json`.
 
+## [0.9.1] — Relevé de performance
+
+- `?perf` dans l’URL affiche un petit relevé (images par seconde, temps de `draw`, étincelles, état du rendu) et un bouton « Copier le relevé » ; sans ce paramètre, rien ne change (#124).
+
 ## [0.9.0] — Bêta et recette
 
 - Le pied de page affiche « Bêta 0.9.0 ».

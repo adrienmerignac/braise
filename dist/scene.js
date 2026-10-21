@@ -1,6 +1,7 @@
 import { createSceneQueue } from './engine/scene-queue.js';
 import { sonsPourEvenement } from './engine/sons.js';
 import { ajouterEtincelles, doitRedessiner } from './engine/etincelles.js';
+import { demarrerPerf } from './perf.js';
 import { enemyLook, gardienLook, sequenceGardien, ancrageEnnemi, placeEnnemi, colonneEnnemi, tailleCase } from './engine/ennemis-visuels.js';
 import { couchesHeros, ACTIONS_HEROS } from './engine/apparence-heros.js';
 import { decorDeZone, idDecor, fichiersDeZone, toutesPlanchesMonde, animationDecor, dureeTransition, opaciteFondu } from './engine/decors.js';
@@ -44,6 +45,7 @@ const queue = createSceneQueue((type, detail) => {
 });
 // En pause, la boucle d'images s'arrête après une dernière image ; un événement ou la reprise la relance.
 let boucleActive = true, imageFinalePosee = false, evenementEnAttente = false;
+const sonde = demarrerPerf({ search: location.search, document, navigator, screen, devicePixelRatio, lire: () => ({ pause: paused, boucleActive, etincelles: sparks.length }) });
 function reveiller() {
   evenementEnAttente = true;
   if (boucleActive) return;
@@ -218,6 +220,7 @@ function ambiance(dec) {
   ctx.restore();
 }
 function draw(now) {
+  const debutPerf = sonde ? performance.now() : 0;
   const dt=previous?Math.min(50,now-previous):0;previous=now;if(!paused)time+=dt;
   queue.flush(time);
   avancerDecor();
@@ -272,6 +275,7 @@ function draw(now) {
   if(decorId==='foret'&&!reduit()&&!discret())for(let i=0;i<15;i++){const x=(i*163+Math.sin(t/2500+i)*32)%960,y=120+(i*73)%280+Math.sin(t/1700+i)*14;ctx.globalAlpha=.2+(Math.sin(t/700+i)+1)*.25;ctx.fillStyle='#dfdf9f';ctx.fillRect(x,y,2,2);}ctx.globalAlpha=1;
   ctx.restore();
   fondu();
+  if (sonde) sonde.image(performance.now() - debutPerf);
   imageFinalePosee = paused; evenementEnAttente = false;
   if (doitRedessiner({ pause: paused, imageFinalePosee, evenementEnAttente })) requestAnimationFrame(draw);
   else boucleActive = false;
