@@ -73,3 +73,14 @@ test('l’état d’entrée n’est pas modifié', () => {
   offlineGains(s, apres(900));
   assert.deepEqual(s, copie);
 });
+
+test('en pause : 30 min d’absence ne donnent rien et `last` passe à now', () => {
+  const s = fresh(T0);
+  const r = offlineGains(s, apres(1800), undefined, { paused: true });
+  assert.equal(r.gold, 0);
+  assert.equal(r.wins, 0);
+  assert.equal(r.show, false);
+  assert.equal(r.s.last, apres(1800));
+  assert.equal(r.s.gold, s.gold);
+  assert.equal(offlineGains(r.s, apres(1801)).gold, 0);
+});

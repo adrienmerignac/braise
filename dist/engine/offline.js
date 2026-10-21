@@ -10,7 +10,9 @@ export const OFFLINE_FIGHT_FACTOR = 1.2;
 
 // Renvoie { s, f, events, away, wins, gold, show }. `s.last` est toujours ramené à `now` :
 // une seconde collecte immédiate donne donc 0, et une horloge reculée ne produit aucun gain.
-export function offlineGains(s, now, f = { hp: maxHP(s), boss: false, enemyHP: 0, enemyMax: 0 }) {
+export function offlineGains(s, now, f = { hp: maxHP(s), boss: false, enemyHP: 0, enemyMax: 0 }, { paused = false } = {}) {
+  // En pause, le temps écoulé ne rapporte rien : on ramène seulement `last` à `now`.
+  if (paused) return { s: { ...s, last: now }, f, events: [], away: 0, wins: 0, gold: 0, show: false };
   const raw = (now - s.last) / 1000;
   const away = Number.isFinite(raw) ? Math.max(0, Math.min(OFFLINE_CAP_SECONDS, raw)) : 0;
   const base = { ...s, last: now };
