@@ -40,7 +40,7 @@ La simulation avance par timers, le rendu par `requestAnimationFrame`. La scène
 | `braise:spawn` | `boss` | Signale le nouvel adversaire. |
 | `braise:pause` | booléen | Fige/reprend l’horloge visuelle. |
 
-Le moteur applique le résultat immédiatement ; la scène rejoue `combat` et `spawn` via une file (`dist/engine/scene-queue.js`) tamponnée jusqu'à la fin du chargement des images, puis séquencée coup → chute → entrée suivante. `game.js` garde les événements émis avant l'installation des listeners dans `window.braiseBacklog`, que la scène rejoue. `braise:pause` s'applique immédiatement. Limite : la barre de vie DOM de l'ennemi reste mise à jour sans attendre la chute.
+Le moteur applique le résultat immédiatement ; la scène rejoue `combat` et `spawn` via une file (`dist/engine/scene-queue.js`) tamponnée jusqu'à la fin du chargement des images, puis séquencée coup → chute → entrée suivante. `game.js` garde les événements émis avant l'installation des listeners dans `window.braiseBacklog`, que la scène rejoue. `braise:pause` s'applique immédiatement. Les étincelles en vol sont plafonnées (`ETINCELLES_MAX`, `dist/engine/etincelles.js`) et, en pause, la scène dessine une dernière image puis arrête `requestAnimationFrame` jusqu'à la reprise ou au prochain événement. Limite : la barre de vie DOM de l'ennemi reste mise à jour sans attendre la chute.
 
 ## Sprites et directions
 
