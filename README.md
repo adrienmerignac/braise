@@ -2,7 +2,7 @@
 
 Un idle RPG en pixel art LPC, jouable dans le navigateur sur desktop et mobile. Un chevalier affronte les gobelins de la forêt des Murmures, récolte de l’or, améliore son équipement et défie un gardien pour passer à l’étage suivant.
 
-**État : prototype jouable 0.2.** [Jouer à la version privée](https://braise-idle-rpg.lemonyhake5.chatgpt.site) (connexion ChatGPT). [Dépôt GitHub](https://github.com/adrienmerignac/braise).
+**État : prototype jouable 0.2.1.** [Jouer à la version privée](https://braise-idle-rpg.lemonyhake5.chatgpt.site) (connexion ChatGPT). [Dépôt GitHub](https://github.com/adrienmerignac/braise).
 
 ## Lancer en local
 
@@ -55,3 +55,7 @@ Les scripts `tools/fetch-lpc.py` et `tools/compose-hero.py` permettent de récup
 ## Limites actuelles
 
 Sauvegarde propre au navigateur et à l’origine, sans compte ni synchronisation ; pas d’export/import. Les gains hors ligne sont une estimation sans simulation des défaites. Un seul biome et une famille d’ennemis ; le gardien est une variante agrandie. Équilibrage exploratoire, aucune monétisation. La licence du code du jeu reste à choisir avant une diffusion publique ; les licences des assets sont déjà conservées séparément.
+
+## État des contrôles
+
+Le contrôle local `node tools/check.mjs` passe. Le workflow GitHub Actions est configuré ; sa [première exécution](https://github.com/adrienmerignac/braise/actions/runs/39548401450) a été bloquée avant toute étape par la facturation ou le plafond de dépenses du compte GitHub. Après régularisation dans les paramètres du compte, relancer le workflow pour obtenir une validation CI.

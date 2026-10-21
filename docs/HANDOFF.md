@@ -10,12 +10,15 @@ Correction du gobelin et préparation du dépôt GitHub privé avec documentatio
 
 Prototype 0.2.1 statique jouable. Documentation : `AGENTS.md` canonique, `CLAUDE.md` importeur, contexte, architecture, game design, recette, décisions, publication et roadmap M0–M7. Contrôle local sans dépendances via `npm run check`, repris par GitHub Actions.
 
-Dépôt prévu : `adrienmerignac/braise`, privé. Publication Sites existante conservée, indépendamment du remote GitHub. La création, le push, la CI et la publication de cette étape sont en cours ; les résultats seront mis à jour avant la fin de la livraison.
+Dépôt créé : https://github.com/adrienmerignac/braise, privé ; branche `main`, remote `origin`, historique initial conservé. Publication Sites existante conservée indépendamment de GitHub, selon `docs/DEPLOYMENT.md`.
+
+La première CI a été examinée : https://github.com/adrienmerignac/braise/actions/runs/39548401450. GitHub refuse de démarrer le job à cause des paiements du compte ou du plafond de dépenses. Aucun script du workflow n’a tourné ; ne pas présenter cette CI comme verte. Une intervention du propriétaire dans Billing & plans puis une relance sont nécessaires. Les contrôles locaux ci-dessous passent.
 
 ## Vérifications de cette étape
 
 - `node tools/check.mjs` : syntaxe JS, références HTML locales, bornes des sprites et manifest statique valides.
 - `git diff --check` : passé.
+- GitHub : dépôt privé, remote, branche `main` et premier push vérifiés via `gh`. Workflow présent ; blocage de compte documenté ci-dessus.
 - Navigateur desktop : héros face à droite et gobelin face à gauche pendant le combat automatique ; effets et progression présents.
 - Navigateur mobile 390 × 844 : personnages face à face ; largeur document = largeur écran (390 px).
 - Sauvegarde locale antérieure reprise ; panneau de gains d’absence affiché puis fermé sans réinitialisation de progression.
