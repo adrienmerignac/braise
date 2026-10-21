@@ -65,3 +65,12 @@ test('la progression du jeu est celle du moteur : un coup par ATTACK_INTERVAL_MS
   for (const cle of ['gold', 'xp', 'level', 'stage', 'kills', 'meilleurEtage']) assert.equal(sauvee[cle], s[cle], cle);
   assert.deepEqual(sauvee.inventaire, s.inventaire);
 });
+
+test('rallumage (M5.2c) : déterministe, au moins un rallumage en profil actif, la 2e expédition n’est pas plus longue que la 1re', () => {
+  const a = simulerJours({ jours: 7, profil: 'actif', rallumage: 20 }), b = simulerJours({ jours: 7, profil: 'actif', rallumage: 20 });
+  assert.deepEqual(a, b);
+  assert.ok(a.rallumage.nombre >= 1 && a.rallumage.eclats > 0, `${a.rallumage.nombre} rallumage(s)`);
+  const [premiere, deuxieme] = a.rallumage.gardien15Minutes;
+  assert.ok(premiere > 0 && deuxieme > 0 && deuxieme <= premiere, `1re ${premiere} min, 2e ${deuxieme} min`);
+  assert.equal(simulerJours({ jours: 2, profil: 'actif' }).rallumage, undefined, 'sans option, aucune clé ajoutée');
+});
