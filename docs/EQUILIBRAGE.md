@@ -221,3 +221,37 @@ gardien 15 tombe dans les dix premières minutes de jeu, et l'absence ne pèse p
 absence de 5 h seulement, avec un héros déjà au niveau 10 ; l'or hors ligne ne fait que prolonger les étages suivants (étage 90 au jour 7 contre 107). Le
 levier restant est donc dans le rythme de jeu en session (PV des ennemis, coût des améliorations), pas dans l'absence. **Retenu : 4,8.** La
 condition de 8 h tient (17,1 prix d'amélioration au retour à l'étage 15).
+
+## Rallumage (M5.2)
+
+Issue #157, critère de sortie de M5 : « une deuxième expédition change les décisions ». Mesure du rallumage livré (M5.2a/b), **sans changer
+aucune valeur**. Relevés : `node tools/simulate-jours.mjs 7 --profil=<actif|occasionnel> --graine=1 --rallumage=<étage>`. Politique : rallumer dès que
+`meilleurEtage` dépasse l'étage donné, via `rallumer(..., { confirme: true })` du moteur. Les minutes sont du **temps de jeu** jusqu'au gardien 15 de
+chaque expédition ; la colonne « 2e/1re » est le rapport des deux. Sans l'option, la sortie du script est inchangée.
+
+| profil · seuil | rallumages | éclats | gardien 15 : 1re / 2e / 3e expédition (min) | 2e/1re | record j7 | or hors ligne |
+| --- | --- | --- | --- | --- | --- | --- |
+| actif · 20 | 485 | 970 | 11,4 / 9,7 / 8,9 | 85 % | 21 | 37,1 % |
+| actif · 30 | 322 | 1 288 | 11,4 / 9,2 / 7,8 | 81 % | 31 | 36,9 % |
+| actif · 50 | 174 | 1 392 | 11,4 / 7,8 / 6,5 | 68 % | 51 | 39,5 % |
+| occasionnel · 20 | 10 | 20 | 10,0 / 5,7 / 6,6 | 57 % | 21 | 85,5 % |
+| occasionnel · 30 | 6 | 24 | 10,0 / 7,4 / 6,3 | 74 % | 31 | 87,7 % |
+| occasionnel · 50 | 3 | 24 | 10,0 / 5,3 / 4,0 | 53 % | 51 | 87,2 % |
+
+**Lecture.**
+- **Le record plafonne au seuil.** Rallumer dès que l'étage dépasse N interdit d'aller plus loin : le « record j7 » vaut N + 1 par construction. Sans
+  rallumage (voir plus haut), le jour 7 monte à 130 (actif) et 107 (occasionnel) : cette politique échange la profondeur contre la vitesse, ce qui n'est
+  pas la même décision qu'une vraie 2e expédition.
+- **Le gain vient surtout de la 2e expédition.** Les suivantes gagnent peu de minutes en occasionnel (la 3e est parfois plus lente que la 2e : 5,7 → 6,6 min
+  à 20) ; en actif, les éclats s'accumulent (jusqu'à 1 392) et les expéditions tombent sous 2 min de jeu, soit très loin de la cible de 20 à 30 min.
+- **Le profil actif rallume des centaines de fois** en 7 jours (une expédition toutes les ~20 min d'horloge au seuil 20) : la politique est une borne
+  haute du joueur patient, pas un comportement attendu. L'occasionnel rallume 3 à 10 fois, avec 85 à 88 % de son or venu de l'absence.
+- Au seuil 50, l'occasionnel ne rallume que 3 fois en 7 jours : atteindre l'étage 51 lui demande des jours entiers d'absence.
+
+**Règle** : la 2e expédition doit atteindre le gardien 15 en **40 % à 80 %** du temps de jeu de la 1re.
+
+**Verdict : tenue en partie.** Les 4 cas **occasionnel** (57, 74, 53 %) et **actif · 50** (68 %) sont dans la fourchette. **Actif · 20 (85 %) et actif · 30
+(81 %) sont au-dessus de 80 %** : la 2e expédition n'est alors pas assez plus courte pour récompenser un rallumage précoce. Aucun cas ne tombe sous 40 %
+(rallumage « sauté » : non). La constante à essayer est `RALLUMAGE_BONUS` (à la hausse, pour que les premiers éclats pèsent davantage) ; `RALLUMAGE_PAS`
+(à la baisse, pour gagner des éclats dès les premiers étages) agit sur le même cas. Rien n'est modifié ici : l'essai est renvoyé à une issue dédiée, avec
+cette même règle de décision et en vérifiant que le profil actif · 50 reste sous 80 % et au-dessus de 40 %.
