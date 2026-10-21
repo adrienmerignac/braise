@@ -86,3 +86,5 @@ dialog button:enabled,.boss-panel button:enabled,.guide-panel button:enabled{bac
 /* État désactivé ou trop cher : déclaré en dernier, avec la spécificité des règles de contexte, pour que
    `.upgrade button`, `.guide-panel button`, `.audio-bar button` et `.boss-panel button` ne le remplacent pas. */
 button:disabled,.upgrade button:disabled,.guide-panel button:disabled,.audio-bar button:disabled,.boss-panel button:disabled,dialog button:disabled{background:var(--off-bg);color:var(--off-fg);border:1px dashed var(--control);cursor:not-allowed}
+
+.log .quiet{border:1px solid var(--line);margin:4px 8px 4px 0}

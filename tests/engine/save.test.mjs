@@ -220,6 +220,7 @@ test('seconde partie illisible : la première copie est conservée', () => {
   st.m.set(SAVE_KEY, '[autre texte');
   const l = loadSave(st, NOW);
   assert.equal(l.secours, 'existante');
+  assert.equal(l.brut, '[autre texte', 'le texte de cette session reste disponible au téléchargement');
   assert.equal(st.m.get(BACKUP_KEY), '{pas du json');
 });
 

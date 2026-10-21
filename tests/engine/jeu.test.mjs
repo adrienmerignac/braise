@@ -194,3 +194,22 @@ test('texte : le choix pilote l’attribut racine, immédiatement', () => avecJe
   jeu.el('texte').onchange({ target: { value: 'normal' } });
   assert.equal(jeu.racine.dataset.texte, 'normal');
 }));
+
+test('partie illisible avec copie existante : le bouton télécharge le texte de cette session, l’ancien reste accessible', () => avecJeu({ stockageBrut: { 'braise-v2': '[texte actuel', 'braise-v2-secours': '{ancienne copie' } }, async jeu => {
+  assert.equal(jeu.el('secours').hidden, false);
+  assert.equal(jeu.el('secoursancien').hidden, false);
+  jeu.clic('secours');
+  jeu.clic('secoursancien');
+  const [actuel, ancien] = await Promise.all(jeu.telechargements.map(d => d.blob.text()));
+  assert.equal(actuel, '[texte actuel');
+  assert.equal(ancien, '{ancienne copie');
+  jeu.avancer(6_000);
+  assert.equal(jeu.stockageBrut('braise-v2-secours'), '{ancienne copie', 'la copie existante n’est pas remplacée');
+}));
+
+test('partie illisible, première fois : un seul bouton, il télécharge le texte copié', () => avecJeu({ stockageBrut: { 'braise-v2': '{pas du json' } }, async jeu => {
+  assert.equal(jeu.el('secoursancien').hidden, true);
+  jeu.clic('secours');
+  assert.equal(await jeu.telechargements[0].blob.text(), '{pas du json');
+  assert.equal(jeu.stockageBrut('braise-v2-secours'), '{pas du json');
+}));
