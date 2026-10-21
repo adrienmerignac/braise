@@ -1,6 +1,7 @@
 // Décors des zones : des données pures (aucun DOM). La scène recompose le fond hors écran une fois par changement de zone.
 // Les tuiles sont des cases de 32 px prises dans les planches LPC listées dans `fichiers` (déclarées dans sources.json et le manifeste).
-import { ZONE_IDS } from './balance.js';
+import { ZONE_IDS, BESTIAIRE } from './balance.js';
+import { ENEMY_LOOKS, gardienLook } from './ennemis-visuels.js';
 
 export const TRANSITION_MS = 300;
 export const ZONE_PAR_DEFAUT = 'foret';
@@ -46,6 +47,17 @@ export const idDecor = zone => (ZONE_IDS.includes(zone) ? zone : ZONE_PAR_DEFAUT
 export const decorDeZone = zone => DECORS[idDecor(zone)];
 export const fichiersDecor = zone => decorDeZone(zone).fichiers;
 export const tousFichiersDecor = () => [...new Set(ZONE_IDS.flatMap(fichiersDecor))];
+
+// Planches nécessaires au premier combat d'une zone : ennemis ordinaires, gardien et décor, sans doublon ; zone inconnue : la forêt.
+export function fichiersDeZone(zone) {
+  const id = idDecor(zone);
+  const ennemis = BESTIAIRE[id].types.map(type => ENEMY_LOOKS[type].sheet);
+  return [...new Set([...ennemis, gardienLook(id).sheet, ...fichiersDecor(id)])];
+}
+// Planches chargées en arrière-plan quelle que soit la zone (coffres).
+export const FICHIERS_COMMUNS = Object.freeze(['chests']);
+// Toutes les planches hors couches du héros : les trois zones plus les communes.
+export const toutesPlanchesMonde = () => [...new Set([...ZONE_IDS.flatMap(fichiersDeZone), ...FICHIERS_COMMUNS])];
 
 // Animation d'ambiance : aucune en mouvement réduit ; atténuée en effets discrets.
 export function animationDecor(zone, { reduit = false, discret = false } = {}) {

@@ -3,7 +3,7 @@ import { sonsPourEvenement } from './engine/sons.js';
 import { ajouterEtincelles, doitRedessiner } from './engine/etincelles.js';
 import { enemyLook, gardienLook, sequenceGardien, ancrageEnnemi, placeEnnemi, colonneEnnemi, tailleCase } from './engine/ennemis-visuels.js';
 import { couchesHeros, ACTIONS_HEROS } from './engine/apparence-heros.js';
-import { decorDeZone, idDecor, tousFichiersDecor, animationDecor, dureeTransition, opaciteFondu } from './engine/decors.js';
+import { decorDeZone, idDecor, fichiersDeZone, toutesPlanchesMonde, animationDecor, dureeTransition, opaciteFondu } from './engine/decors.js';
 import { AFFICHAGE_DEFAUT, normaliserAffichage, mouvementReduit, effetsDiscrets, echelleTexte } from './engine/affichage.js';
 // Direction rows belong to each sheet, not to the LPC family as a whole.
 const HERO_ROWS = Object.freeze({ east: 3 });
@@ -23,7 +23,7 @@ const police = px => `bold ${Math.round(px * echelleTexte(affichage.texte))}px m
 const discret = () => effetsDiscrets(affichage.effets);
 const assets = {};
 const COUCHES_FICHIERS = ['body','pants','boots','mail','plate','hood'].flatMap(c => ACTIONS_HEROS.map(a => `${c}-${a}`)).concat('sword');
-const files = [...new Set([...COUCHES_FICHIERS,'goblin-sword','goblin','bat','slime','snake','ghost','eyeball','spider','golem','imp','treetop','trunk','rock','chests',...tousFichiersDecor()])];
+const files = [...new Set([...COUCHES_FICHIERS, ...toutesPlanchesMonde()])];
 let failed = false;
 // Décor de la zone courante : fond recomposé hors écran à chaque changement ; fondu au noir de TRANSITION_MS (horloge de la scène, donc figé en pause).
 let decorId = 'foret', decorCible = null, fondAt = -Infinity, fondAPoser = true, premiereImage = true;
@@ -69,14 +69,25 @@ const backlog = window.braiseBacklog || [];
 window.braiseBacklog = null;
 for (const [type, detail] of backlog) receive(type, detail);
 for (const type of ['braise:combat', 'braise:zone', 'braise:pause', 'braise:spawn', 'braise:affichage', 'braise:equipement']) window.addEventListener(type, ({detail}) => receive(type, detail));
-await Promise.all(files.map(name => new Promise(resolve => {
-  const image = new Image();
-  image.onload = () => { assets[name] = image; resolve(); };
-  image.onerror = () => { failed = true; resolve(); };
-  image.src = `assets/lpc/${name}.png`;
-})));
-if (failed) document.getElementById('message').textContent = 'Certains décors n’ont pas chargé. Recharge la page pour réessayer.';
+// Premier combat : couches du héros et planches de la zone courante seulement ; les autres zones se chargent ensuite, sans bloquer la file.
+function charger(noms) {
+  return Promise.all(noms.map(name => new Promise(resolve => {
+    if (assets[name]) return resolve();
+    const image = new Image();
+    image.onload = () => { assets[name] = image; if (name !== 'sword' && decorDeZone(decorCible || decorId).fichiers.includes(name)) fondAPoser = true; reveiller(); resolve(); };
+    image.onerror = () => { signalerEchec(); resolve(); };
+    image.src = `assets/lpc/${name}.png`;
+  })));
+}
+function signalerEchec() {
+  if (failed) return;
+  failed = true;
+  document.getElementById('message').textContent = 'Certains décors n’ont pas chargé. Recharge la page pour réessayer.';
+}
+const prioritaires = [...new Set([...COUCHES_FICHIERS, ...fichiersDeZone(decorId)])];
+await charger(prioritaires);
 queue.ready(time);
+charger(files.filter(name => !prioritaires.includes(name)));
 function image(name, sx, sy, sw, sh, x, y, w, h) {
   if (assets[name]) ctx.drawImage(assets[name], sx, sy, sw, sh, Math.round(x), Math.round(y), w, h);
 }
