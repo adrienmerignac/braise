@@ -13,3 +13,12 @@
 .guide-hint{margin:6px 0;padding:6px 10px;border-left:3px solid var(--orange);font-weight:700}
 #upgrades button.guided{outline:3px solid var(--orange);outline-offset:2px;font-weight:700}
 @media(max-width:680px){.guide-panel{flex-direction:column;align-items:stretch}}
+
+.audio-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:4px max(5vw,20px);border-bottom:1px solid var(--line)}
+.audio-bar button{min-height:44px;min-width:44px;border:1px solid var(--line);padding:0 14px;color:#e9eee6}
+.audio-bar button[aria-pressed=false]{color:var(--muted)}
+.volume{display:flex;align-items:center;gap:10px;min-height:44px;color:var(--muted)}
+.volume input{width:min(180px,40vw);min-height:44px;accent-color:var(--orange)}
+.volume input:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.volume output{min-width:4ch;text-align:right}
+@media(max-width:680px){.audio-bar{padding:4px 20px}}

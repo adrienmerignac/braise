@@ -1,5 +1,6 @@
 // Lecture et écriture de la sauvegarde `braise-v2` (migrée depuis `braise-v1`) : validation champ par champ, sans DOM.
 // Le stockage est injecté (localStorage dans le jeu, un faux dans les tests).
+import { AUDIO_DEFAUT, reglagesValides } from './audio.js';
 import { SAVE_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP } from './state.js';
 import { enemyMaxHP } from './combat.js';
 
@@ -26,7 +27,8 @@ export function migrate(raw) {
 // La pause n'est jamais persistée : on reprend toujours en jeu actif.
 // `guide` : avancement du premier parcours ('todo' | 'done'), absent si non fourni.
 // `vus` : explications ponctuelles déjà montrées (voir GUIDE_VUS), absent si non fourni.
-export const serializeSave = (s, fight, guide, vus) => JSON.stringify({ version: SAVE_VERSION, ...s, ...fight, ...(guide ? { guide } : {}), ...(vus ? { vus } : {}) });
+// `audio` : { muet, volume }, absent si non fourni.
+export const serializeSave = (s, fight, guide, vus, audio) => JSON.stringify({ version: SAVE_VERSION, ...s, ...fight, ...(guide ? { guide } : {}), ...(vus ? { vus } : {}), ...(audio ? { audio } : {}) });
 
 export const GUIDE_STATES = ['todo', 'done'];
 // Défaut quand le champ `guide` est absent (sauvegarde v1 ou v2 antérieure) : un joueur qui a progressé n'a plus besoin du guide.
@@ -64,7 +66,7 @@ function parseFight(data, s, now) {
 // Retourne { s, status } : 'new' (rien de stocké), 'ok', 'repaired' (champs remplacés) ou 'reset' (illisible).
 export function parseSave(text, now) {
   const base = fresh(now);
-  if (text === null || text === undefined) return { s: base, status: 'new', guide: 'todo', vus: [] };
+  if (text === null || text === undefined) return { s: base, status: 'new', guide: 'todo', vus: [], audio: { ...AUDIO_DEFAUT } };
   let data;
   try { data = JSON.parse(text); } catch { return { s: base, status: 'reset' }; }
   data = migrate(data);
@@ -87,7 +89,12 @@ export function parseSave(text, now) {
   if (data.vus !== undefined) {
     if (validVus(data.vus)) vus = GUIDE_VUS.filter(k => data.vus.includes(k)); else repaired = true;
   }
-  const result = { s, status: repaired ? 'repaired' : 'ok', guide, vus };
+  // `audio` absent (toutes les parties existantes) : défaut sans réparation ; présent mais invalide : défaut, partie conservée.
+  let audio = { ...AUDIO_DEFAUT };
+  if (data.audio !== undefined) {
+    if (reglagesValides(data.audio)) audio = { muet: data.audio.muet, volume: data.audio.volume }; else repaired = true;
+  }
+  const result = { s, status: repaired ? 'repaired' : 'ok', guide, vus, audio };
   if (Object.keys(f.fight).length) result.fight = f.fight;
   return result;
 }
@@ -102,18 +109,18 @@ export function loadSave(storage, now) {
   if (legacy === null || legacy === undefined) return current;
   const migrated = parseSave(legacy, now);
   if (migrated.status === 'reset') return { s: current.s, status: 'reset' };
-  writeSave(storage, migrated.s, undefined, migrated.guide, migrated.vus);
+  writeSave(storage, migrated.s, undefined, migrated.guide, migrated.vus, migrated.audio);
   return migrated;
 }
 
 // Retourne true si l'écriture a réussi.
-export function writeSave(storage, s, fight, guide, vus) {
-  try { storage.setItem(SAVE_KEY, serializeSave(s, fight, guide, vus)); return true; } catch { return false; }
+export function writeSave(storage, s, fight, guide, vus, audio) {
+  try { storage.setItem(SAVE_KEY, serializeSave(s, fight, guide, vus, audio)); return true; } catch { return false; }
 }
 
 // Import d'un fichier : n'accepte que ce que `parseSave` juge intact ; sinon rien ne doit changer.
 export function importSave(text, now) {
-  const { s, status, fight, guide, vus } = parseSave(text, now);
+  const { s, status, fight, guide, vus, audio } = parseSave(text, now);
   if (status !== 'ok') return { ok: false };
-  return fight ? { ok: true, s, fight, guide, vus } : { ok: true, s, guide, vus };
+  return fight ? { ok: true, s, fight, guide, vus, audio } : { ok: true, s, guide, vus, audio };
 }

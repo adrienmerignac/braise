@@ -7,7 +7,7 @@ function element() {
   return {
     textContent: '', innerHTML: '', disabled: false, onclick: null, style: {}, offsetWidth: 0,
     classList: { add: c => classes.add(c), remove: c => classes.delete(c), contains: c => classes.has(c) },
-    append() {}, showModal() {}, close() {},
+    append() {}, setAttribute() {}, showModal() {}, close() {},
   };
 }
 

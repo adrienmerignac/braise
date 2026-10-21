@@ -8,7 +8,7 @@ const valid = { gold: 120, xp: 5, level: 3, stage: 4, kills: 2, weapon: 1, armor
 const mem = (init = {}) => ({ data: { ...init }, getItem(k) { return k in this.data ? this.data[k] : null; }, setItem(k, v) { this.data[k] = v; } });
 
 test('une sauvegarde valide est conservée telle quelle', () => {
-  assert.deepEqual(parseSave(JSON.stringify(valid), NOW), { s: valid, status: 'ok', guide: 'done', vus: ['gardien', 'absence'] });
+  assert.deepEqual(parseSave(JSON.stringify(valid), NOW), { s: valid, status: 'ok', guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 } });
 });
 
 test('JSON illisible, null, tableau, scalaire : partie neuve', () => {
@@ -18,7 +18,7 @@ test('JSON illisible, null, tableau, scalaire : partie neuve', () => {
 });
 
 test('aucune sauvegarde : partie neuve sans alerte', () => {
-  assert.deepEqual(parseSave(null, NOW), { s: fresh(NOW), status: 'new', guide: 'todo', vus: [] });
+  assert.deepEqual(parseSave(null, NOW), { s: fresh(NOW), status: 'new', guide: 'todo', vus: [], audio: { muet: false, volume: 0.6 } });
 });
 
 test('chaînes, NaN, Infinity, flottants : repli champ par champ', () => {
@@ -70,8 +70,8 @@ test('migrate : braise-v1 complet converti sans perte, entrée non modifiée', (
 test('loadSave : v1 complet repris, écrit en v2, ancienne clé conservée', () => {
   const storage = mem({ [LEGACY_SAVE_KEY]: JSON.stringify(v1) });
   const r = loadSave(storage, NOW);
-  assert.deepEqual(r, { s: v1, status: 'ok', guide: 'done', vus: ['gardien', 'absence'] });
-  assert.deepEqual(JSON.parse(storage.data[SAVE_KEY]), { version: 2, ...v1, guide: 'done', vus: ['gardien', 'absence'] });
+  assert.deepEqual(r, { s: v1, status: 'ok', guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 } });
+  assert.deepEqual(JSON.parse(storage.data[SAVE_KEY]), { version: 2, ...v1, guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 } });
   assert.equal(storage.data[LEGACY_SAVE_KEY], JSON.stringify(v1));
 });
 
@@ -97,7 +97,7 @@ test('version inconnue : refusée', () => {
 
 test('aller-retour export/import identique', () => {
   const r = importSave(serializeSave(v1), NOW);
-  assert.deepEqual(r, { ok: true, s: v1, guide: 'done', vus: ['gardien', 'absence'] });
+  assert.deepEqual(r, { ok: true, s: v1, guide: 'done', vus: ['gardien', 'absence'], audio: { muet: false, volume: 0.6 } });
   assert.equal(serializeSave(r.s), serializeSave(v1));
 });
 
@@ -159,5 +159,36 @@ test('vus : conservées à l’export/import, invalides → repaired avec le dé
     const r = parseSave(JSON.stringify({ version: 2, ...neuve, vus }), NOW);
     assert.equal(r.status, 'repaired', JSON.stringify(vus));
     assert.deepEqual(r.vus, []);
+  }
+});
+
+const DEFAUT_AUDIO = { muet: false, volume: 0.6 };
+
+test('audio : aller-retour serializeSave / parseSave, import et stockage', () => {
+  const audio = { muet: true, volume: 0.25 };
+  assert.deepEqual(parseSave(serializeSave(valid, undefined, 'done', [], audio), NOW).audio, audio);
+  assert.deepEqual(importSave(serializeSave(valid, undefined, 'done', [], audio), NOW).audio, audio);
+  const storage = mem();
+  writeSave(storage, valid, undefined, 'done', [], audio);
+  assert.deepEqual(loadSave(storage, NOW).audio, audio);
+});
+
+test('reprise : une sauvegarde v2 sans audio garde sa partie et reçoit les réglages par défaut', () => {
+  const avance = { ...valid, gold: 4321, stage: 7, level: 5 };
+  const r = parseSave(JSON.stringify({ version: 2, ...avance }), NOW);
+  assert.equal(r.status, 'ok');
+  assert.deepEqual(r.audio, DEFAUT_AUDIO);
+  assert.equal(r.s.gold, 4321);
+  assert.equal(r.s.stage, 7);
+  assert.equal(r.s.level, 5);
+});
+
+test('audio corrompu : défaut, partie conservée, jamais reset', () => {
+  for (const audio of ['fort', null, 3, [], {}, { muet: 'oui', volume: 0.5 }, { muet: false, volume: 2 }, { muet: false, volume: -0.1 }, { muet: false, volume: '0.5' }, { muet: false }]) {
+    const r = parseSave(JSON.stringify({ version: 2, ...valid, audio }), NOW);
+    assert.equal(r.status, 'repaired', JSON.stringify(audio));
+    assert.deepEqual(r.audio, DEFAUT_AUDIO);
+    assert.equal(r.s.gold, valid.gold);
+    assert.equal(importSave(JSON.stringify({ version: 2, ...valid, audio }), NOW).ok, false);
   }
 });
