@@ -57,3 +57,7 @@ export const INVENTORY_CAP = 24;
 export const LOOT_DROP_CHANCE = 0.12;
 export const LOOT_RARITY_WEIGHTS = { commun: 75, rare: 22, epique: 3 };
 export const LOOT_BOSS_RARITY_WEIGHTS = { rare: 85, epique: 15 };
+// Butin (M3.2a) : or obtenu quand l'inventaire plein force la conversion de l'objet de moindre rareté.
+export const LOOT_CONVERSION_GOLD = { commun: 5, rare: 15, epique: 40 };
+// Butin hors ligne : espérance du tirage (victoires × chance de drop), arrondie bas, plafonnée ; jamais d'épique.
+export const OFFLINE_LOOT_CAP = 6;

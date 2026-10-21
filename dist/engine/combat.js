@@ -6,7 +6,7 @@ import {
   XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, ENEMY_KINDS, ENEMY_CATALOG,
   RETALIATION_BASE, RETALIATION_BOSS_BASE, RETALIATION_PER_STAGE, RETALIATION_ARMOR_REDUCTION,
 } from './balance.js';
-import { bonusEquipement } from './equipement.js';
+import { bonusEquipement, tirerButin, ajouterObjet } from './equipement.js';
 
 export {
   XP_PER_LEVEL, XP_ENEMY, XP_BOSS, BOSS_GOLD_MULT, BOSS_HP_MULT, HEAL_ON_VICTORY, HEAL_ON_ARMOR, ENEMY_BASE_HP, ENEMY_HP_PER_STAGE,
@@ -76,7 +76,8 @@ export function buyUpgrade(s, f, kind) {
   return { s, f, events: [{ type: 'upgrade', kind, level: s[kind], ...(kind === 'armor' && { healed: HEAL_ON_ARMOR }) }] };
 }
 
-export function strike(s, f, mult = 1) {
+// `rng` (réel dans [0, 1)) est injecté par game.js ; sans lui, aucun butin n'est tiré.
+export function strike(s, f, mult = 1, rng = null) {
   const damage = attack(s) * mult;
   const enemyHP = f.enemyHP - damage;
   const defeated = enemyHP <= 0;
@@ -100,6 +101,13 @@ export function strike(s, f, mult = 1) {
       const healed = Math.min(maxHP(s), f.hp + HEAL_ON_VICTORY) - f.hp;
       f = { ...f, hp: f.hp + healed };
       events.push({ type: 'victory', gold, xp: XP_ENEMY, healed });
+    }
+    if (rng) {
+      for (const objet of tirerButin({ ennemi: wonBoss ? 'gardien' : 'ordinaire', etape: wonBoss ? s.stage - 1 : s.stage, rng })) {
+        const r = ajouterObjet(s, objet);
+        s = r.s;
+        events.push({ type: 'butin', objet, converti: r.converti });
+      }
     }
     const next = spawn(s, f);
     return { s, f: next.f, events: [...events, ...next.events] };
