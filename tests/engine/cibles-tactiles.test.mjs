@@ -65,3 +65,22 @@ test('panneau Carte : « Voyager » et « Fermer » ont une règle min-height �
     assert.ok(ok, `${sel} sans min-height ≥ ${MIN}px`);
   }
 });
+
+const IDS_PANNEAUX = ['inventaireclose', 'equiper', 'ameliorer', 'recycler', 'recyclenon', 'recycleok', 'talentsclose', 'talentsreset', ...['assaut', 'rempart', 'fortune', 'braise'].map(t => `talent-invest-${t}`)];
+
+test('Inventaire, Talents et confirmation de recyclage : chaque bouton est couvert par un min-height ≥ 44px', () => {
+  const regles = reglesMinHeight();
+  const tous = elements();
+  for (const id of IDS_PANNEAUX) {
+    const el = tous.find(e => e.id === id);
+    assert.ok(el, `#${id} absent du HTML`);
+    assert.ok(regles.some(r => couvre(r, el)), `#${id} sans règle min-height ≥ ${MIN}px`);
+  }
+});
+
+test('la liste de l’inventaire défile dans sa propre zone, sans allonger la page ni toucher à la carte', () => {
+  const regle = css.match(/#inventairelist\s*\{([^{}]*)\}/)?.[1] ?? '';
+  assert.match(regle, /max-height:/);
+  assert.match(regle, /overflow-y:\s*auto/);
+  assert.doesNotMatch(css.match(/#cartelist\s*\{([^{}]*)\}/)?.[1] ?? '', /max-height/);
+});

@@ -11,7 +11,7 @@ npm run check
 
 Le contrôle vérifie syntaxe des modules JS, références locales HTML, liens de la documentation, présence et dimensions des sprites utilisés et contrat de configuration statique. Il ne lance pas un navigateur et ne prouve pas que les animations sont visuellement correctes.
 
-Équilibrage : `node tools/simulate.mjs [minutes]` joue le premier parcours sur le moteur pur (politique décrite en tête du script) et imprime, en secondes de jeu, victoire moyenne à l'étage 1, premier achat, premier gardien et étage atteint ; les constantes sont dans `dist/engine/balance.js`.
+Équilibrage : `node tools/simulate.mjs [minutes]` joue le premier parcours sur le moteur pur (politique décrite en tête du script) et imprime, en secondes de jeu, victoire moyenne à l'étage 1, premier achat, premier gardien, ouverture des ruines (`ruinesSeconds`, gardien 5) et des cryptes (`cryptesSeconds`, gardien 10), gardien de l’étage 15 (`gardien15Seconds`) et étage atteint ; les constantes sont dans `dist/engine/balance.js`.
 
 ## Recette navigateur
 
@@ -56,11 +56,11 @@ Un bouton désactivé se lit aussi par son bord pointillé (pas d’opacité ré
 
 | Format | Points vérifiés |
 | --- | --- |
-| 360 × 800 | Largeur du document = écran ; héros et ennemi face à face ; barre Pause/Son/Volume/réglages en tête ; commandes de combat collées en bas ; « Grand » sans chevauchement. |
+| 360 × 800 | Largeur du document = écran ; héros et ennemi face à face ; barre Pause/Son/Volume/réglages en tête ; commandes de combat collées en bas ; « Grand » sans chevauchement. **Inventaire** (sauvegarde importée, 24 objets) : liste défilable dans sa zone, sans débordement horizontal, comparaison avant/après lisible, Équiper / Améliorer / Recycler et confirmation de recyclage dans l’écran, boutons ≥ 44 px. **Talents** : nom, rang, effet et coût lisibles, Investir et Réinitialiser ≥ 44 px ; Échap ferme, focus visible. |
 | 390 × 844 | Idem ; dialogues (bienvenue, absence, gardien) dans l’écran, bouton ≥ 44 px, Échap et focus rendu. |
 | 844 × 390 (paysage) | Un seul défilement vertical ; au chargement la scène est sous le pli (barre Son/réglages sur une ligne), après défilement héros, ennemi et barre de combat collée en bas sont visibles ensemble, sans que la barre recouvre la scène ; panneau du gardien compact, contenu dans la scène. |
 | 768 × 1024 | Deux colonnes sans débordement ; héros et ennemi visibles. |
-| 1280 × 800 | Rendu bureau inchangé. |
+| 1280 × 800 | Rendu bureau inchangé ; Inventaire et Talents sans régression. |
 
 Panneau Carte (ouvert sur une partie à `meilleurEtage` 8, import de sauvegarde) : dans chaque format et en « Grand » à 360 px, il tient dans l’écran sans défilement horizontal ; chaque zone montre nom, étages, état et condition, prédilection de butin et ses deux objectifs sans texte coupé ; un récit débloqué se lit en entier, un récit verrouillé affiche sa condition ; « Voyager » et « Fermer » ≥ 44 × 44 px, focus visible, Échap ferme. Sous 680 px, « Voyager » passe sous le texte de la zone, pleine largeur.
 

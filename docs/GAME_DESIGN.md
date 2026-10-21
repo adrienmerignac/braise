@@ -71,6 +71,8 @@ Soit, par ennemi ordinaire : 9 % commun, 2,64 % rare, 0,36 % épique. L'emplacem
 - Voyager mène au plus haut étage atteint dans la plage de la zone (au moins son premier étage), remet les victoires à 0, remplace le combat en cours (gardien abandonné sans pénalité) et conserve la vie. Revenir en arrière est permis.
 - Sauvegarde v5 : `zone` et `meilleurEtage` ; une partie v4 reprend dans la zone de son étage. Absence : calculée sur l’étage courant, aucune zone ne s’ouvre.
 
+- Rythme mesuré (`tools/simulate.mjs`, sans talent) : ruines ouvertes à 157 s, cryptes à 329 s, gardien de l’étage 15 à 550 s de jeu.
+
 ### Objectifs de zone
 
 Deux objectifs par zone, chacun accompli une seule fois, avec de l’or versé à l’accomplissement (valeurs de départ dans `OBJECTIFS`, `dist/engine/balance.js`).
