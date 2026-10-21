@@ -70,7 +70,6 @@ Soit, par ennemi ordinaire : 9 % commun, 2,64 % rare, 0,36 % épique. L'emplacem
 - Vaincre le gardien du dernier étage d’une zone donne la récompense normale, ouvre la suivante et remet les victoires à 0, mais l’étage reste à la fin de la zone jusqu’au voyage.
 - Voyager mène au plus haut étage atteint dans la plage de la zone (au moins son premier étage), remet les victoires à 0, remplace le combat en cours (gardien abandonné sans pénalité) et conserve la vie. Revenir en arrière est permis.
 - Sauvegarde v5 : `zone` et `meilleurEtage` ; une partie v4 reprend dans la zone de son étage. Absence : calculée sur l’étage courant, aucune zone ne s’ouvre.
-- Le panneau Carte pour voyager n’existe pas encore (tâche suivante) ; ces règles ne sont pas encore jouables depuis l’interface.
 
 ### Objectifs de zone
 
@@ -84,7 +83,14 @@ Deux objectifs par zone, chacun accompli une seule fois, avec de l’or versé �
 
 - Seules les victoires en ligne dans la zone courante font avancer la chasse ; l’absence ne fait progresser aucun objectif. Le compteur se borne à la cible.
 - Sauvegarde v6 : `objectifs`. Une partie v5 reprend avec les compteurs à 0 et le gardien accompli (or versé une fois) pour chaque zone dont la cible est déjà dépassée par `meilleurEtage`.
-- L’affichage des objectifs n’existe pas encore (tâche suivante) ; seul le journal signale un accomplissement.
+
+### Récits
+
+- Quatre courts fragments (2 à 3 phrases, tutoiement) sur la braise et le camp : `braise` (dès le départ), `ruines` (`meilleurEtage` ≥ 6), `cryptes` (≥ 11), `cendres` (≥ 16). Table dans `dist/engine/recits.js` ; textes et seuils sont des valeurs de départ réversibles.
+- Le déblocage se déduit de `meilleurEtage`, sans compteur. L’absence n’avance jamais `meilleurEtage` : elle ne débloque ni n’annonce aucun récit.
+- Un récit débloqué par la victoire d’un gardien et pas encore lu produit un événement `recit` (`id`), une seule fois. Aucun dialogue bloquant.
+- Sauvegarde v7 : `recitsLus`. Une partie v6 qui a progressé (`meilleurEtage` > 1) reprend avec tous ses récits débloqués considérés comme lus ; une partie sans progrès reprend avec une liste vide. Identifiants inconnus ignorés, doublons retirés, valeur non tableau réparée.
+- L’affichage des récits n’existe pas encore (tâche suivante).
 
 ## Objectifs à valider
 

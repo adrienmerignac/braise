@@ -8,6 +8,7 @@ import {
 } from './balance.js';
 import { soinVictoire } from './talents.js';
 import { objectifChasse, objectifGardien } from './objectifs.js';
+import { recitsNouveaux } from './recits.js';
 import { bonusEquipement, tirerButin, ajouterObjet } from './equipement.js';
 
 export {
@@ -113,7 +114,7 @@ export function strike(s, f, mult = 1, rng = null) {
     ({ s, f } = xp);
     events.push(...xp.events);
     if (wonBoss) {
-      const ancienne = zoneDeEtage(s.meilleurEtage), meilleurEtage = Math.max(s.meilleurEtage, etageVaincu + 1);
+      const ancienMeilleur = s.meilleurEtage, ancienne = zoneDeEtage(s.meilleurEtage), meilleurEtage = Math.max(s.meilleurEtage, etageVaincu + 1);
       // Le plafond de la zone retient le héros : l'étage ne monte que si la zone continue.
       s = { ...s, stage: Math.min(etageVaincu + 1, ZONES[s.zone].fin), kills: 0, meilleurEtage };
       const zoneOuverte = zoneDeEtage(meilleurEtage) !== ancienne ? zoneDeEtage(meilleurEtage) : undefined;
@@ -121,6 +122,7 @@ export function strike(s, f, mult = 1, rng = null) {
       f = { ...f, boss: false, hp: maxHP(s) };
       events.push({ type: 'bossVictory', stage: s.stage, gold, xp: XP_BOSS, healed, ...(zoneOuverte && { zoneOuverte }), ...(s.stage === etageVaincu && { plafond: true }) });
       s = objectifGardien(s, etageVaincu, events);
+      s = recitsNouveaux(s, ancienMeilleur, events);
     } else {
       s = { ...s, kills: Math.min(KILLS_PER_STAGE, s.kills + 1) };
       const healed = Math.min(maxHP(s), f.hp + soinVictoire(s)) - f.hp;

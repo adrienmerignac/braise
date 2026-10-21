@@ -5,6 +5,7 @@ import { AFFICHAGE_DEFAUT, MOUVEMENTS, EFFETS, affichageValide, normaliserAffich
 import { SAVE_KEY, BACKUP_KEY, LEGACY_SAVE_KEY, SAVE_VERSION, KILLS_PER_STAGE, fresh, maxHP, zoneDeEtage } from './state.js';
 import { enemyMaxHP } from './combat.js';
 import { objectifsNeufs, gardienDepasse } from './objectifs.js';
+import { RECIT_IDS, recitsDebloques } from './recits.js';
 import { pointsTalents, rechargeCompetence } from './talents.js';
 import { ENEMY_BASE_HP, ENEMY_HP_PER_STAGE, EQUIPMENT_BASE, EQUIPMENT_SLOTS, EQUIPMENT_RARITIES, INVENTORY_CAP, EQUIPMENT_UPGRADE_MAX, TALENT_IDS, TALENT_MAX_RANK, ZONE_IDS, OBJECTIFS, OBJECTIF_IDS } from './balance.js';
 
@@ -21,7 +22,7 @@ const isRecord = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const validInt = (v, min, max) => typeof v === 'number' && Number.isSafeInteger(v) && v >= min && v <= max;
 
 // Migre un enregistrement jusqu'à la version courante, sans perte : v1 (sans `version`) → v2 (version ajoutée),
-// v2 → v3 (`inventaire` vide et `equipe` vide ajoutés s'ils manquent), v3 → v4 (`talents` vide ajouté s'il manque), v4 → v5 (`meilleurEtage` = étage, `zone` = zone qui contient l'étage), v5 → v6 (`objectifs` : chasse à 0, gardien accompli et son or versé une fois pour chaque zone dont la cible est dépassée). Une version inconnue ou un non-objet est rendu
+// v2 → v3 (`inventaire` vide et `equipe` vide ajoutés s'ils manquent), v3 → v4 (`talents` vide ajouté s'il manque), v4 → v5 (`meilleurEtage` = étage, `zone` = zone qui contient l'étage), v6 → v7 (`recitsLus` : récits débloqués par `meilleurEtage` marqués lus), v5 → v6 (`objectifs` : chasse à 0, gardien accompli et son or versé une fois pour chaque zone dont la cible est dépassée). Une version inconnue ou un non-objet est rendu
 // tel quel ; `parseSave` le refusera.
 function migrerObjectifs(data) {
   const objectifs = objectifsNeufs();
@@ -31,7 +32,7 @@ function migrerObjectifs(data) {
   }
   // Sans or valide, rien n'est versé : `parseSave` répare le champ.
   const gold = typeof data.gold === 'number' && Number.isFinite(data.gold) ? data.gold + or : data.gold;
-  return { ...data, gold, objectifs, version: SAVE_VERSION };
+  return { ...data, gold, objectifs, version: 6 };
 }
 
 export function migrate(raw) {
@@ -43,6 +44,8 @@ export function migrate(raw) {
   // Sans étage entier valide, rien n'est déduit : `parseSave` répare le champ manquant.
   if (data.version === 4) data = { ...(Number.isInteger(data.stage) ? { meilleurEtage: data.stage, zone: zoneDeEtage(data.stage) } : {}), ...data, version: 5 };
   if (data.version === 5) data = migrerObjectifs(data);
+  // v6 → v7 : les récits déjà débloqués par `meilleurEtage` sont considérés comme lus (pas de rafale au chargement).
+  if (data.version === 6) data = { ...data, recitsLus: recitsDebloques(Number.isInteger(data.meilleurEtage) ? data.meilleurEtage : 0), version: 7 };
   return data;
 }
 
@@ -208,6 +211,9 @@ export function parseSave(text, now) {
   const obj = parseObjectifs(data);
   s.objectifs = obj.objectifs;
   if (obj.repaired) repaired = true;
+  // `recitsLus` : identifiants connus, sans doublon. Absent : récits déjà débloqués considérés comme lus (comme `vus`) ; non-tableau : même défaut, réparé.
+  if (Array.isArray(data.recitsLus)) s.recitsLus = RECIT_IDS.filter(id => data.recitsLus.includes(id));
+  else { s.recitsLus = recitsDebloques(s.meilleurEtage); if (data.recitsLus !== undefined) repaired = true; }
   const f = parseFight(data, s, now);
   if (f.repaired) repaired = true;
   let guide = defaultGuide(s);
