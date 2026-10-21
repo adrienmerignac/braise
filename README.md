@@ -22,15 +22,14 @@ npm run check
 
 `dist/` contient aujourd’hui les sources HTML/CSS/JS et les assets directement servis. Il ne faut pas l’effacer comme un dossier de compilation.
 
-## Déjà jouable
+## Déjà jouable (0.9.0)
 
-- Combat automatique toutes les 1,2 seconde ; expérience et niveaux.
-- Améliorations d’attaque, vitalité et or par victoire.
-- Frappe active ×4, avec recharge de 15 secondes.
-- Gardien débloqué après cinq victoires ; progression d’étage après sa défaite.
-- Sauvegarde locale `braise-v1` et estimation des gains d’absence plafonnée à huit heures.
-- Forêt au crépuscule, héros LPC en armure, gobelin animé, approche, attaque, riposte, chute, feu, lucioles et impacts.
-- Pause et adaptation aux préférences de réduction des mouvements.
+- Combat automatique ; expérience, niveaux et trois améliorations (attaque, vitalité, or par victoire).
+- Frappe de braise active (dégâts ×4, recharge de 15 secondes) ; gardien de zone débloqué après cinq victoires.
+- Trois zones à débloquer par étage atteint, avec carte et voyage : forêt des Murmures (étages 1 à 5), ruines englouties (6 à 10) et cryptes de cendre (11 et au-delà). Chacune a ses ennemis, son décor, ses objectifs, son butin favorisé et un gardien propre : Gardien de braise, Sentinelle engloutie, Gardien des cendres.
+- Butin d’équipement (armes, armures, charmes) avec raretés, inventaire avec comparaison, recyclage et amélioration, talents réinitialisables, fragments de récit relisibles dans la carte.
+- Sauvegarde locale `braise-v2` (migrée depuis `braise-v1`), export et import de la partie en JSON, gains d’absence plafonnés à huit heures.
+- Réglages de son, de mouvement, d’effets et de taille du texte ; pause ; réduction des mouvements respectée ; clavier et toucher.
 
 ## Documentation partagée Codex / Claude
 
@@ -54,7 +53,7 @@ Les scripts `tools/fetch-lpc.py` et `tools/compose-hero.py` permettent de récup
 
 ## Limites actuelles
 
-Sauvegarde propre au navigateur et à l’origine, sans compte ni synchronisation ; pas d’export/import. Les gains hors ligne sont une estimation sans simulation des défaites. Un seul biome et une famille d’ennemis ; le gardien est une variante agrandie. Équilibrage exploratoire, aucune monétisation. La licence du code du jeu reste à choisir avant une diffusion publique ; les licences des assets sont déjà conservées séparément.
+Sauvegarde propre au navigateur et à l’origine, sans compte ni synchronisation : changer d’adresse impose d’utiliser Exporter puis Importer. Les gains hors ligne sont une estimation sans simulation des défaites. Équilibrage exploratoire, aucune monétisation. Pas encore installable ni jouable hors ligne : le manifeste est prêt, le service worker reste à faire. La licence du code du jeu reste à choisir avant une diffusion publique ; les licences des assets sont déjà conservées séparément.
 
 ## État des contrôles
 

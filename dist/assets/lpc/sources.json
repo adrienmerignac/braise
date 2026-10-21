@@ -40,5 +40,9 @@
   "imp.png": "sprite/original/Redshrike/imp/PNG/red/walk - sword.png",
   "castlefloors.png": "tileset/original/HughSpectrum/castlefloors.png",
   "castlewalls.png": "tileset/original/HughSpectrum/castlewalls.png",
-  "dungeon.png": "tileset/original/Sharm/sewer-dungeon/dungeon.png"
+  "dungeon.png": "tileset/original/Sharm/sewer-dungeon/dungeon.png",
+  "assets/icons/icon-192.png": "dérivé de portrait.png (couches LPC body, hood, mail, plate, pants, boots : Redshrike, wulax, makrohn et contributeurs Liberated Pixel Cup), recadré et agrandi au plus proche voisin par tools/make-icons.mjs, sans retouche — CC BY-SA 3.0",
+  "assets/icons/icon-512.png": "dérivé de portrait.png (couches LPC body, hood, mail, plate, pants, boots : Redshrike, wulax, makrohn et contributeurs Liberated Pixel Cup), recadré et agrandi au plus proche voisin par tools/make-icons.mjs, sans retouche — CC BY-SA 3.0",
+  "assets/icons/icon-maskable-512.png": "dérivé de portrait.png (couches LPC body, hood, mail, plate, pants, boots : Redshrike, wulax, makrohn et contributeurs Liberated Pixel Cup), recadré et agrandi au plus proche voisin par tools/make-icons.mjs, sans retouche — CC BY-SA 3.0",
+  "assets/icons/apple-touch-icon-180.png": "dérivé de portrait.png (couches LPC body, hood, mail, plate, pants, boots : Redshrike, wulax, makrohn et contributeurs Liberated Pixel Cup), recadré et agrandi au plus proche voisin par tools/make-icons.mjs, sans retouche — CC BY-SA 3.0"
 }
