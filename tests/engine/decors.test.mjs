@@ -51,3 +51,35 @@ test('le fondu monte à mi-durée puis redescend ; nul hors transition', () => {
   assert.equal(opaciteFondu(TRANSITION_MS), 0);
   assert.equal(opaciteFondu(100, 0), 0);
 });
+
+import { fichiersDeZone, toutesPlanchesMonde } from '../../dist/engine/decors.js';
+import { BESTIAIRE } from '../../dist/engine/balance.js';
+import { ENEMY_LOOKS, gardienLook } from '../../dist/engine/ennemis-visuels.js';
+import { ACTIONS_HEROS } from '../../dist/engine/apparence-heros.js';
+
+test('fichiersDeZone couvre les ennemis, le gardien et le décor de chaque zone, sans doublon', () => {
+  for (const zone of ZONE_IDS) {
+    const f = fichiersDeZone(zone);
+    for (const type of BESTIAIRE[zone].types) assert.ok(f.includes(ENEMY_LOOKS[type].sheet), `${zone} : ${type}`);
+    assert.ok(f.includes(gardienLook(zone).sheet));
+    for (const d of fichiersDecor(zone)) assert.ok(f.includes(d));
+    assert.equal(new Set(f).size, f.length);
+  }
+});
+
+test('les trois zones couvrent toutes les planches du monde, et la forêt ne demande rien des cryptes', () => {
+  const union = new Set(ZONE_IDS.flatMap(fichiersDeZone));
+  for (const n of toutesPlanchesMonde()) assert.ok(union.has(n) || n === 'chests', n);
+  for (const n of union) assert.ok(toutesPlanchesMonde().includes(n));
+  const propresCryptes = fichiersDeZone('cryptes').filter(n => !fichiersDeZone('foret').includes(n));
+  assert.ok(propresCryptes.includes('imp') && propresCryptes.includes('dungeon'));
+  for (const n of propresCryptes) assert.ok(!fichiersDeZone('foret').includes(n));
+  assert.deepEqual(fichiersDeZone('inconnue'), fichiersDeZone('foret'));
+});
+
+test('les planches hors héros du dossier assets correspondent aux planches déclarées', () => {
+  const heros = ['body', 'pants', 'boots', 'mail', 'plate', 'hood'].flatMap(c => ACTIONS_HEROS.map(a => `${c}-${a}`)).concat('sword');
+  const scene = readFileSync(new URL('../../dist/scene.js', import.meta.url), 'utf8');
+  assert.ok(scene.includes('fichiersDeZone(decorId)'));
+  assert.equal(new Set([...heros, ...toutesPlanchesMonde()]).size, heros.length + toutesPlanchesMonde().length);
+});
