@@ -1,7 +1,7 @@
 // Décors des zones : des données pures (aucun DOM). La scène recompose le fond hors écran une fois par changement de zone.
 // Les tuiles sont des cases de 32 px prises dans les planches LPC listées dans `fichiers` (déclarées dans sources.json et le manifeste).
 import { ZONE_IDS, BESTIAIRE } from './balance.js';
-import { ENEMY_LOOKS, ENEMY_SHEETS, gardienLook } from './ennemis-visuels.js';
+import { ENEMY_LOOKS, gardienLook } from './ennemis-visuels.js';
 
 export const TRANSITION_MS = 300;
 export const ZONE_PAR_DEFAUT = 'foret';

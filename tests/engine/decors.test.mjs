@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { DECORS, TRANSITION_MS, FORCE_DISCRETE, decorDeZone, idDecor, fichiersDecor, animationDecor, dureeTransition, opaciteFondu } from '../../dist/engine/decors.js';
 import { ZONE_IDS } from '../../dist/engine/balance.js';
 
@@ -77,9 +77,10 @@ test('les trois zones couvrent toutes les planches du monde, et la forêt ne dem
   assert.deepEqual(fichiersDeZone('inconnue'), fichiersDeZone('foret'));
 });
 
-test('les planches hors héros du dossier assets correspondent aux planches déclarées', () => {
+test('chaque planche du monde a son fichier dans assets/lpc, distinct des couches du héros ; scene.js utilise fichiersDeZone', () => {
   const heros = ['body', 'pants', 'boots', 'mail', 'plate', 'hood'].flatMap(c => ACTIONS_HEROS.map(a => `${c}-${a}`)).concat('sword');
   const scene = readFileSync(new URL('../../dist/scene.js', import.meta.url), 'utf8');
   assert.ok(scene.includes('fichiersDeZone(decorId)'));
+  for (const n of toutesPlanchesMonde()) assert.ok(existsSync(new URL(`../../dist/assets/lpc/${n}.png`, import.meta.url)), n);
   assert.equal(new Set([...heros, ...toutesPlanchesMonde()]).size, heros.length + toutesPlanchesMonde().length);
 });
