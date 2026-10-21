@@ -15,3 +15,5 @@ export const attack = s => BASE_ATTACK + s.weapon * ATTACK_PER_WEAPON + (s.level
 export const maxHP = s => BASE_HEALTH + s.armor * HEALTH_PER_ARMOR + (s.level - 1) * HEALTH_PER_LEVEL;
 export const reward = s => BASE_REWARD + s.stage * REWARD_PER_STAGE + s.luck * REWARD_PER_LUCK;
 export const cost = (s, k) => Math.floor(BASE_COSTS[k] * COST_GROWTH ** s[k]);
+// Amélioration la moins chère (la première en cas d'égalité) : cible du premier achat guidé.
+export const cheapestUpgrade = s => ['weapon', 'armor', 'luck'].reduce((a, k) => (cost(s, k) < cost(s, a) ? k : a));

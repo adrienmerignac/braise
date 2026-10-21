@@ -8,7 +8,7 @@ const valid = { gold: 120, xp: 5, level: 3, stage: 4, kills: 2, weapon: 1, armor
 const mem = (init = {}) => ({ data: { ...init }, getItem(k) { return k in this.data ? this.data[k] : null; }, setItem(k, v) { this.data[k] = v; } });
 
 test('une sauvegarde valide est conservée telle quelle', () => {
-  assert.deepEqual(parseSave(JSON.stringify(valid), NOW), { s: valid, status: 'ok' });
+  assert.deepEqual(parseSave(JSON.stringify(valid), NOW), { s: valid, status: 'ok', guide: 'done' });
 });
 
 test('JSON illisible, null, tableau, scalaire : partie neuve', () => {
@@ -18,7 +18,7 @@ test('JSON illisible, null, tableau, scalaire : partie neuve', () => {
 });
 
 test('aucune sauvegarde : partie neuve sans alerte', () => {
-  assert.deepEqual(parseSave(null, NOW), { s: fresh(NOW), status: 'new' });
+  assert.deepEqual(parseSave(null, NOW), { s: fresh(NOW), status: 'new', guide: 'todo' });
 });
 
 test('chaînes, NaN, Infinity, flottants : repli champ par champ', () => {
@@ -70,8 +70,8 @@ test('migrate : braise-v1 complet converti sans perte, entrée non modifiée', (
 test('loadSave : v1 complet repris, écrit en v2, ancienne clé conservée', () => {
   const storage = mem({ [LEGACY_SAVE_KEY]: JSON.stringify(v1) });
   const r = loadSave(storage, NOW);
-  assert.deepEqual(r, { s: v1, status: 'ok' });
-  assert.deepEqual(JSON.parse(storage.data[SAVE_KEY]), { version: 2, ...v1 });
+  assert.deepEqual(r, { s: v1, status: 'ok', guide: 'done' });
+  assert.deepEqual(JSON.parse(storage.data[SAVE_KEY]), { version: 2, ...v1, guide: 'done' });
   assert.equal(storage.data[LEGACY_SAVE_KEY], JSON.stringify(v1));
 });
 
@@ -97,7 +97,7 @@ test('version inconnue : refusée', () => {
 
 test('aller-retour export/import identique', () => {
   const r = importSave(serializeSave(v1), NOW);
-  assert.deepEqual(r, { ok: true, s: v1 });
+  assert.deepEqual(r, { ok: true, s: v1, guide: 'done' });
   assert.equal(serializeSave(r.s), serializeSave(v1));
 });
 
@@ -106,4 +106,40 @@ test('import : un export v1 brut est accepté, un fichier corrompu ou altéré e
   for (const text of ['{oups', '', 'null', '[]', serializeSave({ ...v1, gold: -1 }), serializeSave({ ...v1, level: 'x' }), JSON.stringify({ version: 2 })]) {
     assert.deepEqual(importSave(text, NOW), { ok: false }, text);
   }
+});
+
+const neuve = { gold: 0, xp: 0, level: 1, stage: 1, kills: 0, weapon: 0, armor: 0, luck: 0, last: NOW };
+
+test('guide absent : à faire pour une partie vierge, terminé dès qu’il y a de la progression', () => {
+  const guide = s => parseSave(JSON.stringify({ version: 2, ...s }), NOW).guide;
+  assert.equal(guide(neuve), 'todo');
+  for (const p of [{ level: 2 }, { stage: 2 }, { weapon: 1 }, { armor: 1 }, { luck: 1 }, { gold: 5 }, { xp: 1 }, { kills: 1 }]) {
+    assert.equal(guide({ ...neuve, ...p }), 'done', JSON.stringify(p));
+  }
+});
+
+test('guide présent : conservé ; invalide → repaired avec le défaut selon la progression', () => {
+  assert.equal(parseSave(JSON.stringify({ version: 2, ...neuve, guide: 'todo' }), NOW).guide, 'todo');
+  assert.equal(parseSave(JSON.stringify({ version: 2, ...v1, guide: 'done' }), NOW).status, 'ok');
+  for (const guide of ['fini', 1, null, true, {}]) {
+    const r = parseSave(JSON.stringify({ version: 2, ...neuve, guide }), NOW);
+    assert.equal(r.status, 'repaired', String(guide));
+    assert.equal(r.guide, 'todo');
+  }
+  assert.equal(parseSave(JSON.stringify({ version: 2, ...v1, guide: 'x' }), NOW).guide, 'done');
+});
+
+test('guide : aller-retour serializeSave / importSave et écriture en stockage', () => {
+  assert.equal(importSave(serializeSave(neuve, undefined, 'todo'), NOW).guide, 'todo');
+  assert.equal(importSave(serializeSave(neuve, undefined, 'done'), NOW).guide, 'done');
+  const storage = mem();
+  writeSave(storage, neuve, undefined, 'todo');
+  assert.equal(loadSave(storage, NOW).guide, 'todo');
+});
+
+test('braise-v1 : partie vierge → guide à faire, partie avancée → terminé et écrit en v2', () => {
+  assert.equal(loadSave(mem({ [LEGACY_SAVE_KEY]: JSON.stringify(neuve) }), NOW).guide, 'todo');
+  const storage = mem({ [LEGACY_SAVE_KEY]: JSON.stringify(v1) });
+  assert.equal(loadSave(storage, NOW).guide, 'done');
+  assert.equal(JSON.parse(storage.data[SAVE_KEY]).guide, 'done');
 });

@@ -86,3 +86,43 @@ test('reprise : une partie braise-v1 avancée est migrée en braise-v2 au démar
   assert.equal(jeu.stockage().version, 2);
   assert.equal(jeu.stockage().stage, 9);
 }));
+
+// Partie neuve : le harnais ne fournit rien en stockage.
+test('premier parcours : bandeau, achat guidé, puis plus rien après rechargement', async () => {
+  let ecrite;
+  await avecJeu({}, jeu => {
+    assert.equal(jeu.el('guidepanel').hidden, false, 'bandeau visible, combat non bloqué');
+    jeu.avancer(1_200);
+    assert.notEqual(jeu.texte('enemyhp'), '46 / 46', 'le combat continue derrière');
+    assert.equal(jeu.el('buy-weapon').classList.contains('guided'), false);
+    jeu.avancer(60_000);
+    assert.equal(jeu.el('buy-weapon').classList.contains('guided'), true, 'amélioration la moins chère mise en évidence');
+    assert.match(jeu.texte('buy-weapon'), /À acheter/, 'libellé, pas seulement une couleur');
+    assert.equal(jeu.el('guidehint').hidden, false);
+    jeu.clic('guideclose');
+    assert.equal(jeu.el('guidepanel').hidden, true);
+    jeu.clic('buy-weapon');
+    assert.equal(jeu.el('buy-weapon').classList.contains('guided'), false);
+    assert.equal(jeu.el('guidehint').hidden, true);
+    assert.equal(jeu.stockage().guide, 'done');
+    ecrite = jeu.stockage();
+  });
+  await avecJeu({ stockageV2: ecrite }, jeu => {
+    assert.equal(jeu.el('guidepanel').hidden, true);
+    jeu.avancer(600_000);
+    assert.equal(jeu.el('buy-weapon').classList.contains('guided'), false);
+    assert.equal(jeu.el('guidehint').hidden, true);
+  });
+});
+
+test('pause : l’or n’avance pas, donc la mise en évidence n’apparaît pas', () => avecJeu({}, jeu => {
+  jeu.clic('pause');
+  jeu.avancer(600_000);
+  assert.equal(jeu.el('buy-weapon').classList.contains('guided'), false);
+}));
+
+test('partie existante sans champ guide : aucun bandeau ni mise en évidence', () => avecJeu({ sauvegarde: { ...SAUVEGARDE, weapon: 1, gold: 500 } }, jeu => {
+  assert.equal(jeu.el('guidepanel').hidden, true);
+  assert.equal(jeu.el('buy-weapon').classList.contains('guided'), false);
+  assert.equal(jeu.el('guidehint').hidden, true);
+}));
