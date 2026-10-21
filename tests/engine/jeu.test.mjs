@@ -175,6 +175,9 @@ test('absence : message unique après le premier achat, ligne du plafond dans le
     assert.equal(jeu.el('absenceintro').hidden, true);
     assert.match(jeu.texte('offline'), /estimés/);
     assert.match(jeu.texte('offline'), new RegExp(`${OFFLINE_CAP_SECONDS / 3600} h`));
+    const lignes = jeu.el('offlinelootlist').children.map(li => li.textContent);
+    assert.equal(jeu.el('offlineloot').hidden, lignes.length === 0, 'objets listés un par <li>, bloc masqué sans objet');
+    assert.ok(lignes.length > 0, '1 h d’absence rapporte au moins un objet');
   });
 });
 

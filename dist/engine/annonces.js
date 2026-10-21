@@ -1,3 +1,5 @@
+import { libelleObjet } from './equipement.js';
+
 export const SAUVEGARDE_FUTURE = 'Cette sauvegarde vient d’une version plus récente de Braise. Recharge la page pour retrouver ta partie ; rien n’a été modifié.';
 export const IMPORT_FUTURE = 'Import refusé : ce fichier vient d’une version plus récente de Braise. La partie en cours est inchangée.';
 
@@ -11,6 +13,8 @@ export function annoncePour(e) {
       return `Gardien vaincu ! L’étage ${e.stage} s’ouvre.`;
     case 'levelup':
       return `Niveau ${e.level} atteint.`;
+    case 'butin':
+      return `Objet trouvé : ${libelleObjet(e.objet)}.${e.converti ? ` Inventaire plein : ${libelleObjet(e.converti.objet)} converti en ${e.converti.or} or.` : ''}`;
     case 'achatImpossible':
       return 'Achat impossible : pas assez d’or.';
     case 'sauvegardeFuture':

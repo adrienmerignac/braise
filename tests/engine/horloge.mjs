@@ -11,7 +11,7 @@ function element(id, doc) {
   const el = {
     id, textContent: '', innerHTML: '', disabled: false, onclick: null, style: {}, offsetWidth: 0, open: false,
     classList: { add: c => classes.add(c), remove: c => classes.delete(c), contains: c => classes.has(c) },
-    append() {}, setAttribute() {},
+    children: [], replaceChildren(...c) { el.children = c; }, append() {}, setAttribute() {},
     click() { doc.telechargements.push({ nom: el.download, blob: el.href }); },
     showModal() { el.open = true; },
     close() { if (!el.open) return; el.open = false; (ecouteurs.close || []).forEach(fn => fn({ type: 'close' })); },
