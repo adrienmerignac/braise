@@ -60,3 +60,29 @@ test('fonds insuffisants via l’interface : rien ne change', () => avecJeu({ sa
   assert.equal(jeu.texte('gold'), '23');
   assert.equal(String(jeu.texte('attack')), '8');
 }));
+
+const fichier = texte => ({ target: { files: [{ text: async () => texte }], value: 'x' } });
+const AVANCEE = { gold: 900, xp: 3, level: 5, stage: 9, kills: 1, weapon: 2, armor: 1, luck: 1, last: 1_000_000 };
+
+test('import : refusé à la confirmation, la partie en cours reste intacte', () => avecJeu({ sauvegarde: SAUVEGARDE }, async jeu => {
+  const confirmer = globalThis.confirm;
+  globalThis.confirm = () => false;
+  try { await jeu.el('importfile').onchange(fichier(JSON.stringify({ version: 2, ...AVANCEE }))); } finally { globalThis.confirm = confirmer; }
+  assert.equal(jeu.texte('gold'), '0');
+  assert.equal(jeu.texte('message'), 'Import annulé.');
+}));
+
+test('import : fichier invalide signalé sans rien changer ; fichier valide confirmé remplace la partie', () => avecJeu({ sauvegarde: SAUVEGARDE }, async jeu => {
+  await jeu.el('importfile').onchange(fichier('{oups'));
+  assert.match(jeu.texte('message'), /Import refusé/);
+  assert.equal(jeu.texte('gold'), '0');
+  await jeu.el('importfile').onchange(fichier(JSON.stringify({ version: 2, ...AVANCEE })));
+  assert.equal(jeu.texte('gold'), '900');
+  assert.equal(jeu.stockage().gold, 900);
+}));
+
+test('reprise : une partie braise-v1 avancée est migrée en braise-v2 au démarrage', () => avecJeu({ sauvegarde: AVANCEE }, jeu => {
+  assert.equal(jeu.texte('gold'), '900');
+  assert.equal(jeu.stockage().version, 2);
+  assert.equal(jeu.stockage().stage, 9);
+}));

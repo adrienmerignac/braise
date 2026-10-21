@@ -1,5 +1,5 @@
 // État initial, statistiques et coûts : fonctions pures, sans DOM, stockage ni horloge globale.
-export const SAVE_KEY = 'braise-v1';
+export const SAVE_KEY = 'braise-v2', LEGACY_SAVE_KEY = 'braise-v1', SAVE_VERSION = 2;
 export const KILLS_PER_STAGE = 5;
 export const BASE_ATTACK = 8, ATTACK_PER_WEAPON = 4, ATTACK_PER_LEVEL = 2;
 export const BASE_HEALTH = 100, HEALTH_PER_ARMOR = 35, HEALTH_PER_LEVEL = 10;
