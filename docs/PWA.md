@@ -13,7 +13,7 @@
 - **Chargés au démarrage** (59 fichiers dans `dist/`, dont une partie seulement au démarrage) :
   - `index.html` ; `style.css` ; `game.js` et `scene.js` (modules) ;
   - `engine/*.js` importés statiquement : `affichage, annonces, audio, balance, combat, etincelles, offline, save, scene-queue, sons, state` ;
-  - `assets/lpc/portrait.png` (`index.html`) ; les 10 images de `files` dans `dist/scene.js:21` (`hero-walk, hero-swing, hero-hurt, goblin-sword, grass, dirt, treetop, trunk, rock, chests`), chargées par `new Image()` à `dist/scene.js:57-61` ;
+  - `assets/lpc/portrait.png` (`index.html`) ; les images de `files` dans `dist/scene.js` (couches héros `body|pants|boots|mail|plate|hood` × `walk|swing|hurt`, `sword`, puis `goblin-sword, goblin, grass, dirt, treetop, trunk, rock, chests` ; `hero-*.png` n'est plus chargé par la scène), chargées par `new Image()` à `dist/scene.js:57-61` ;
   - 3 tuiles `assets/Tiles/tile_0100|0104|0110.png`, construites dynamiquement à `dist/game.js:44` (`assets/Tiles/tile_${…}.png`) ;
   - `credits.html` : ouvert à la demande (lien du pied de page).
 - **⚠ Dépendance externe** : `dist/style.css:1` fait `@import` de **Google Fonts** (DM Sans, Space Grotesk). Hors ligne, ces polices manquent : le jeu s'affiche avec la police de repli (`sans-serif`), sans erreur bloquante. Mettre ces polices en cache est possible mais ce sont des ressources tierces opaques ; les héberger soi-même demande de les ajouter aux assets (licence OFL, à créditer) : **décision du propriétaire** (§7).

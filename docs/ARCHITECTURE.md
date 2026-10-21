@@ -44,11 +44,12 @@ Le moteur applique le résultat immédiatement ; la scène rejoue `combat` et `s
 
 ## Sprites et directions
 
-Frames de 64 × 64 px. Le héros utilise des feuilles distinctes pour marche, coup et chute ; le gobelin regroupe ses actions dans `goblin-sword.png`.
+Frames de 64 × 64 px. Le héros de la scène est composé hors écran à partir des couches LPC selon `s.equipe` : `dist/engine/apparence-heros.js` donne l'ordre `body, pants, boots, mail, [plate], hood` puis `[sword]` en `swing` seulement (comme `tools/compose-hero.py`). `dist/game.js` émet `braise:equipement` (`{ arme, armure }`) au chargement et à chaque changement ; `dist/scene.js` recompose une fois par changement, pas à chaque image. Le **charme** n'a pas de couche LPC dans le dépôt : aucun changement visuel. `hero-*.png` et `portrait.png` restent (portrait de l'interface). Les planches `*-swing` des couches font 7 colonnes : seules les 6 premières sont utilisées. Le héros utilise des feuilles distinctes pour marche, coup et chute ; le gobelin regroupe ses actions dans `goblin-sword.png`.
 
 | Planche | Direction/action | Ligne (index 0) |
 | --- | --- | --- |
 | `hero-walk.png`, `hero-swing.png` | Est, face au gobelin | 3 |
+| `body-*`, `pants-*`, `boots-*`, `mail-*`, `plate-*`, `hood-*` (`walk`, `swing`, `hurt`), `sword.png` | Est, face au gobelin (même planche que le héros) | 3 |
 | `goblin-sword.png` | Ouest, face au héros | 3 |
 | `goblin-sword.png` | Est, dos au héros | 1 |
 | `goblin-sword.png` | Chute | 4 |
