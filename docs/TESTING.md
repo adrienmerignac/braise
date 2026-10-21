@@ -62,6 +62,8 @@ Un bouton désactivé se lit aussi par son bord pointillé (pas d’opacité ré
 | 768 × 1024 | Deux colonnes sans débordement ; héros et ennemi visibles. |
 | 1280 × 800 | Rendu bureau inchangé ; Inventaire et Talents sans régression. |
 
+Panneau Carte (ouvert sur une partie à `meilleurEtage` 8, import de sauvegarde) : dans chaque format et en « Grand » à 360 px, il tient dans l’écran sans défilement horizontal ; chaque zone montre nom, étages, état et condition, prédilection de butin et ses deux objectifs sans texte coupé ; un récit débloqué se lit en entier, un récit verrouillé affiche sa condition ; « Voyager » et « Fermer » ≥ 44 × 44 px, focus visible, Échap ferme. Sous 680 px, « Voyager » passe sous le texte de la zone, pleine largeur.
+
 Largeur : relever `scrollWidth` du document et vérifier qu’aucun descendant de `main` ne dépasse `innerWidth` (le `overflow-x:hidden` de `html` ne doit pas masquer un débordement). Texte « Grand » : choisi dans la liste (`Texte : Grand` visible sur la capture), pas seulement annoncé.
 
 Dans tous les formats : zones tactiles ≥ 44 × 44 px (boutons, listes, curseur, Exporter/Importer, fermeture des panneaux), vérifié par `tests/engine/cibles-tactiles.test.mjs` pour la règle CSS, au navigateur pour la taille rendue.

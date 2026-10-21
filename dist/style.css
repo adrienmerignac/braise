@@ -138,9 +138,11 @@ body .inventaire button.primary:enabled{background:var(--orange);color:#30261d}
 .zone-objectifs{list-style:none;margin:4px 0 0;padding:0;overflow-wrap:anywhere}.zone-objectifs:empty{display:none}.zone-objectifs li{margin:2px 0}.zone-objectifs .fait{font-weight:700}
 .zone button{min-height:44px;min-width:44px;flex:0 0 auto}
 .zone button[hidden]{display:none}
+@media(max-width:680px){.zone>div{flex-basis:100%}.zone button{width:100%}.zone{padding:10px 16px}}
 #cartenouveau:not(:empty){color:var(--orange);font-weight:700}
 #voyageconfirm .primary{background:var(--orange);color:#30261d}
 .enemy-card>small{display:block;margin:-3px 0 7px;font-size:0.625rem;line-height:1.3;color:var(--orange)}.enemy-card>small:empty{display:none}
 
 #recit>div{flex:1;min-width:0}#recit b{display:block;color:var(--orange)}#recit p{margin:4px 0 0;overflow-wrap:anywhere}
 .recits{padding:10px 22px;border-top:1px solid var(--line);font-size:0.75rem}.recits ul{list-style:none;margin:6px 0 0;padding:0}.recits li{margin:8px 0;overflow-wrap:anywhere}.recits li b{display:block}.recits li p{margin:2px 0 0}.recits .verrouille{color:var(--muted)}
+@media(max-width:680px){.carte .panel-head,.carte .recits{padding-left:16px;padding-right:16px}.carte .inventaire-aide{margin-left:16px;margin-right:16px}}
