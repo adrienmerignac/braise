@@ -2,6 +2,8 @@
 
 Un idle RPG en pixel art LPC, jouable dans le navigateur sur desktop et mobile. Un chevalier affronte les gobelins de la forêt des Murmures, récolte de l’or, améliore son équipement et défie un gardien pour passer à l’étage suivant.
 
+**Licence : code sous [MIT](LICENSE) ; les assets (LPC, Kenney) gardent leurs licences propres, voir « Assets et licences ».** Contributions par pull request : [CONTRIBUTING.md](CONTRIBUTING.md).
+
 **État : bêta jouable 0.9.0.** [Changelog](CHANGELOG.md). [Jouer à la version privée](https://braise-idle-rpg.lemonyhake5.chatgpt.site) (connexion ChatGPT). [Dépôt GitHub](https://github.com/adrienmerignac/braise).
 
 ## Lancer en local
@@ -49,13 +51,13 @@ npm run check
 
 ## Assets et licences
 
-Personnages et décors : [Liberated Pixel Cup](https://github.com/OpenGameArt/LiberatedPixelCup), sous CC BY-SA 3.0 dans cette distribution ; artistes et sources détaillés dans [les crédits du jeu](dist/credits.html). Les couches originales, licences et sprites assemblés sont conservés dans `dist/assets/lpc/`. Les icônes d’amélioration Kenney Tiny Dungeon sont CC0.
+Personnages et décors : [Liberated Pixel Cup](https://github.com/OpenGameArt/LiberatedPixelCup), sous CC BY-SA 3.0 dans cette distribution ; artistes et sources détaillés dans [les crédits du jeu](dist/credits.html). Les couches originales, licences et sprites assemblés sont conservés dans `dist/assets/lpc/`. Les icônes d’amélioration Kenney Tiny Dungeon sont CC0. Le code du jeu est sous [licence MIT](LICENSE) ; cette licence ne couvre pas les assets, qui restent sous leurs licences d’origine. Pour contribuer : [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Les scripts `tools/fetch-lpc.py` et `tools/compose-hero.py` permettent de récupérer et composer les couches LPC ; Pillow est nécessaire uniquement à la composition. `tools/fetch-lpc.py` télécharge les couches à un commit amont figé (`f61104a`) ; les sources sont listées dans `dist/assets/lpc/sources.json`. Le jeu utilise les fichiers déjà inclus, sans téléchargement au lancement.
 
 ## Limites actuelles
 
-Sauvegarde propre au navigateur et à l’origine, sans compte ni synchronisation : changer d’adresse impose d’utiliser Exporter puis Importer. Les gains hors ligne sont une estimation sans simulation des défaites. Équilibrage exploratoire, aucune monétisation. Installable (manifeste, icônes) et jouable hors ligne après une première visite (service worker en pré-cache versionné) ; une nouvelle version s’annonce par un bandeau « Recharger » qui sauvegarde avant de recharger. La recette sur appareils réels reste à faire (`docs/TESTING.md`). La licence du code du jeu reste à choisir avant une diffusion publique ; les licences des assets sont déjà conservées séparément.
+Sauvegarde propre au navigateur et à l’origine, sans compte ni synchronisation : changer d’adresse impose d’utiliser Exporter puis Importer. Les gains hors ligne sont une estimation sans simulation des défaites. Équilibrage exploratoire, aucune monétisation. Installable (manifeste, icônes) et jouable hors ligne après une première visite (service worker en pré-cache versionné) ; une nouvelle version s’annonce par un bandeau « Recharger » qui sauvegarde avant de recharger. La recette sur appareils réels reste à faire (`docs/TESTING.md`). Le code du jeu est sous licence [MIT](LICENSE) ; les licences des assets sont conservées séparément.
 
 ## État des contrôles
 
