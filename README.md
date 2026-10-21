@@ -51,7 +51,7 @@ npm run check
 
 Personnages et décors : [Liberated Pixel Cup](https://github.com/OpenGameArt/LiberatedPixelCup), sous CC BY-SA 3.0 dans cette distribution ; artistes et sources détaillés dans [les crédits du jeu](dist/credits.html). Les couches originales, licences et sprites assemblés sont conservés dans `dist/assets/lpc/`. Les icônes d’amélioration Kenney Tiny Dungeon sont CC0.
 
-Les scripts `tools/fetch-lpc.py` et `tools/compose-hero.py` permettent de récupérer et composer les couches LPC ; Pillow est nécessaire uniquement à la composition. Le téléchargement référence actuellement la branche amont `master` : la roadmap prévoit de figer les versions. Le jeu utilise les fichiers déjà inclus, sans téléchargement au lancement.
+Les scripts `tools/fetch-lpc.py` et `tools/compose-hero.py` permettent de récupérer et composer les couches LPC ; Pillow est nécessaire uniquement à la composition. `tools/fetch-lpc.py` télécharge les couches à un commit amont figé (`f61104a`) ; les sources sont listées dans `dist/assets/lpc/sources.json`. Le jeu utilise les fichiers déjà inclus, sans téléchargement au lancement.
 
 ## Limites actuelles
 
@@ -59,4 +59,4 @@ Sauvegarde propre au navigateur et à l’origine, sans compte ni synchronisatio
 
 ## État des contrôles
 
-Le contrôle local `node tools/check.mjs` passe. Le workflow GitHub Actions est configuré ; sa [première exécution](https://github.com/adrienmerignac/braise/actions/runs/39548401450) a été bloquée avant toute étape par la facturation ou le plafond de dépenses du compte GitHub. Après régularisation dans les paramètres du compte, relancer le workflow pour obtenir une validation CI.
+`npm run check` (Node 22+) lance les contrôles en local. GitHub Actions exécute les mêmes à chaque push et pull request (`.github/workflows/check.yml`), puis déploie `dist/` sur GitHub Pages après fusion sur `main` (`.github/workflows/pages.yml`). Le jeu est publié sur <https://adrienmerignac.github.io/braise/> ; le retour arrière est décrit dans [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
