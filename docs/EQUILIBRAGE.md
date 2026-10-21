@@ -255,3 +255,35 @@ chaque expédition ; la colonne « 2e/1re » est le rapport des deux. Sans l'opt
 (rallumage « sauté » : non). La constante à essayer est `RALLUMAGE_BONUS` (à la hausse, pour que les premiers éclats pèsent davantage) ; `RALLUMAGE_PAS`
 (à la baisse, pour gagner des éclats dès les premiers étages) agit sur le même cas. Rien n'est modifié ici : l'essai est renvoyé à une issue dédiée, avec
 cette même règle de décision et en vérifiant que le profil actif · 50 reste sous 80 % et au-dessus de 40 %.
+
+### Essai bonus de rallumage
+
+Issue #161 : suite du verdict ci-dessus. Seul `RALLUMAGE_BONUS` (`dist/engine/balance.js`) change d'un palier à l'autre ; `RALLUMAGE_PAS = 5` et
+`RALLUMAGE_DECALAGE = 2` restent. Plafond 8 h, `OFFLINE_FIGHT_FACTOR`, PV des ennemis et coûts sont inchangés. Mêmes relevés que plus haut :
+`node tools/simulate-jours.mjs 7 --profil=<actif|occasionnel> --graine=1 --rallumage=<20|30|50>`. Chaque cellule : minutes de jeu au gardien 15
+(1re / 2e / 3e expédition), puis « 2e/1re ». Le palier 0,05 est la valeur d'avant (les 6 cas reprennent le tableau ci-dessus).
+
+| profil · seuil | 0,05 (avant) | 0,075 | 0,10 | 0,15 |
+| --- | --- | --- | --- | --- |
+| actif · 20 | 11,4 / 9,7 / 8,9 · **85 %** | 11,4 / 9,1 / 9,0 · 80 % | 11,4 / 8,9 / 8,0 · 78 % | 11,4 / 7,9 / 7,5 · 69 % |
+| actif · 30 | 11,4 / 9,2 / 7,8 · **81 %** | 11,4 / 8,6 / 6,9 · 75 % | 11,4 / 8,1 / 6,0 · 71 % | 11,4 / 7,3 / 5,1 · 64 % |
+| actif · 50 | 11,4 / 7,8 / 6,5 · 68 % | 11,4 / 7,1 / 5,0 · 62 % | 11,4 / 6,0 / 4,8 · 53 % | 11,4 / 5,1 / 3,4 · 45 % |
+| occasionnel · 20 | 10,0 / 5,7 / 6,6 · 57 % | 10,0 / 5,5 / 6,9 · 55 % | 10,0 / 5,5 / 6,7 · 55 % | 10,0 / 5,5 / 6,2 · 55 % |
+| occasionnel · 30 | 10,0 / 7,4 / 6,3 · 74 % | 10,0 / 7,5 / 5,1 · 75 % | 10,0 / 7,1 / 5,4 · 71 % | 10,0 / 6,5 / 3,2 · 65 % |
+| occasionnel · 50 | 10,0 / 5,3 / 4,0 · 53 % | 10,0 / 4,7 / 4,9 · 47 % | 10,0 / 4,3 / 3,0 · 43 % | 10,0 / 3,7 / 4,1 · **37 %** |
+| cas dans 40–80 % | 4 / 6 | **6 / 6** | 6 / 6 | 5 / 6 |
+
+En gras : les cas hors fourchette. Rallumages et éclats augmentent un peu avec le bonus (actif · 20 : 485 → 521 rallumages à 0,075) ; la part d'or
+hors ligne reste dans les mêmes eaux (actif 36 à 40 %, occasionnel 82 à 89 %).
+
+**Règle de décision** : retenir le plus petit changement (bonus d'abord, puis pas) qui met **les 6 cas** entre 40 % et 80 % (colonne « 2e/1re »). Si aucun
+palier n'y parvient, retenir celui qui met le plus de cas dans la fourchette sans en faire tomber aucun sous 40 %. En cas d'égalité, prendre la plus petite
+valeur.
+
+**Verdict : tenue.** 0,075 est le plus petit palier du bonus qui met les 6 cas dans la fourchette. Le palier 0,15 fait tomber occasionnel · 50 à 37 %
+(sous 40 %). La baisse de `RALLUMAGE_PAS` n'a pas été essayée : la règle ne la demande que si aucun palier du bonus ne convient.
+
+**Valeur retenue : `RALLUMAGE_BONUS = 0.075`** (+7,5 % d'attaque, de vie max et d'or par éclat). Marge faible : actif · 20 vaut 9,1 / 11,4 = 79,8 %, soit 80 %
+arrondi, tout juste dans la fourchette ; occasionnel · 50 est à 47 %. Les 6 relevés sont une seule graine (`--graine=1`). Le panneau Carte lit les mêmes
+constantes, et son pourcentage s'affiche désormais avec une décimale (« +22,5 % ») puisque 7,5 % × éclats donne des demi-points. Aucune migration : les éclats
+sont stockés, le bonus en est dérivé ; une partie v12 avec éclats est reprise avec le nouveau bonus.

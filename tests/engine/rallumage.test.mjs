@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fresh, attack, maxHP, reward } from '../../dist/engine/state.js';
+import { fresh, attack, maxHP, reward, multRallumage } from '../../dist/engine/state.js';
 import { rallumageDisponible, apercuRallumage, rallumer } from '../../dist/engine/rallumage.js';
 import { estDebloque } from '../../dist/engine/automatismes.js';
 import { creerObjet } from '../../dist/engine/equipement.js';
@@ -34,7 +34,7 @@ test('étage 50 : 8 éclats, remis à zéro et conservé comme listé, aperçu =
   assert.equal(ap.eclatsGagnes, r.eclats);
   assert.equal(ap.eclatsApres, r.s.rallumage.eclats);
   assert.equal(ap.eclatsApres, 8);
-  assert.ok(Math.abs(ap.bonusApres - 0.4) < 1e-9 && ap.bonusAvant === 0);
+  assert.ok(Math.abs(ap.bonusApres - 0.6) < 1e-9 && ap.bonusAvant === 0);
   const neuf = fresh(NOW);
   for (const k of ['gold', 'xp', 'level', 'stage', 'zone', 'meilleurEtage', 'kills', 'weapon', 'armor', 'luck', 'last', 'talents', 'inventaire', 'equipe']) assert.deepEqual(r.s[k], neuf[k], k);
   assert.deepEqual(r.s.rallumage, { eclats: 8, nombre: 1, record: 50 });
@@ -46,12 +46,12 @@ test('étage 50 : 8 éclats, remis à zéro et conservé comme listé, aperçu =
   assert.ok(ap.conserve.length > 0);
 });
 
-test('effet permanent : héros neuf ×1,4 avec 8 éclats ; deux rallumages cumulent', () => {
+test('effet permanent : héros neuf ×1,6 avec 8 éclats (+7,5 % par éclat) ; deux rallumages cumulent', () => {
   const base = fresh(NOW);
   const un = rallumer(partie(50), NOW, { confirme: true }).s;
-  assert.equal(attack(un), Math.round(attack(base) * 1.4));
-  assert.equal(maxHP(un), Math.round(maxHP(base) * 1.4));
-  assert.equal(reward(un), Math.round(reward(base) * 1.4));
+  assert.equal(attack(un), Math.round(attack(base) * 1.6));
+  assert.equal(maxHP(un), Math.round(maxHP(base) * 1.6));
+  assert.equal(reward(un), Math.round(reward(base) * 1.6));
   const deux = rallumer({ ...un, stage: 20, meilleurEtage: 20 }, NOW, { confirme: true }).s;
   assert.deepEqual(deux.rallumage, { eclats: 10, nombre: 2, record: 50 });
   assert.equal(apercuRallumage({ ...un, stage: 20, meilleurEtage: 20 }).eclatsApres, 10);
@@ -63,4 +63,14 @@ test('automatismes débloqués restent débloqués après rallumage', () => {
   assert.equal(estDebloque(r, 'gardien'), true);
   assert.equal(estDebloque(r, 'achat'), true);
   assert.equal(estDebloque(fresh(NOW), 'gardien'), false);
+});
+
+test('bonus de 7,5 % par éclat : multiplicateur appliqué = aperçu, pour N éclats', () => {
+  for (const n of [1, 2, 8, 20]) {
+    const s = partie(50, { rallumage: { eclats: n, nombre: 1, record: 50 } });
+    assert.ok(Math.abs(multRallumage(s) - (1 + 0.075 * n)) < 1e-9, `${n} éclats`);
+    const ap = apercuRallumage({ ...s, meilleurEtage: 1 });
+    assert.ok(Math.abs(ap.bonusAvant - 0.075 * n) < 1e-9, `aperçu avant, ${n} éclats`);
+    assert.equal(attack({ ...fresh(NOW), rallumage: s.rallumage }), Math.round(attack(fresh(NOW)) * multRallumage(s)));
+  }
 });

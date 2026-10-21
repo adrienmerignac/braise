@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { SAVE_VERSION, fresh, attack, maxHP, reward } from '../../dist/engine/state.js';
+import { apercuRallumage } from '../../dist/engine/rallumage.js';
 import { parseSave, serializeSave, importSave, isFutureSave, migrate } from '../../dist/engine/save.js';
 
 const NOW = 1_000_000;
@@ -56,4 +57,16 @@ test('v13 reste « future »', () => {
   const texte = JSON.stringify({ version: 13, ...fresh(0) });
   assert.equal(isFutureSave(texte), true);
   assert.equal(parseSave(texte, NOW).status, 'future');
+});
+
+test('v12 avec éclats déjà gagnés : reprise sans perte, aperçu au nouveau bonus (7,5 %)', () => {
+  const s = { ...fresh(500), meilleurEtage: 50, stage: 50, zone: 'cryptes', rallumage: { eclats: 8, nombre: 1, record: 50 } };
+  const r = lire({ version: 12, ...s });
+  assert.equal(r.status, 'ok');
+  assert.deepEqual(r.s.rallumage, { eclats: 8, nombre: 1, record: 50 });
+  const ap = apercuRallumage(r.s);
+  assert.ok(Math.abs(ap.bonusAvant - 0.6) < 1e-9, 'bonus actuel = 8 × 0,075');
+  assert.equal(ap.eclatsApres, 16);
+  assert.ok(Math.abs(ap.bonusApres - 1.2) < 1e-9);
+  assert.equal(attack(r.s), Math.round(attack({ ...r.s, rallumage: { eclats: 0, nombre: 0, record: 50 } }) * 1.6));
 });
