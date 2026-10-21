@@ -19,7 +19,8 @@ export function assess(s, f) {
   const hitsToWin = Math.max(1, Math.ceil(f.enemyHP / attackPerHit));
   const hitsToSurvive = Math.max(0, Math.ceil(f.hp / retaliation(s, f.boss)));
   const danger = hitsToSurvive < hitsToWin ? 'Mortel' : hitsToSurvive < 2 * hitsToWin ? 'Serré' : 'Sûr';
-  return { attack: attackPerHit, hitsToWin, hitsToSurvive, danger };
+  const hitsAbsorbed = Math.max(0, hitsToSurvive - 1); // la riposte qui met le héros à terre n’est pas encaissée
+  return { attack: attackPerHit, hitsToWin, hitsToSurvive, hitsAbsorbed, danger };
 }
 
 // Danger du gardien à venir : il apparaît à vitalité pleine du héros et à PV pleins.
