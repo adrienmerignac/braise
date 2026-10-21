@@ -57,21 +57,25 @@ footer .tools .quiet{flex:1 1 30%;border:1px solid var(--line)}
 }
 @media(orientation:landscape) and (max-height:500px){
 header{height:56px}
-.audio-bar{gap:0 16px;padding:2px max(3vw,20px)}
-.reglage{flex-direction:row}
+.audio-bar{gap:0 10px;padding:2px max(2vw,12px);flex-wrap:nowrap;justify-content:space-between}
+.audio-bar .volume input{width:80px}
+.reglage{flex:0 1 auto;flex-direction:row;align-items:center;gap:6px;font-size:0.6875rem}
+.reglage select{width:auto}
 main{padding:12px 20px 0}
-.intro{margin-bottom:12px}
+.intro{margin-bottom:10px}
 .intro>div:first-child{display:none}
 .intro{justify-content:flex-end}
+.panel-head{padding:10px 22px}
 .resources{padding:10px 18px}
 .resources strong{font-size:1.25rem;margin-top:2px}
 .adventure{overflow:visible}
-.scene{aspect-ratio:auto;height:min(300px,calc(100dvh - 180px));min-height:180px}
+.scene{aspect-ratio:auto;height:min(300px,calc(100dvh - 90px));min-height:180px}
 .scene canvas{height:100%;object-fit:contain}
 .battle-actions{flex-direction:row;position:sticky;bottom:0;z-index:5;background:var(--panel);border-top:1px solid var(--line);padding:6px 22px}
 .battle-actions button{min-width:0;padding:4px 14px}
 .battle-actions small{margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .boss-panel{width:200px;top:6px;right:6px}
 .boss-panel ul{display:flex;flex-wrap:wrap;gap:2px 8px}
-.boss-panel .boss-note{margin:2px 0 0}
+.boss-panel .boss-note{display:none}
+.boss-title{font-size:0.9375rem;margin-bottom:4px}
 }

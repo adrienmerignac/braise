@@ -49,9 +49,11 @@ Pour un changement de sprite, vérifier au moins marche, attaque et chute, pas s
 | --- | --- |
 | 360 × 800 | Largeur du document = écran ; héros et ennemi face à face ; barre Pause/Son/Volume/réglages en tête ; commandes de combat collées en bas ; « Grand » sans chevauchement. |
 | 390 × 844 | Idem ; dialogues (bienvenue, absence, gardien) dans l’écran, bouton ≥ 44 px, Échap et focus rendu. |
-| 844 × 390 (paysage) | Un seul défilement vertical ; scène entière avec commandes de combat collées en bas ; panneau du gardien contenu dans la scène. |
+| 844 × 390 (paysage) | Un seul défilement vertical ; au chargement la scène est sous le pli (barre Son/réglages sur une ligne), après défilement héros, ennemi et barre de combat collée en bas sont visibles ensemble, sans que la barre recouvre la scène ; panneau du gardien compact, contenu dans la scène. |
 | 768 × 1024 | Deux colonnes sans débordement ; héros et ennemi visibles. |
 | 1280 × 800 | Rendu bureau inchangé. |
+
+Largeur : relever `scrollWidth` du document et vérifier qu’aucun descendant de `main` ne dépasse `innerWidth` (le `overflow-x:hidden` de `html` ne doit pas masquer un débordement). Texte « Grand » : choisi dans la liste (`Texte : Grand` visible sur la capture), pas seulement annoncé.
 
 Dans tous les formats : zones tactiles ≥ 44 × 44 px (boutons, listes, curseur, Exporter/Importer, fermeture des panneaux), vérifié par `tests/engine/cibles-tactiles.test.mjs` pour la règle CSS, au navigateur pour la taille rendue.
 
