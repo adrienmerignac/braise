@@ -47,7 +47,7 @@ Pour un changement de sprite, vérifier au moins marche, attaque et chute, pas s
 
 Paires contrôlées : texte courant, `--muted`, `--orange` et `--green` sur fond de page, panneau et bandeau des ressources ; étiquette, journal, dialogues ; boutons principal, secondaire, d’achat, désactivé/trop cher (détail à 80 % compris) et boutons du gardien/guide/dialogues ; barre audio et réglages ; bandeau et carte sur la scène (fond de scène supposé, le canvas n’est pas mesuré) ; crédits ; contours de focus, de contrôles, alerte mortelle et étapes du gardien.
 
-Un bouton désactivé se lit aussi par son bord pointillé (pas d’opacité réduite) : la couleur n’est pas seule.
+Un bouton désactivé se lit aussi par son bord pointillé (pas d’opacité réduite) : la couleur n’est pas seule. Le test résout la cascade (spécificité puis ordre) pour un bouton désactivé sous `.upgrade`, `.guide-panel`, `.audio-bar`, `.boss-panel` et `dialog` : une règle de contexte plus tardive qui écraserait fond, couleur ou bord sans `:enabled` le fait échouer.
 
 ## Résultats
 

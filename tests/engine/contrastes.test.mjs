@@ -60,8 +60,30 @@ const carteEnnemi = melange(lire(css, '.enemy-card', 'background'), scene);
 const etiquetteScene = melange(lire(css, '.scene-label', 'background'), scene);
 const secondaire = { fond: lire(css, '.secondary', 'background'), texte: lire(css, '.secondary', 'color') };
 const primaire = { fond: lire(css, '.primary', 'background'), texte: lire(css, '.primary', 'color') };
+// Valeur réellement appliquée à un bouton désactivé placé sous `contexte` : cascade (spécificité, puis ordre).
+const CONTEXTES = ['', '.upgrade', '.guide-panel', '.audio-bar', '.boss-panel', 'dialog'];
+function specificite(sel) {
+  const classes = (sel.match(/\.[\w-]+|:[\w-]+|\[[^\]]*\]/g) || []).length;
+  return [(sel.match(/#[\w-]+/g) || []).length, classes, (sel.match(/(^|\s)[a-z][\w-]*/g) || []).length];
+}
+const comparer = (a, b) => a.reduce((acc, v, i) => acc || v - b[i], 0);
+function appliquee(contexte, propriete) {
+  let gagnant = null;
+  for (const regle of css.matchAll(/([^{}@]+)\{([^{}]*)\}/g)) {
+    for (const sel of regle[1].split(',').map(s => s.trim())) {
+      const m = sel.match(/^(?:(\S+) )?button(:disabled)?$/);
+      if (!m || (m[1] && m[1] !== contexte)) continue;
+      const d = regle[2].split(';').map(x => x.split(':')).filter(([n]) => n.trim() === propriete).at(-1);
+      if (!d) continue;
+      const spec = specificite(sel);
+      const bat = !gagnant || comparer(spec, gagnant.spec) >= 0; // à égalité, la règle la plus tardive gagne
+      if (bat) gagnant = { spec, valeur: d.slice(1).join(':').trim() };
+    }
+  }
+  return gagnant?.valeur;
+}
 const achat = { fond: lire(css, '.upgrade button', 'background'), texte: lire(css, '.upgrade button', 'color') };
-const inactif = { fond: lire(css, 'button:disabled', 'background'), texte: lire(css, 'button:disabled', 'color') };
+const inactif = { fond: couleur(appliquee('.upgrade', 'background')), texte: couleur(appliquee('.upgrade', 'color')) };
 const controle = variable('--control');
 const creditsStyle = credits.match(/<style>([^<]*)<\/style>/)[1];
 const creditsLien = couleur(credits.match(/<a href="\.\/" style="color:(#[0-9a-f]{6})"/i)[1]);
@@ -124,4 +146,13 @@ test('la taille de texte « Grand » ne change aucune couleur', () => {
 test('un bouton désactivé ne se distingue pas que par la couleur : bord pointillé, sans opacité', () => {
   assert.match(declare(css, 'button:disabled', 'border'), /dashed/);
   assert.throws(() => declare(css, 'button:disabled', 'opacity'));
+});
+
+test('l’état désactivé gagne la cascade dans chaque contexte (achat, guide, barre audio, gardien, dialogues)', () => {
+  for (const contexte of CONTEXTES) {
+    const lieu = contexte || 'bouton nu';
+    assert.equal(couleur(appliquee(contexte, 'background')).rgb.join(), variable('--off-bg').rgb.join(), `${lieu} : fond`);
+    assert.equal(couleur(appliquee(contexte, 'color')).rgb.join(), variable('--off-fg').rgb.join(), `${lieu} : texte`);
+    assert.match(appliquee(contexte, 'border'), /dashed/, `${lieu} : bord pointillé`);
+  }
 });
