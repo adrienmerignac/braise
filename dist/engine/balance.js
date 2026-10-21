@@ -104,6 +104,8 @@ export const TALENT_FORTUNE_GOLD = 0.1;
 export const TALENT_BRAISE_COOLDOWN = 2;
 
 // Zones (M4.1a) : plages d'étages consécutives ; `fin: Infinity` = pas de plafond. Une zone est ouverte quand le meilleur étage atteint ≥ son `debut`.
+// Automatisations : le gardien de cet étage doit avoir été vaincu (`meilleurEtage` > valeur). Valeur de départ, réversible.
+export const AUTO_GARDIEN_DEBLOCAGE = 10;
 export const ZONE_IDS = ['foret', 'ruines', 'cryptes'];
 export const ZONES = {
   foret: { nom: 'Forêt des Murmures', debut: 1, fin: 5 },

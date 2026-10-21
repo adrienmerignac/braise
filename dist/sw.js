@@ -27,6 +27,7 @@ const PRECACHE = [
   'engine/pwa.js',
   'engine/bestiaire.js',
   'engine/succes.js',
+  'engine/automatismes.js',
   'engine/recits.js',
   'engine/save.js',
   'engine/scene-queue.js',

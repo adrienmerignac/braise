@@ -114,6 +114,16 @@ Neuf succès, obtenus une seule fois, **informatifs** : aucun or, aucun bonus, a
 Évalués en session après chaque changement (victoire, gardien, équipement, talent, récit lu, voyage) ; l'absence n'en déclenche aucun. Une partie reprise reçoit sans annonce les succès déjà remplis. 
 **Affichage** : section « Succès » du panneau Carte, après le bestiaire (compteur « 3 / 9 succès », puis libellé, état écrit « Obtenu » / « À obtenir » et progrès chiffré quand la cible dépasse 1). À chaque succès obtenu en session : une ligne du journal et un encart non bloquant « Succès obtenu » (bouton Fermer, Échap), en file d'attente : jamais avant la fin du guide ni par-dessus un autre encart ouvert, un seul à la fois, une annonce polie par succès. La file n'est pas sauvegardée : un succès déjà obtenu n'est jamais réannoncé au rechargement.
 
+### Automatisations
+
+Première automatisation (M5.4a) : **lancer le gardien**. La frappe de braise reste manuelle (« intervention ponctuelle ») ; l'achat automatique est une tranche ultérieure. Valeurs de départ, réversibles ; module `dist/engine/automatismes.js`, sauvegarde v10 (`automatismes: { gardien: false }`).
+
+- **Déblocage** : gardien de l'étage 10 vaincu (`meilleurEtage > AUTO_GARDIEN_DEBLOCAGE`). Avant, l'automatisme n'existe pas pour le joueur.
+- **Éteint par défaut**, même débloqué : c'est le joueur qui l'active (`basculerAutomatisme`, refusée si non débloqué). Le réglage visible est la tâche suivante (M5.4b).
+- **Limite** : actif, le gardien est lancé dès qu'il est disponible (5 victoires de l'étage), seulement si `assessGuardian` ne le juge pas « Mortel » (sinon le bouton reste au joueur) et seulement quand l'ennemi ordinaire est intact (jamais au milieu d'un échange). Jamais en pause, avant la fin du guide, ni pendant l'absence (qui n'affronte aucun gardien). Journal : « Gardien lancé automatiquement ».
+- **Pas de simulation** : la décision (`doitLancerGardien`, pure) est prise dans le pas de combat de `dist/game.js`, jamais dans la boucle de rendu : même résultat en pas de 1 s ou de 16 ms.
+- **Sauvegarde** : v9 → v10 éteint toute partie ; une valeur `true` sur une partie non débloquée est ramenée à `false`.
+
 ## Objectifs à valider
 
 - Premier achat accessible rapidement et effet immédiatement lisible.
