@@ -1,7 +1,7 @@
 import { createSceneQueue } from './engine/scene-queue.js';
 import { sonsPourEvenement } from './engine/sons.js';
 import { ajouterEtincelles, doitRedessiner } from './engine/etincelles.js';
-import { enemyLook, gardienLook, sequenceGardien, ancrageEnnemi } from './engine/ennemis-visuels.js';
+import { enemyLook, gardienLook, sequenceGardien, ancrageEnnemi, placeEnnemi, colonneEnnemi, tailleCase } from './engine/ennemis-visuels.js';
 import { couchesHeros, ACTIONS_HEROS } from './engine/apparence-heros.js';
 import { AFFICHAGE_DEFAUT, normaliserAffichage, mouvementReduit, effetsDiscrets, echelleTexte } from './engine/affichage.js';
 // Direction rows belong to each sheet, not to the LPC family as a whole.
@@ -22,10 +22,10 @@ const police = px => `bold ${Math.round(px * echelleTexte(affichage.texte))}px m
 const discret = () => effetsDiscrets(affichage.effets);
 const assets = {};
 const COUCHES_FICHIERS = ['body','pants','boots','mail','plate','hood'].flatMap(c => ACTIONS_HEROS.map(a => `${c}-${a}`)).concat('sword');
-const files = [...COUCHES_FICHIERS,'goblin-sword','goblin','grass','dirt','treetop','trunk','rock','chests'];
+const files = [...COUCHES_FICHIERS,'goblin-sword','goblin','bat','slime','snake','ghost','eyeball','spider','golem','imp','grass','dirt','treetop','trunk','rock','chests'];
 let failed = false;
 let time = 0, previous = 0, paused = false, attackAt = -5000, spawnAt = 0;
-let kind = null, dying = false, strong = false, isBoss = false, damage = 0, taken = 0, heroRatio = 1;
+let zone = 'foret', kind = null, dying = false, strong = false, isBoss = false, damage = 0, taken = 0, heroRatio = 1;
 const sparks = [];
 // Sons planifiés sur l'horloge de la scène (figée en pause) : un son par impact ou pas affiché, jamais rattrapé s'il est en retard.
 const SON_RETARD_MAX_MS = 150;
@@ -33,10 +33,10 @@ const sons = [];
 // Les événements du jeu sont tamponnés jusqu'à la fin du chargement des images (et de la chute en cours).
 const queue = createSceneQueue((type, detail) => {
   if (type === 'combat') {
-    attackAt = time; kind = detail.kind; dying = detail.defeated; strong = detail.strong;
+    attackAt = time; kind = detail.kind; zone = detail.zone || zone; dying = detail.defeated; strong = detail.strong;
     damage = detail.damage; taken = detail.taken || 0; isBoss = detail.boss; heroRatio = detail.health;
     if (!discret()) ajouterEtincelles(sparks, Array.from({ length: strong ? 30 : 10 }, (_, i) => ({start:time + 330,x:556,y:270,vx:Math.cos(i*2.4)*(25+i*3),vy:-30-i*5})));
-  } else if (type === 'spawn') { dying = false; kind = detail.kind; isBoss = detail.boss; spawnAt = time; }
+  } else if (type === 'spawn') { dying = false; kind = detail.kind; zone = detail.zone || zone; isBoss = detail.boss; spawnAt = time; }
   for (const { nom, delaiMs } of sonsPourEvenement(type, detail, { mouvementReduit: reduit() })) sons.push({ nom, at: time + delaiMs });
 });
 // En pause, la boucle d'images s'arrête après une dernière image ; un événement ou la reprise la relance.
@@ -98,18 +98,19 @@ function composerHero() {
   }
   heroADessiner = false;
 }
-function actor(name, frame, row, x,y,scale=2,alpha=1) {
+function actor(name, frame, row, x,y,scale=2,alpha=1,cell=[64,64]) {
   const src=name.startsWith('hero-')?heroFeuilles[name.slice(5)]:assets[name];
   if(!src)return;
-  ctx.globalAlpha=alpha;ctx.drawImage(src,frame*64,row*64,64,64,Math.round(x),Math.round(y),64*scale,64*scale);ctx.globalAlpha=1;
+  ctx.globalAlpha=alpha;ctx.drawImage(src,frame*cell[0],row*cell[1],cell[0],cell[1],Math.round(x),Math.round(y),cell[0]*scale,cell[1]*scale);ctx.globalAlpha=1;
 }
 // Teinte braise du gardien : calque hors écran limité aux pixels du sprite (source-atop), puis lueur additive pendant la charge et le coup.
 const calque=document.createElement('canvas');calque.width=calque.height=64;
 const cctx=calque.getContext('2d');cctx.imageSmoothingEnabled=false;
 function teinteBraise(look,x,y,sc,frame,row,lueur,alpha) {
+  const [cw,ch]=tailleCase(look.rows);
   const img=assets[look.sheet];if(!img)return;
   cctx.clearRect(0,0,64,64);cctx.globalCompositeOperation='source-over';
-  cctx.drawImage(img,frame*64,row*64,64,64,0,0,64,64);
+  cctx.drawImage(img,frame*cw,row*ch,cw,ch,0,0,64,64);
   cctx.globalCompositeOperation='source-atop';cctx.fillStyle=look.teinte;
   cctx.globalAlpha=Math.min(.9,look.teinteForce+lueur*.5);cctx.fillRect(0,0,64,64);cctx.globalAlpha=1;
   ctx.save();ctx.globalAlpha=alpha;ctx.drawImage(calque,0,0,64,64,Math.round(x),Math.round(y),64*sc,64*sc);
@@ -159,22 +160,22 @@ function draw(now) {
   const heroX=330+approach, heroY=210;
   const seq=isBoss&&!dying?sequenceGardien(age,{reduit:reduit(),discret:discret()}):{dx:0,lueur:0};
   const enemyX=515+seq.dx+(age>370&&age<560&&!reduit()?Math.sin(age/35)*6:0);
-  ellipse(heroX+64,heroY+117,36,11,'#111b2580');ellipse(enemyX+64,327,isBoss?gardienLook().ombreRayon:35,isBoss?15:12,'#111b2580');
+  ellipse(heroX+64,heroY+117,36,11,'#111b2580');ellipse(enemyX+64,327,isBoss?gardienLook(zone).ombreRayon:35,isBoss?15:12,'#111b2580');
   if(lunging&&age<190)actor('hero-walk',reduit()?0:1+Math.floor(age/25)%8,HERO_ROWS.east,heroX,heroY);
   else if(lunging)actor('hero-swing',Math.min(5,Math.floor((age-190)/76)),HERO_ROWS.east,heroX,heroY);
   else actor('hero-walk',0,HERO_ROWS.east,heroX,heroY);
   // Le gardien a sa propre planche et échelle ; les autres types lisent leur entrée du catalogue visuel.
-  const look=isBoss?gardienLook():enemyLook(kind), sc=look.scale, rows=look.rows;
+  const look=isBoss?gardienLook(zone):enemyLook(kind), sc=look.scale, rows=look.rows, cell=tailleCase(rows), place=placeEnnemi(look), zoom=look.zoom||sc;
   // Pieds et centre restent à la même place quelle que soit l'échelle.
-  const ancre=ancrageEnnemi(sc), ex=(dx=0)=>enemyX+dx+ancre.x, ey=ancre.y;
+  const ancre=ancrageEnnemi(sc), ex=(dx=0)=>enemyX+dx+ancre.x+place.dx, ey=ancre.y+place.dy;
   const deathAge=age-360;
-  if(dying&&deathAge>0&&deathAge<650){actor(look.sheet,Math.min(4,Math.floor(deathAge/100)),rows.death,ex(),ey,sc,Math.max(0,1-deathAge/650));}
+  if(dying&&deathAge>0&&deathAge<650){actor(look.sheet,rows.death==null?0:Math.min(4,Math.floor(deathAge/100)),rows.death==null?rows.west:rows.death,ex(),ey,zoom,Math.max(0,1-deathAge/650),cell);}
   else {
     const entering=dying&&deathAge>=650?(Math.max(0,1350-age)):Math.max(0,650-(time-spawnAt));
-    const frame=reduit()?0:Math.floor(t/150)%9;
     const attack=age>650&&age<1000&&!dying;
-    actor(look.sheet,attack?9+Math.floor((age-650)/175)%2:frame,rows.west,ex(reduit()?0:entering*.13),ey,sc,Math.max(.15,1-entering/1000));
-    if(isBoss&&!dying)teinteBraise(look,ex(reduit()?0:entering*.13),ey,sc,attack?9+Math.floor((age-650)/175)%2:frame,rows.west,seq.lueur,Math.max(.15,1-entering/1000));
+    const frame=colonneEnnemi(rows,{t,attaque:attack,age,reduit:reduit()});
+    actor(look.sheet,frame,rows.west,ex(reduit()?0:entering*.13),ey,zoom,Math.max(.15,1-entering/1000),cell);
+    if(isBoss&&!dying)teinteBraise(look,ex(reduit()?0:entering*.13),ey,zoom,frame,rows.west,seq.lueur,Math.max(.15,1-entering/1000));
   }
   if(lunging&&age>230&&age<530){
     ctx.save();ctx.globalAlpha=Math.sin((age-230)/300*Math.PI);ctx.strokeStyle=strong?'#fff1a4':'#d4e9ec';ctx.lineWidth=strong?8:4;

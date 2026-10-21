@@ -32,6 +32,17 @@
    "sha256": "ca2d26579be3738be5abfb74cea388634e212fb991b84701deeda65da4780f1c"
   },
   {
+   "chemin": "assets/lpc/bat.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/original/CharlesGabriel/PNG/bat.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "0da4eb935b49dbe41e9fb27b69da1451973f87242b3211944bb4ec95f8917ed8"
+  },
+  {
    "chemin": "assets/lpc/body-hurt.png",
    "source": {
     "type": "lpc",
@@ -120,6 +131,28 @@
    "sha256": "115ffc435f5ce95a5462c08708a158bac014ac4f6fd631af44e335b77a0a264b"
   },
   {
+   "chemin": "assets/lpc/eyeball.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/original/CharlesGabriel/PNG/eyeball.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "84564168d8c49b3d3508a3fa5cb576b434dad99c54f46516f984a97f7e8485d1"
+  },
+  {
+   "chemin": "assets/lpc/ghost.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/original/CharlesGabriel/PNG/ghost.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "2e241a28d4230d4496b764acf2903f9508449f6804dbdc0c27fa9717559b55c7"
+  },
+  {
    "chemin": "assets/lpc/goblin-sword.png",
    "source": {
     "type": "lpc",
@@ -140,6 +173,17 @@
    },
    "licence": "CC-BY-SA-3.0",
    "sha256": "a317f9b9d90434552c848075baa872502064142f0eb863bc05e219d1454cb2df"
+  },
+  {
+   "chemin": "assets/lpc/golem.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/original/Redshrike/golem/PNG/golem-walk.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "417d2cecc79f59f68b3874162829603ccc172e3b5c4481434e9158db53a09c63"
   },
   {
    "chemin": "assets/lpc/grass.png",
@@ -211,6 +255,17 @@
    },
    "licence": "CC-BY-SA-3.0",
    "sha256": "cdec2c796dfc83b1719c4546b2d24d577bc2a3d24894c3d3803fdc1d09e7b97f"
+  },
+  {
+   "chemin": "assets/lpc/imp.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/original/Redshrike/imp/PNG/red/walk - sword.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "407ef824fcb1e6c9579a0d0082d15a14981ea732e38f180ce32a53f3b2e1a40f"
   },
   {
    "chemin": "assets/lpc/mail-hurt.png",
@@ -330,6 +385,39 @@
    },
    "licence": "CC-BY-SA-3.0",
    "sha256": "07e1db23fa156cb664d0ff4de8499bdd4527f035a828e4d7b050227743399576"
+  },
+  {
+   "chemin": "assets/lpc/slime.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/original/CharlesGabriel/PNG/slime.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "49a1775bd8c0a89cf054a69207c2edd771cda9164d1d452fa3baaa57414eae1a"
+  },
+  {
+   "chemin": "assets/lpc/snake.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/original/CharlesGabriel/PNG/snake.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "3930c3e76025e34865662cf1c4fd5b30a4a84bed312d68bce5357a70d3c80da2"
+  },
+  {
+   "chemin": "assets/lpc/spider.png",
+   "source": {
+    "type": "lpc",
+    "depot": "OpenGameArt/LiberatedPixelCup",
+    "commit": "f61104a1ecc54e7bce54b82ada7d7ba4c41bc524",
+    "chemin": "sprite/original/Redshrike/spider/PNG/spider01.png"
+   },
+   "licence": "CC-BY-SA-3.0",
+   "sha256": "c24cb3c10848a32db0eae882ef8e2caa384e0a5228383c4d14ee7d4a6d8c529e"
   },
   {
    "chemin": "assets/lpc/sword.png",

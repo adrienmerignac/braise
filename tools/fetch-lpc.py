@@ -6,6 +6,7 @@ for action in ['walk','swing','hurt']:
  for name,base in {'body':'sprite/character/Body/Base/Human_male/Ivory','hood':'sprite/character/Clothes/Head/Human_male/Chain Hood','mail':'sprite/character/Clothes/Torso/Human_male/Chainmail Shirt','plate':'sprite/character/Clothes/Torso 2/Human_male/Breastplate/Silver','pants':'sprite/character/Clothes/Legs/Human_male/Tight Pants/Black','boots':'sprite/character/Clothes/Feet/Human_male/Armored Boots/Silver'}.items():
   files[f'{name}-{action}.png']=f'{base}/{action}.png'
 files.update({'sword.png':'sprite/character/Weapons/Human_male/Swing/Short Sword/short sword.png','goblin.png':'sprite/original/Redshrike/goblin/goblin.png','goblin-sword.png':'sprite/original/Redshrike/goblin/goblinsword.png'})
+files.update({k:v for k,v in {'bat.png': 'sprite/original/CharlesGabriel/PNG/bat.png', 'slime.png': 'sprite/original/CharlesGabriel/PNG/slime.png', 'ghost.png': 'sprite/original/CharlesGabriel/PNG/ghost.png', 'eyeball.png': 'sprite/original/CharlesGabriel/PNG/eyeball.png', 'snake.png': 'sprite/original/CharlesGabriel/PNG/snake.png', 'spider.png': 'sprite/original/Redshrike/spider/PNG/spider01.png', 'golem.png': 'sprite/original/Redshrike/golem/PNG/golem-walk.png', 'imp.png': 'sprite/original/Redshrike/imp/PNG/red/walk - sword.png'}.items()})
 for n in ['grass','dirt','treetop','trunk','rock','water']:files[n+'.png']=f'tileset/original/Sharm/outdoor/PNG/{n}.png'
 for n in ['LICENSE.txt','LICENSE-CC-BY-SA-3.0.txt','README.md']:files[n]=n
 files['chests.png']='tileset/original/Sharm/object/chests.png'

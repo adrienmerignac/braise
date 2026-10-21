@@ -1,7 +1,7 @@
 ### Liberated Pixel Cup Original Spritesheet Authors
 
 - By [Charles Sanchez (CharlesGabriel)](https://opengameart.org/user/56):
-  - [Creatures](http://lpc.opengameart.org/static/lpc-style-guide/assets.html#creatures)
+  - [Creatures](http://lpc.opengameart.org/static/lpc-style-guide/assets.html#creatures) : chauve-souris, gelée, fantôme, œil, serpent (`bat`, `slime`, `ghost`, `eyeball`, `snake`)
 
 - By [Manuel Riecke (MrBeast)](https://opengameart.org/user/1037):
   - [Hair](http://lpc.opengameart.org/static/lpc-style-guide/assets.html#characters-and-base)
@@ -12,9 +12,9 @@
     - Goblin
       - [[LPC] Goblin](https://opengameart.org/node/25466)
       - [[LPC] Goblin - Full Sheet](https://opengameart.org/node/49430)
-    - [Golem](https://opengameart.org/node/24436)
-    - [Imp](https://opengameart.org/node/20926)
-    - [Spider](https://opengameart.org/node/21036)
+    - [Golem](https://opengameart.org/node/24436) (planche de marche, `golem.png`)
+    - [Imp](https://opengameart.org/node/20926) (rouge, marche avec épée, `imp.png`)
+    - [Spider](https://opengameart.org/node/21036) (`spider01.png` → `spider.png`)
     - [Wolf](https://opengameart.org/node/20830)
 
 - By [Stephen Challener (Redshrike)](https://opengameart.org/user/47) & Mandi Paugh:
