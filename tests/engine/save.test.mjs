@@ -90,8 +90,8 @@ test('loadSave : braise-v2 prioritaire sur braise-v1 ; v2 illisible retombe sur 
   assert.equal(loadSave(mem({ [LEGACY_SAVE_KEY]: '{oups' }), NOW).status, 'reset');
 });
 
-test('version inconnue : refusée', () => {
-  assert.equal(parseSave(JSON.stringify({ ...v1, version: 3 }), NOW).status, 'reset');
+test('version inconnue : refusée (plus récente → future, non entière → reset)', () => {
+  assert.equal(parseSave(JSON.stringify({ ...v1, version: 3 }), NOW).status, 'future');
   assert.equal(parseSave(JSON.stringify({ ...v1, version: '2' }), NOW).status, 'reset');
 });
 

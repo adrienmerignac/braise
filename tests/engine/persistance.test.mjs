@@ -90,3 +90,23 @@ test('la pause n’est jamais écrite', () => {
   assert.equal('paused' in JSON.parse(serializeSave(s, { hp: 5, paused: undefined })), false);
   assert.equal(roundtrip(s, { hp: 5 }).status, 'ok');
 });
+
+test('sauvegarde d’une version plus récente : statut dédié, jamais écrasée, import refusé avec motif', () => {
+  const futur = JSON.stringify({ version: 3, gold: 9, inconnu: { a: 1 } });
+  const store = mem({ [SAVE_KEY]: futur, [LEGACY_SAVE_KEY]: JSON.stringify(s) });
+  assert.equal(parseSave(futur, NOW).status, 'future');
+  assert.equal(loadSave(store, NOW).status, 'future');
+  assert.equal(store.data[LEGACY_SAVE_KEY], JSON.stringify(s));
+  assert.equal(writeSave(store, s, { hp: 5 }), false);
+  assert.equal(store.data[SAVE_KEY], futur);
+  assert.deepEqual(importSave(futur, NOW), { ok: false, motif: 'future' });
+  assert.deepEqual(importSave('{"version":"x"}', NOW), { ok: false });
+});
+
+test('versions v1 et v2 se chargent toujours, et l’écriture reste possible', () => {
+  const v2 = mem({ [SAVE_KEY]: JSON.stringify({ version: 2, ...s }) });
+  assert.equal(loadSave(v2, NOW).status, 'ok');
+  assert.equal(writeSave(v2, s), true);
+  assert.equal(loadSave(mem({ [LEGACY_SAVE_KEY]: JSON.stringify(s) }), NOW).status, 'ok');
+  assert.equal(parseSave(JSON.stringify({ version: 0, ...s }), NOW).status, 'reset');
+});

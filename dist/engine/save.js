@@ -65,13 +65,23 @@ function parseFight(data, s, now) {
   return { fight, repaired };
 }
 
-// Retourne { s, status } : 'new' (rien de stocké), 'ok', 'repaired' (champs remplacés) ou 'reset' (illisible).
+// Vrai si le texte est un objet JSON dont `version` est un entier supérieur à celui que ce jeu sait lire.
+export function isFutureSave(text) {
+  if (typeof text !== 'string') return false;
+  let data;
+  try { data = JSON.parse(text); } catch { return false; }
+  return isRecord(data) && Number.isInteger(data.version) && data.version > SAVE_VERSION;
+}
+
+// Retourne { s, status } : 'new' (rien de stocké), 'ok', 'repaired' (champs remplacés), 'reset' (illisible)
+// ou 'future' (écrite par une version plus récente du jeu : ne jamais l'écraser).
 export function parseSave(text, now) {
   const base = fresh(now);
   if (text === null || text === undefined) return { s: base, status: 'new', guide: 'todo', vus: [], audio: { ...AUDIO_DEFAUT }, affichage: { ...AFFICHAGE_DEFAUT } };
   let data;
   try { data = JSON.parse(text); } catch { return { s: base, status: 'reset' }; }
   data = migrate(data);
+  if (isRecord(data) && Number.isInteger(data.version) && data.version > SAVE_VERSION) return { s: base, status: 'future' };
   if (!isRecord(data) || data.version !== SAVE_VERSION) return { s: base, status: 'reset' };
   const s = { ...base };
   let repaired = false;
@@ -118,6 +128,7 @@ export function loadSave(storage, now) {
   let text, legacy;
   try { text = storage.getItem(SAVE_KEY); legacy = storage.getItem(LEGACY_SAVE_KEY); } catch { return { s: fresh(now), status: 'unavailable' }; }
   const current = parseSave(text, now);
+  if (current.status === 'future') return current;
   if (current.status !== 'new' && current.status !== 'reset') return current;
   if (legacy === null || legacy === undefined) return current;
   const migrated = parseSave(legacy, now);
@@ -126,14 +137,16 @@ export function loadSave(storage, now) {
   return migrated;
 }
 
-// Retourne true si l'écriture a réussi.
+// Retourne true si l'écriture a réussi. Refuse (false) d'écraser une sauvegarde d'une version plus récente.
 export function writeSave(storage, s, fight, guide, vus, audio, affichage) {
-  try { storage.setItem(SAVE_KEY, serializeSave(s, fight, guide, vus, audio, affichage)); return true; } catch { return false; }
+  try {
+    if (isFutureSave(storage.getItem(SAVE_KEY))) return false; storage.setItem(SAVE_KEY, serializeSave(s, fight, guide, vus, audio, affichage)); return true; } catch { return false; }
 }
 
 // Import d'un fichier : n'accepte que ce que `parseSave` juge intact ; sinon rien ne doit changer.
 export function importSave(text, now) {
   const { s, status, fight, guide, vus, audio, affichage } = parseSave(text, now);
+  if (status === 'future') return { ok: false, motif: 'future' };
   if (status !== 'ok') return { ok: false };
   return fight ? { ok: true, s, fight, guide, vus, audio, affichage } : { ok: true, s, guide, vus, audio, affichage };
 }
