@@ -41,7 +41,7 @@ test('sans ?perf : aucune sonde, aucun minuteur, encart intact', () => {
 
 test('avec ?perf : l\'encart s\'affiche, se rafraîchit et copie le relevé sans réseau', async () => {
   const el = () => ({ hidden: true, textContent: '', dataset: {}, handlers: {}, addEventListener(t, f) { this.handlers[t] = f; } });
-  const els = { perf: el(), perftexte: el(), perfcopier: el(), perfretour: el() };
+  const els = { perf: el(), perftexte: el(), perfcopier: el(), perfretour: el(), perfligne: el() };
   const doc = { hidden: false, getElementById: id => els[id], querySelector: () => ({ textContent: '· Bêta 0.9.1' }) };
   let tick, copie = null;
   const nav = { userAgent: 'UA', clipboard: { writeText: async t => { copie = t; } } };
@@ -55,6 +55,25 @@ test('avec ?perf : l\'encart s\'affiche, se rafraîchit et copie le relevé sans
   assert.match(els.perftexte.textContent, /1 i\/s.*moy\. 6 ms.*pire 8 ms.*étincelles 5.*actif/);
   await els.perfcopier.handlers.click();
   assert.equal(copie, 'Braise 0.9.1 | UA UA | écran 360x800 | dpr 2 | fps 1 | draw moy 6 ms | draw pire 8 ms | étincelles 5 | rendu actif');
+});
+
+test('copie refusée : la ligne complète du relevé s\'affiche en clair', async () => {
+  const el = () => ({ hidden: true, textContent: '', dataset: {}, handlers: {}, addEventListener(t, f) { this.handlers[t] = f; } });
+  const els = { perf: el(), perftexte: el(), perfcopier: el(), perfretour: el(), perfligne: el() };
+  const doc = { hidden: false, getElementById: id => els[id], querySelector: () => ({ textContent: '· Bêta 0.9.1' }) };
+  let tick;
+  const nav = { userAgent: 'UA', clipboard: { writeText: async () => { throw new Error('refusé'); } } };
+  const sonde = demarrerPerf({ search: '?perf', document: doc, navigator: nav, screen: { width: 360, height: 800 }, devicePixelRatio: 2,
+    lire: () => ({ pause: false, boucleActive: true, etincelles: 5 }), setInterval: f => { tick = f; } });
+  sonde.image(4); sonde.image(8);
+  tick();
+  await els.perfcopier.handlers.click();
+  assert.equal(els.perfligne.hidden, false);
+  assert.equal(els.perfligne.textContent, 'Braise 0.9.1 | UA UA | écran 360x800 | dpr 2 | fps 1 | draw moy 6 ms | draw pire 8 ms | étincelles 5 | rendu actif');
+  assert.match(els.perfretour.textContent, /Copie impossible/);
+  nav.clipboard = undefined;
+  await els.perfcopier.handlers.click();
+  assert.equal(els.perfligne.hidden, false);
 });
 
 test('perf.js ne touche ni au réseau ni à la simulation ; game.js ne lit pas l\'encart', () => {

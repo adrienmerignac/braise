@@ -53,6 +53,7 @@ export function demarrerPerf({ search, document: doc, navigator: nav, screen, de
   const texte = doc.getElementById('perftexte');
   const bouton = doc.getElementById('perfcopier');
   const retour = doc.getElementById('perfretour');
+  const ligne = doc.getElementById('perfligne');
   boite.hidden = false;
   const instantane = () => {
     const m = agreger(durees);
@@ -67,8 +68,8 @@ export function demarrerPerf({ search, document: doc, navigator: nav, screen, de
   }, FENETRE_MS);
   bouton.addEventListener('click', async () => {
     if (!dernier) { retour.textContent = 'Patienter 2 s avant le premier relevé.'; return; }
-    try { await nav.clipboard.writeText(dernier); retour.textContent = 'Relevé copié.'; }
-    catch { retour.textContent = 'Copie impossible : sélectionner le texte du relevé.'; texte.dataset.releve = dernier; }
+    try { await nav.clipboard.writeText(dernier); retour.textContent = 'Relevé copié.'; ligne.hidden = true; ligne.textContent = ''; }
+    catch { retour.textContent = 'Copie impossible : sélectionner la ligne ci-dessous.'; ligne.textContent = dernier; ligne.hidden = false; }
   });
   return { image: ms => { durees.push(ms); } };
 }
