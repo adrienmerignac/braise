@@ -9,6 +9,9 @@ files.update({'sword.png':'sprite/character/Weapons/Human_male/Swing/Short Sword
 files.update({k:v for k,v in {'bat.png': 'sprite/original/CharlesGabriel/PNG/bat.png', 'slime.png': 'sprite/original/CharlesGabriel/PNG/slime.png', 'ghost.png': 'sprite/original/CharlesGabriel/PNG/ghost.png', 'eyeball.png': 'sprite/original/CharlesGabriel/PNG/eyeball.png', 'snake.png': 'sprite/original/CharlesGabriel/PNG/snake.png', 'spider.png': 'sprite/original/Redshrike/spider/PNG/spider01.png', 'golem.png': 'sprite/original/Redshrike/golem/PNG/golem-walk.png', 'imp.png': 'sprite/original/Redshrike/imp/PNG/red/walk - sword.png'}.items()})
 for n in ['grass','dirt','treetop','trunk','rock','water']:files[n+'.png']=f'tileset/original/Sharm/outdoor/PNG/{n}.png'
 for n in ['LICENSE.txt','LICENSE-CC-BY-SA-3.0.txt','README.md']:files[n]=n
+files['castlefloors.png']='tileset/original/HughSpectrum/castlefloors.png'
+files['castlewalls.png']='tileset/original/HughSpectrum/castlewalls.png'
+files['dungeon.png']='tileset/original/Sharm/sewer-dungeon/dungeon.png'
 files['chests.png']='tileset/original/Sharm/object/chests.png'
 def get(item):
  name,path=item

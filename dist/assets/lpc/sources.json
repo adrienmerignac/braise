@@ -37,5 +37,8 @@
   "snake.png": "sprite/original/CharlesGabriel/PNG/snake.png",
   "spider.png": "sprite/original/Redshrike/spider/PNG/spider01.png",
   "golem.png": "sprite/original/Redshrike/golem/PNG/golem-walk.png",
-  "imp.png": "sprite/original/Redshrike/imp/PNG/red/walk - sword.png"
+  "imp.png": "sprite/original/Redshrike/imp/PNG/red/walk - sword.png",
+  "castlefloors.png": "tileset/original/HughSpectrum/castlefloors.png",
+  "castlewalls.png": "tileset/original/HughSpectrum/castlewalls.png",
+  "dungeon.png": "tileset/original/Sharm/sewer-dungeon/dungeon.png"
 }
