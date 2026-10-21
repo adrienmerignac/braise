@@ -34,6 +34,14 @@ export function newFight(s) {
   return spawn(s, { hp: maxHP(s), boss: false, enemyHP: 0, enemyMax: 0 });
 }
 
+// Reconstruit l'état de combat depuis les champs persistés (voir save.js) ; défauts : vie pleine, nouvel ennemi.
+// Retourne seulement `f` : l'appelant émet lui-même l'événement d'apparition pour la scène.
+export function restoreFight(s, saved = {}) {
+  const hp = saved.hp ?? maxHP(s);
+  if (saved.enemyHP === undefined) return { ...newFight(s).f, hp };
+  return { hp, boss: saved.boss, enemyHP: saved.enemyHP, enemyMax: enemyMaxHP(s, saved.boss) };
+}
+
 export function startBoss(s, f) {
   if (s.kills < KILLS_PER_STAGE || f.boss) return { s, f, events: [] };
   const r = spawn(s, { ...f, hp: maxHP(s) }, true);
