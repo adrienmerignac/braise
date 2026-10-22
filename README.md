@@ -4,7 +4,7 @@ Un idle RPG en pixel art LPC, jouable dans le navigateur sur desktop et mobile. 
 
 **Licence : code sous [MIT](LICENSE) ; les assets (LPC, Kenney) gardent leurs licences propres, voir « Assets et licences ».** Contributions par pull request : [CONTRIBUTING.md](CONTRIBUTING.md).
 
-**État : bêta jouable 0.12.0.** [Changelog](CHANGELOG.md). [Jouer à la version privée](https://braise-idle-rpg.lemonyhake5.chatgpt.site) (connexion ChatGPT). [Dépôt GitHub](https://github.com/adrienmerignac/braise).
+**État : bêta jouable 0.12.0.** [Changelog](CHANGELOG.md). [Jouer à la version stable (Sites)](https://braise-idle-rpg.lemonyhake5.chatgpt.site) (connexion ChatGPT) ou [à la version de test continu (Pages)](https://adrienmerignac.github.io/braise/). Les deux sauvegardes sont séparées, sans migration automatique : passer par Exporter puis Importer. [Dépôt GitHub](https://github.com/adrienmerignac/braise).
 
 ## Lancer en local
 
@@ -49,7 +49,7 @@ npm run check
 | [Vérifications](docs/TESTING.md) | Commande de contrôle et recette manuelle. |
 | [Équilibrage](docs/EQUILIBRAGE.md) | Durée d’une expédition et progression sur 1, 3 et 7 jours (M5.1). |
 | [Décisions](docs/DECISIONS.md) | Choix établis et sujets encore ouverts. |
-| [Publication](docs/DEPLOYMENT.md) | GitHub et hébergement Sites. |
+| [Publication](docs/DEPLOYMENT.md) | Pages (test continu) et Sites (stable), sauvegardes séparées. |
 | [Donner un retour](docs/BETA.md) | Guide du testeur bêta et formulaire de retour de partie. |
 
 ## Assets et licences

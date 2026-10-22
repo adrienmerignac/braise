@@ -8,7 +8,7 @@
 
 ## 1. État actuel
 
-- **Service** : `dist/` est le code source servi tel quel, sans build (`docs/DEPLOYMENT.md`). Publication privée via Sites (`.openai/hosting.json` : `static.directory = "dist"`). Pas de backend.
+- **Service** : `dist/` est le code source servi tel quel, sans build (`docs/DEPLOYMENT.md`). Publication via Sites (version stable) et GitHub Pages (test continu) (`.openai/hosting.json` : `static.directory = "dist"`). Pas de backend.
 - **Local** : `npm run start` = `python3 -m http.server 8080 --directory dist` (`package.json`). `npm run check` = `node tools/check.mjs` (syntaxe, références HTML, tests). Les scripts sont des modules ES (`<script type="module">`, `dist/index.html`) : l'ouverture directe `file://` est bloquée par la plupart des navigateurs, un serveur est donc nécessaire.
 - **Chargés au démarrage** (59 fichiers dans `dist/`, dont une partie seulement au démarrage) :
   - `index.html` ; `style.css` ; `game.js` et `scene.js` (modules) ;
@@ -29,7 +29,7 @@
   - optionnel : 32×32/48×48 pour l'onglet, `.svg`.
   Chaque icône ajoutée doit être gratuite, créditée, avec sa licence (`AGENTS.md`).
 - **Service worker** : un fichier `sw.js` à la racine de `dist/` (sa portée ne dépasse pas son dossier), enregistré depuis `index.html` ou `game.js`. Il faut aussi une réponse en ligne valide du `start_url` pour que Chrome propose l'installation.
-- **HTTPS** : obligatoire hors `localhost` (le service worker n'existe qu'en contexte sécurisé). À vérifier pour l'hébergement Sites privé ; `http://localhost:8080` suffit pour le développement.
+- **HTTPS** : obligatoire hors `localhost` (le service worker n'existe qu'en contexte sécurisé). À vérifier pour les hébergements Sites et Pages ; `http://localhost:8080` suffit pour le développement.
 - **Portée et origine** : le `scope` doit couvrir tout ce qui est servi (si le jeu est servi sous un sous-chemin, `start_url` et `scope` doivent être relatifs : `./`). Le stockage est lié à l'**origine** ; une PWA installée partage le `localStorage` de l'onglet de cette origine sur Chrome/Android, mais **pas toujours sur iOS** (une PWA ajoutée à l'écran d'accueil peut disposer d'un stockage séparé de Safari, à vérifier sur appareil réel : non vérifié ici).
 
 ## 3. Stratégies de cache comparées
@@ -93,7 +93,7 @@ Total : environ **5 à 6 h**, plus les polices si elles sont auto-hébergées (+
 
 ## 7. Recommandation et décisions attendues
 
-**Go conditionnel.** Pour : jeu statique, peu de fichiers (~217 Kio utiles), sauvegarde indépendante du cache, usage typique « petites pauses » sur mobile qui profite d'une icône d'accueil et d'un démarrage sans réseau. Contre : risque de vieux code face à un schéma plus récent (à traiter), comportement iOS à vérifier sur appareil, charge de maintenance de la liste de pré-cache à chaque release. Tant que le jeu reste privé sur Sites, le gain est faible ; à reprendre avec M7.3.
+**Go conditionnel.** Pour : jeu statique, peu de fichiers (~217 Kio utiles), sauvegarde indépendante du cache, usage typique « petites pauses » sur mobile qui profite d'une icône d'accueil et d'un démarrage sans réseau. Contre : risque de vieux code face à un schéma plus récent (à traiter), comportement iOS à vérifier sur appareil, charge de maintenance de la liste de pré-cache à chaque release. Pages (test continu) et Sites (stable) ont des sauvegardes séparées, sans migration automatique (Exporter puis Importer) ; à reprendre avec M7.3.
 
 Décisions attendues du propriétaire :
 - **Icônes** : fournir ou choisir un visuel (192, 512, maskable 512, 180 ; licence gratuite créditée). Aucune n'est générée ici.
