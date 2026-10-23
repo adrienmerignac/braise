@@ -3,7 +3,8 @@
 ## Deux destinations
 
 - **GitHub** : `https://github.com/adrienmerignac/braise`, public depuis le 2026-10-21 ; historique, documentation et contrôles CI.
-- **Sites** : hébergement de la version jouable privée. Identité existante dans `.openai/hosting.json`, contenu statique dans `dist/`.
+- **Pages** : adresse publique stable pour les joueurs (voir plus bas).
+- **Sites** : adresse privée (connexion ChatGPT). Identité existante dans `.openai/hosting.json`, contenu statique dans `dist/`.
 
 Le stockage local est lié à l'adresse : pour reprendre une partie d'une destination à l'autre, voir [MIGRATION.md](MIGRATION.md).
 
@@ -35,12 +36,12 @@ Lorsqu’un assistant dispose du plugin Sites, suivre son skill et ses outils na
 
 Le dépôt source Sites n’est pas le remote `origin` GitHub. Les credentials ne doivent exister qu’en mémoire et transiter par l’entrée standard du helper, jamais dans le dépôt. Si Claude ou Codex ne dispose pas des outils Sites, livrer le commit GitHub et indiquer que la publication n’a pas été effectuée ; ne pas prétendre qu’un push a mis le jeu en ligne.
 
-## GitHub Pages — test continu
+## GitHub Pages — adresse publique stable
 
 - **URL** : `https://adrienmerignac.github.io/braise/` (sous-chemin `/braise/` : tout chemin de `dist/` reste relatif, contrôlé par `npm run check`).
 - **Déclencheurs** : chaque `push` sur `main` (fusion de PR) et `workflow_dispatch` manuel. `.github/workflows/pages.yml` lance `npm run check` (Node 22) puis publie `dist/` tel quel, sans build ; un seul déploiement à la fois (`concurrency`).
-- **Rôle** : version de test continu de la dernière fusion. Sites reste la version stable ; Pages ne la remplace pas et n'y touche pas.
-- **Sauvegarde** : le stockage local dépend de l'origine. La partie sur Pages est distincte de celle de Sites : pas de synchronisation ni de migration automatique : Exporter puis Importer, voir [MIGRATION.md](MIGRATION.md). Clé et schéma inchangés.
+- **Rôle** : adresse publique stable pour les joueurs (décision du 23/10, M7.3), republiée à chaque fusion sur `main`. Sites reste l'adresse privée (connexion ChatGPT) ; Pages n'y touche pas.
+- **Sauvegarde** : le stockage local dépend de l'origine. La partie sur Pages est distincte de celle de Sites : pas de synchronisation ni de migration automatique : Exporter puis Importer, voir [MIGRATION.md](MIGRATION.md) (et `docs/PWA.md` §4). Clé et schéma inchangés.
 - **Prérequis propriétaire** : dépôt public (cas actuel), facturation Actions disponible, et *Settings > Pages > Source = GitHub Actions*. Pour l'alternative de retour arrière par tag ou branche : motif (`v*` ou `retour/*`) ajouté dans *Settings > Environments > github-pages > Deployment branches and tags*.
 - **Vérification** : après `deploy-pages`, le workflow lance `node tools/verify-deploy.mjs <page_url>` ; il devient rouge si `index.html` ne répond pas 200, n'affiche pas la version de `package.json` ou si un fichier référencé (`game.js`, `scene.js`, une planche `assets/lpc/`, `credits.html`…) ne répond pas 200. Cinq essais espacés de 10 s absorbent la propagation de Pages.
 ## Publier une version

@@ -4,11 +4,11 @@
 
 ## Recommandation en une ligne
 
-**Go conditionnel, priorité basse.** Une PWA ne met jamais la sauvegarde en danger (§4), mais son vrai bénéfice (jouer hors ligne, icône d'écran d'accueil) ne justifie le travail qu'une fois l'hébergement cible connu (M7.3) et les icônes fournies. Détail et décisions attendues en §7.
+**Go conditionnel, priorité basse.** Une PWA ne met jamais la sauvegarde en danger (§4), mais son vrai bénéfice (jouer hors ligne, icône d'écran d'accueil) ne justifie le travail qu'une fois les icônes fournies. Détail et décisions attendues en §7.
 
 ## 1. État actuel
 
-- **Service** : `dist/` est le code source servi tel quel, sans build (`docs/DEPLOYMENT.md`). Publication via Sites (version stable) et GitHub Pages (test continu) (`.openai/hosting.json` : `static.directory = "dist"`). Pas de backend.
+- **Service** : `dist/` est le code source servi tel quel, sans build (`docs/DEPLOYMENT.md`). Publication via GitHub Pages (adresse publique stable) et Sites (adresse privée) (`.openai/hosting.json` : `static.directory = "dist"`). Pas de backend.
 - **Local** : `npm run start` = `python3 -m http.server 8080 --directory dist` (`package.json`). `npm run check` = `node tools/check.mjs` (syntaxe, références HTML, tests). Les scripts sont des modules ES (`<script type="module">`, `dist/index.html`) : l'ouverture directe `file://` est bloquée par la plupart des navigateurs, un serveur est donc nécessaire.
 - **Chargés au démarrage** (59 fichiers dans `dist/`, dont une partie seulement au démarrage) :
   - `index.html` ; `style.css` ; `game.js` et `scene.js` (modules) ;
@@ -93,12 +93,13 @@ Total : environ **5 à 6 h**, plus les polices si elles sont auto-hébergées (+
 
 ## 7. Recommandation et décisions attendues
 
-**Go conditionnel.** Pour : jeu statique, peu de fichiers (~217 Kio utiles), sauvegarde indépendante du cache, usage typique « petites pauses » sur mobile qui profite d'une icône d'accueil et d'un démarrage sans réseau. Contre : risque de vieux code face à un schéma plus récent (à traiter), comportement iOS à vérifier sur appareil, charge de maintenance de la liste de pré-cache à chaque release. Pages (test continu) et Sites (stable) ont des sauvegardes séparées, sans migration automatique (Exporter puis Importer) ; à reprendre avec M7.3.
+**Go conditionnel.** Pour : jeu statique, peu de fichiers (~217 Kio utiles), sauvegarde indépendante du cache, usage typique « petites pauses » sur mobile qui profite d'une icône d'accueil et d'un démarrage sans réseau. Contre : risque de vieux code face à un schéma plus récent (à traiter), comportement iOS à vérifier sur appareil, charge de maintenance de la liste de pré-cache à chaque release. Pages (publique) et Sites (privée) ont des sauvegardes séparées, sans migration automatique (Exporter puis Importer).
+
+Décision prise (M7.3, 23/10) : **hébergement** — GitHub Pages, `https://adrienmerignac.github.io/braise/`, est l'adresse publique stable (HTTPS fourni) ; Sites reste l'adresse privée (connexion ChatGPT). Le jeu étant servi sous le sous-chemin `/braise/`, `scope` et `start_url` restent relatifs (`./`). Le stockage suit l'origine : passer d'une adresse à l'autre passe par Exporter/Importer.
 
 Décisions attendues du propriétaire :
 - **Icônes** : fournir ou choisir un visuel (192, 512, maskable 512, 180 ; licence gratuite créditée). Aucune n'est générée ici.
 - **Nom** : `name` complet (« Braise · Idle RPG ») et **nom court affiché** sous l'icône (≤ 12 caractères conseillés, ex. « Braise »).
-- **Hébergement cible (M7.3)** : domaine et chemin définitifs, HTTPS, et politique de migration d'origine (le stockage suit l'origine). Le `scope` et le `start_url` en dépendent.
 - **Polices** : tranché — auto-hébergées (voir §1).
 - **Stratégie** : pré-cache versionné (conseillé) ou réseau d'abord ; et la parade au « vieux code face à une sauvegarde plus récente » (bandeau + refus d'écraser, ou migration descendante).
 - **Go / no-go** et, si go, l'ordre par rapport à M7.
