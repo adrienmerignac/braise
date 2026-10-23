@@ -40,6 +40,7 @@ Ouvrir http://localhost:8080 dans un vrai navigateur. Pour tester un téléphone
 | Gardien | Bloqué avant cinq victoires ; clic ensuite ; victoire ouvre l’étage suivant. |
 | Sauvegarde | Recharger conserve or/niveau/étage/améliorations ; documenter toute migration testée. |
 | Sauvegarde future | Avec `braise-v2 = {"version":3}` dans le stockage : message unique, rien écrit (tick, onglet masqué, achat, Nouvelle partie, import), Exporter rend le texte stocké. |
+| Changement d'adresse | Exporter : le journal mentionne Importer. À l'autre adresse (autre origine ou port), Importer le fichier : même partie (voir `docs/MIGRATION.md`). Couvert par `migration-adresse.test.mjs`. |
 | Absence | Revenir après plus d’une minute : panneau de gains, plafond 8 h, absence de double collecte à rejouer après une modification. |
 | Mobile | Recette multiécran : voir le tableau « Formats » ci-dessous. |
 | Accessibilité | Navigation clavier, focus visible, texte lisible, préférence de réduction des mouvements prise en compte. |

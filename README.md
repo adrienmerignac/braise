@@ -50,6 +50,7 @@ npm run check
 | [Équilibrage](docs/EQUILIBRAGE.md) | Durée d’une expédition et progression sur 1, 3 et 7 jours (M5.1). |
 | [Décisions](docs/DECISIONS.md) | Choix établis et sujets encore ouverts. |
 | [Publication](docs/DEPLOYMENT.md) | Pages (test continu) et Sites (stable), sauvegardes séparées. |
+| [Changer d’adresse](docs/MIGRATION.md) | Reprendre sa sauvegarde d’un site à l’autre (Exporter, Importer). |
 | [Donner un retour](docs/BETA.md) | Guide du testeur bêta et formulaire de retour de partie. |
 
 ## Assets et licences

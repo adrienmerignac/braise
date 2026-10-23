@@ -5,6 +5,8 @@
 - **GitHub** : `https://github.com/adrienmerignac/braise`, public depuis le 2026-10-21 ; historique, documentation et contrôles CI.
 - **Sites** : hébergement de la version jouable privée. Identité existante dans `.openai/hosting.json`, contenu statique dans `dist/`.
 
+Le stockage local est lié à l'adresse : pour reprendre une partie d'une destination à l'autre, voir [MIGRATION.md](MIGRATION.md).
+
 Un push GitHub seul ne déploie pas le jeu sur Sites. La CI GitHub exécute les contrôles ; elle ne possède pas de clé de déploiement. Ne pas créer un nouveau Site pour mettre à jour celui-ci.
 
 ## Flux GitHub

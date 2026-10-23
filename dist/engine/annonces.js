@@ -2,6 +2,7 @@ import { libelleObjet } from './equipement.js';
 import { ZONES, OBJECTIFS } from './balance.js';
 
 export const SAUVEGARDE_FUTURE = 'Cette sauvegarde vient d’une version plus récente de Braise. Recharge la page pour retrouver ta partie ; rien n’a été modifié.';
+export const EXPORT_FAIT = 'Sauvegarde exportée. Pour la reprendre à une autre adresse, ouvre le jeu là-bas et clique Importer.';
 export const MISE_A_JOUR_DISPONIBLE = 'Nouvelle version de Braise disponible.';
 export const IMPORT_FUTURE = 'Import refusé : ce fichier vient d’une version plus récente de Braise. La partie en cours est inchangée.';
 
