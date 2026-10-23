@@ -6,6 +6,8 @@
 - **Pages** : adresse publique stable pour les joueurs (voir plus bas).
 - **Sites** : adresse privée (connexion ChatGPT). Identité existante dans `.openai/hosting.json`, contenu statique dans `dist/`.
 
+Le stockage local est lié à l'adresse : pour reprendre une partie d'une destination à l'autre, voir [MIGRATION.md](MIGRATION.md).
+
 Un push GitHub seul ne déploie pas le jeu sur Sites. La CI GitHub exécute les contrôles ; elle ne possède pas de clé de déploiement. Ne pas créer un nouveau Site pour mettre à jour celui-ci.
 
 ## Flux GitHub
@@ -39,7 +41,7 @@ Le dépôt source Sites n’est pas le remote `origin` GitHub. Les credentials n
 - **URL** : `https://adrienmerignac.github.io/braise/` (sous-chemin `/braise/` : tout chemin de `dist/` reste relatif, contrôlé par `npm run check`).
 - **Déclencheurs** : chaque `push` sur `main` (fusion de PR) et `workflow_dispatch` manuel. `.github/workflows/pages.yml` lance `npm run check` (Node 22) puis publie `dist/` tel quel, sans build ; un seul déploiement à la fois (`concurrency`).
 - **Rôle** : adresse publique stable pour les joueurs (décision du 23/10, M7.3), republiée à chaque fusion sur `main`. Sites reste l'adresse privée (connexion ChatGPT) ; Pages n'y touche pas.
-- **Sauvegarde** : le stockage local dépend de l'origine. La partie sur Pages est distincte de celle de Sites : pas de synchronisation, pas de migration entre les deux. Clé et schéma inchangés. Pour changer d'adresse, utiliser Exporter puis Importer (`docs/PWA.md` §4).
+- **Sauvegarde** : le stockage local dépend de l'origine. La partie sur Pages est distincte de celle de Sites : pas de synchronisation ni de migration automatique : Exporter puis Importer, voir [MIGRATION.md](MIGRATION.md) (et `docs/PWA.md` §4). Clé et schéma inchangés.
 - **Prérequis propriétaire** : dépôt public (cas actuel), facturation Actions disponible, et *Settings > Pages > Source = GitHub Actions*. Pour l'alternative de retour arrière par tag ou branche : motif (`v*` ou `retour/*`) ajouté dans *Settings > Environments > github-pages > Deployment branches and tags*.
 - **Vérification** : après `deploy-pages`, le workflow lance `node tools/verify-deploy.mjs <page_url>` ; il devient rouge si `index.html` ne répond pas 200, n'affiche pas la version de `package.json` ou si un fichier référencé (`game.js`, `scene.js`, une planche `assets/lpc/`, `credits.html`…) ne répond pas 200. Cinq essais espacés de 10 s absorbent la propagation de Pages.
 ## Publier une version
