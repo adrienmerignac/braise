@@ -40,7 +40,7 @@ Le dépôt source Sites n’est pas le remote `origin` GitHub. Les credentials n
 - **URL** : `https://adrienmerignac.github.io/braise/` (sous-chemin `/braise/` : tout chemin de `dist/` reste relatif, contrôlé par `npm run check`).
 - **Déclencheurs** : chaque `push` sur `main` (fusion de PR) et `workflow_dispatch` manuel. `.github/workflows/pages.yml` lance `npm run check` (Node 22) puis publie `dist/` tel quel, sans build ; un seul déploiement à la fois (`concurrency`).
 - **Rôle** : version de test continu de la dernière fusion. Sites reste la version stable ; Pages ne la remplace pas et n'y touche pas.
-- **Sauvegarde** : le stockage local dépend de l'origine. La partie sur Pages est distincte de celle de Sites : pas de synchronisation, pas de migration entre les deux. Clé et schéma inchangés.
+- **Sauvegarde** : le stockage local dépend de l'origine. La partie sur Pages est distincte de celle de Sites : pas de synchronisation ni de migration automatique : Exporter puis Importer, voir [MIGRATION.md](MIGRATION.md). Clé et schéma inchangés.
 - **Prérequis propriétaire** : dépôt public (cas actuel), facturation Actions disponible, et *Settings > Pages > Source = GitHub Actions*. Pour l'alternative de retour arrière par tag ou branche : motif (`v*` ou `retour/*`) ajouté dans *Settings > Environments > github-pages > Deployment branches and tags*.
 - **Vérification** : après `deploy-pages`, le workflow lance `node tools/verify-deploy.mjs <page_url>` ; il devient rouge si `index.html` ne répond pas 200, n'affiche pas la version de `package.json` ou si un fichier référencé (`game.js`, `scene.js`, une planche `assets/lpc/`, `credits.html`…) ne répond pas 200. Cinq essais espacés de 10 s absorbent la propagation de Pages.
 ## Publier une version

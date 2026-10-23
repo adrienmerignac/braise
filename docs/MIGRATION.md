@@ -11,11 +11,11 @@ La sauvegarde est stockée dans le navigateur, **pour une adresse précise**. Ou
 
 ## Ce qui est conservé
 
-Toute la sauvegarde `braise-v1` : progression, équipement, talents, carte, succès, réglages de son et d'affichage.
+Toute la sauvegarde (`braise-v2`) : progression, équipement, talents, carte, succès, réglages de son et d'affichage.
 
 ## Ce qui ne l'est pas
 
-La partie en cours à l'ancienne adresse **reste sur place** : l'import copie, il ne déplace rien. Ne joue plus aux deux endroits, la dernière sauvegarde importée écrase l'autre.
+La partie en cours à l'ancienne adresse **reste sur place** : l'import copie, il ne déplace rien. Ce que tu joues à l'ancienne adresse après l'export n'est pas dans le fichier : pour le reprendre, exporte et importe de nouveau. Choisis une adresse et tiens-t'y.
 
 ## iOS
 
