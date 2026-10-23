@@ -3,6 +3,10 @@
 Toutes les évolutions jouables de Braise, de la plus récente à la plus ancienne.
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). La version de référence est celle de `package.json`.
 
+## [Non publié]
+
+- Hébergement : GitHub Pages devient l’adresse publique stable (https://adrienmerignac.github.io/braise/), Sites reste l’adresse privée ; changer d’adresse passe par Exporter/Importer (#172).
+
 ## [0.12.0] — Rallumage de la braise
 
 - Rallumer la braise : remise à zéro de l’expédition contre des éclats qui augmentent les gains, avec aperçu exact avant de confirmer ; sauvegarde v12, les anciennes parties sont migrées (#155).
