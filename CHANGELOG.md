@@ -5,7 +5,10 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). La 
 
 ## [Non publié]
 
+## [0.13.0] — Adresse publique stable
+
 - Hébergement : GitHub Pages devient l’adresse publique stable (https://adrienmerignac.github.io/braise/), Sites reste l’adresse privée ; changer d’adresse passe par Exporter/Importer (#172).
+- Après Exporter, le jeu explique comment reprendre la partie à une autre adresse (`docs/MIGRATION.md`) ; schéma de sauvegarde inchangé (#173).
 
 ## [0.12.0] — Rallumage de la braise
 

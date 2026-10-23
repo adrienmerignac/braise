@@ -4,7 +4,7 @@ Un idle RPG en pixel art LPC, jouable dans le navigateur sur desktop et mobile. 
 
 **Licence : code sous [MIT](LICENSE) ; les assets (LPC, Kenney) gardent leurs licences propres, voir « Assets et licences ».** Contributions par pull request : [CONTRIBUTING.md](CONTRIBUTING.md).
 
-**État : bêta jouable 0.12.0.** [Changelog](CHANGELOG.md). [Jouer (Pages, adresse publique)](https://adrienmerignac.github.io/braise/) ou [sur Sites, adresse privée](https://braise-idle-rpg.lemonyhake5.chatgpt.site) (connexion ChatGPT). Les deux sauvegardes sont séparées, sans migration automatique : passer par Exporter puis Importer. [Dépôt GitHub](https://github.com/adrienmerignac/braise).
+**État : bêta jouable 0.13.0.** [Changelog](CHANGELOG.md). [Jouer (Pages, adresse publique)](https://adrienmerignac.github.io/braise/) ou [sur Sites, adresse privée](https://braise-idle-rpg.lemonyhake5.chatgpt.site) (connexion ChatGPT). Les deux sauvegardes sont séparées, sans migration automatique : passer par Exporter puis Importer. [Dépôt GitHub](https://github.com/adrienmerignac/braise).
 
 ## Lancer en local
 
@@ -24,7 +24,7 @@ npm run check
 
 `dist/` contient aujourd’hui les sources HTML/CSS/JS et les assets directement servis. Il ne faut pas l’effacer comme un dossier de compilation.
 
-## Déjà jouable (0.12.0)
+## Déjà jouable (0.13.0)
 
 - Combat automatique ; expérience, niveaux et trois améliorations (attaque, vitalité, or par victoire).
 - Frappe de braise active (dégâts ×4, recharge de 15 secondes) ; gardien de zone débloqué après cinq victoires.
@@ -34,6 +34,7 @@ npm run check
 - Automatisations débloquées en jeu : gardien automatique (sauf combat jugé Mortel) et achat automatique de l’amélioration la moins chère, avec leurs réglages.
 - Rallumage de la braise : remise à zéro de l’expédition contre des éclats (+7,5 % de gains chacun), avec un aperçu exact avant de confirmer.
 - Sauvegarde locale `braise-v2` (migrée depuis `braise-v1`), export et import de la partie en JSON, gains d’absence plafonnés à huit heures.
+- Adresse publique stable sur GitHub Pages ; pour changer d’adresse (Sites, Pages), Exporter puis Importer reprend la partie, et le jeu l’explique après Exporter.
 - Réglages de son, de mouvement, d’effets et de taille du texte ; pause ; réduction des mouvements respectée ; clavier et toucher.
 
 ## Documentation partagée Codex / Claude
