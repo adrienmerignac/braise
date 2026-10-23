@@ -1,6 +1,6 @@
 // Pré-cache versionné : la liste est écrite à la main, tests/outillage/service-worker.test.mjs la garde à jour.
 // Changer la version (donc ce nom) à chaque release : c'est elle qui renouvelle le cache.
-const CACHE = 'braise-0.12.0';
+const CACHE = 'braise-0.13.0';
 const PREFIXE = 'braise-';
 const PRECACHE = [
   './',
