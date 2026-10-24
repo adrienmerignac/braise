@@ -29,7 +29,7 @@
   - optionnel : 32×32/48×48 pour l'onglet, `.svg`.
   Chaque icône ajoutée doit être gratuite, créditée, avec sa licence (`AGENTS.md`).
 - **Service worker** : un fichier `sw.js` à la racine de `dist/` (sa portée ne dépasse pas son dossier), enregistré depuis `index.html` ou `game.js`. Il faut aussi une réponse en ligne valide du `start_url` pour que Chrome propose l'installation.
-- **HTTPS** : obligatoire hors `localhost` (le service worker n'existe qu'en contexte sécurisé). À vérifier pour les hébergements Sites et Pages ; `http://localhost:8080` suffit pour le développement.
+- **HTTPS** : obligatoire hors `localhost` (le service worker n'existe qu'en contexte sécurisé). GitHub Pages et Sites servent tous deux en HTTPS ; `http://localhost:8080` suffit pour le développement.
 - **Portée et origine** : le `scope` doit couvrir tout ce qui est servi (si le jeu est servi sous un sous-chemin, `start_url` et `scope` doivent être relatifs : `./`). Le stockage est lié à l'**origine** ; une PWA installée partage le `localStorage` de l'onglet de cette origine sur Chrome/Android, mais **pas toujours sur iOS** (une PWA ajoutée à l'écran d'accueil peut disposer d'un stockage séparé de Safari, à vérifier sur appareil réel : non vérifié ici).
 
 ## 3. Stratégies de cache comparées
@@ -61,7 +61,7 @@ Démonstration par le code :
 - Un service worker ajouté ne changerait ni `SAVE_KEY` ni le schéma ; il ne ferait que servir les mêmes fichiers.
 
 Cas à risque et couverture actuelle :
-- **Changement d'origine ou de chemin** (autre domaine, port, passage de Sites à un hébergeur public) : le `localStorage` est vide à la nouvelle adresse (déjà noté dans `docs/DEPLOYMENT.md` et `docs/TESTING.md`). Couvert par **Exporter/Importer** JSON (`dist/game.js:46` ; `importSave` n'accepte que ce que `parseSave` juge intact, sinon rien ne change). Dépend de l'utilisateur : ouvrir une PWA depuis une nouvelle origine ne récupère rien tout seul.
+- **Changement d'origine ou de chemin** (autre domaine, port, passage de Sites (adresse privée) à GitHub Pages (adresse publique stable), ou l'inverse) : le `localStorage` est vide à la nouvelle adresse (déjà noté dans `docs/DEPLOYMENT.md` et `docs/TESTING.md`). Couvert par **Exporter/Importer** JSON (`dist/game.js:46` ; `importSave` n'accepte que ce que `parseSave` juge intact, sinon rien ne change). Dépend de l'utilisateur : ouvrir une PWA depuis une nouvelle origine ne récupère rien tout seul.
 - **Désinscription du service worker / vidage du cache** : sans effet sur `braise-v2`, mais *Effacer les données du site* efface tout à la fois (cache **et** `localStorage`). Couvert uniquement par l'export manuel.
 - **Vidage par le navigateur** (pression de stockage, Safari qui purge après environ 7 jours sans visite pour les sites non installés, mode privé) : la partie peut disparaître. Une demande `navigator.storage.persist()` est une amélioration possible de la PWA installée, non garantie. Couvert seulement par l'export.
 - **Version du jeu plus ancienne que la sauvegarde** : voir §3 A, `status: 'reset'` puis écrasement. Non couvert aujourd'hui ; la migration (`migrate`, `dist/engine/save.js:22`) ne gère que v1→v2 vers l'avant.
